@@ -67,6 +67,7 @@ delicious_bingo/
 │   │   ├── pages/
 │   │   │   ├── HomePage.jsx
 │   │   │   ├── LoginPage.jsx
+│   │   │   ├── RegisterPage.jsx
 │   │   │   ├── TemplateListPage.jsx
 │   │   │   ├── TemplateDetailPage.jsx
 │   │   │   ├── MyBoardsPage.jsx
@@ -112,6 +113,7 @@ User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
 | GET | `/api/boards/:id/` | 빙고판 상세 | 필요 |
 | POST | `/api/reviews/` | 리뷰 생성 → 셀 활성화 | 필요 |
 | GET | `/api/leaderboard/` | 리더보드 | - |
+| POST | `/api/auth/register/` | 회원가입 (토큰 발급) | - |
 | POST | `/api/auth/login/` | 로그인 (토큰 발급) | - |
 | POST | `/api/auth/logout/` | 로그아웃 | 필요 |
 | GET | `/api/auth/me/` | 현재 사용자 정보 | 필요 |
@@ -201,7 +203,7 @@ cd frontend && npm run lint
 
 - [ ] 카카오맵 API 키 설정 필요 (`.env.local`에 `VITE_KAKAO_JS_KEY`)
 - [ ] 프로덕션 배포 설정
-- [ ] 회원가입 기능
+- [x] 회원가입 기능 (구현 완료)
 - [ ] 소셜 로그인 연동
 - [ ] 모바일 반응형 최적화
 
