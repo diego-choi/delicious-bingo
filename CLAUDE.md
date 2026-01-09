@@ -140,7 +140,7 @@ WINNING_LINES = [
 5. **리뷰 및 인터랙션**: ReviewForm, CellDetailModal
 6. **카카오맵 연동**: KakaoMap, useKakaoMap
 7. **리더보드**: Leaderboard API, LeaderboardPage, CompletionCelebration
-8. **테스트 및 마무리**: Backend 40 tests, Frontend 30 tests
+8. **테스트 및 마무리**: Backend 53 tests, Frontend 40 tests
 
 ### 추가 구현
 
