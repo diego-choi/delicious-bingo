@@ -1,0 +1,690 @@
+[
+  {
+    "model": "api.category",
+    "pk": 1,
+    "fields": {
+      "name": "서울 맛집",
+      "description": "서울의 인기 맛집 모음"
+    }
+  },
+  {
+    "model": "api.category",
+    "pk": 2,
+    "fields": {
+      "name": "강남 맛집",
+      "description": "강남/서초 지역 맛집"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 1,
+    "fields": {
+      "category": 1,
+      "name": "을지면옥",
+      "address": "서울 중구 을지로 32-1",
+      "latitude": "37.5660000",
+      "longitude": "126.9838000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 2,
+    "fields": {
+      "category": 1,
+      "name": "명동교자",
+      "address": "서울 중구 명동10길 29",
+      "latitude": "37.5636000",
+      "longitude": "126.9850000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 3,
+    "fields": {
+      "category": 1,
+      "name": "하동관",
+      "address": "서울 중구 명동9길 12",
+      "latitude": "37.5631000",
+      "longitude": "126.9820000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 4,
+    "fields": {
+      "category": 1,
+      "name": "진진",
+      "address": "서울 마포구 와우산로 112",
+      "latitude": "37.5530000",
+      "longitude": "126.9230000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 5,
+    "fields": {
+      "category": 1,
+      "name": "광화문국밥",
+      "address": "서울 종로구 종로 19",
+      "latitude": "37.5705000",
+      "longitude": "126.9820000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 6,
+    "fields": {
+      "category": 1,
+      "name": "토속촌삼계탕",
+      "address": "서울 종로구 자하문로5길 5",
+      "latitude": "37.5790000",
+      "longitude": "126.9710000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 7,
+    "fields": {
+      "category": 1,
+      "name": "북촌손만두",
+      "address": "서울 종로구 북촌로5길 30",
+      "latitude": "37.5830000",
+      "longitude": "126.9850000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 8,
+    "fields": {
+      "category": 1,
+      "name": "남산돈까스",
+      "address": "서울 중구 퇴계로 235",
+      "latitude": "37.5580000",
+      "longitude": "126.9910000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 9,
+    "fields": {
+      "category": 1,
+      "name": "신촌설렁탕",
+      "address": "서울 서대문구 연세로 7길 8",
+      "latitude": "37.5590000",
+      "longitude": "126.9370000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 10,
+    "fields": {
+      "category": 1,
+      "name": "용금옥",
+      "address": "서울 중구 주교로 22",
+      "latitude": "37.5640000",
+      "longitude": "126.9800000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 11,
+    "fields": {
+      "category": 1,
+      "name": "이태원부대찌개",
+      "address": "서울 용산구 이태원로 200",
+      "latitude": "37.5345000",
+      "longitude": "126.9940000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 12,
+    "fields": {
+      "category": 1,
+      "name": "전주중앙회관",
+      "address": "서울 중구 명동8나길 6",
+      "latitude": "37.5628000",
+      "longitude": "126.9830000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 13,
+    "fields": {
+      "category": 1,
+      "name": "필동면옥",
+      "address": "서울 중구 퇴계로36길 20",
+      "latitude": "37.5610000",
+      "longitude": "126.9930000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 14,
+    "fields": {
+      "category": 2,
+      "name": "삼원가든",
+      "address": "서울 강남구 언주로 835",
+      "latitude": "37.5175000",
+      "longitude": "127.0370000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 15,
+    "fields": {
+      "category": 2,
+      "name": "본가",
+      "address": "서울 강남구 도산대로 318",
+      "latitude": "37.5230000",
+      "longitude": "127.0360000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 16,
+    "fields": {
+      "category": 2,
+      "name": "정식당",
+      "address": "서울 강남구 선릉로158길 11",
+      "latitude": "37.5270000",
+      "longitude": "127.0470000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 17,
+    "fields": {
+      "category": 2,
+      "name": "스시코우지",
+      "address": "서울 강남구 도산대로45길 6",
+      "latitude": "37.5195000",
+      "longitude": "127.0360000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 18,
+    "fields": {
+      "category": 2,
+      "name": "모수",
+      "address": "서울 강남구 선릉로152길 18",
+      "latitude": "37.5263000",
+      "longitude": "127.0450000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 19,
+    "fields": {
+      "category": 2,
+      "name": "권숙수",
+      "address": "서울 강남구 압구정로46길 50",
+      "latitude": "37.5273000",
+      "longitude": "127.0330000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 20,
+    "fields": {
+      "category": 2,
+      "name": "라연",
+      "address": "서울 강남구 봉은사로 524",
+      "latitude": "37.5162000",
+      "longitude": "127.0590000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 21,
+    "fields": {
+      "category": 2,
+      "name": "오모테산도커피",
+      "address": "서울 강남구 압구정로46길 71",
+      "latitude": "37.5280000",
+      "longitude": "127.0320000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 22,
+    "fields": {
+      "category": 2,
+      "name": "도산분식",
+      "address": "서울 강남구 도산대로49길 11",
+      "latitude": "37.5200000",
+      "longitude": "127.0380000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 23,
+    "fields": {
+      "category": 2,
+      "name": "청담동말자싸롱",
+      "address": "서울 강남구 선릉로152길 7",
+      "latitude": "37.5255000",
+      "longitude": "127.0440000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 24,
+    "fields": {
+      "category": 2,
+      "name": "한우오마카세연",
+      "address": "서울 강남구 언주로168길 31",
+      "latitude": "37.5240000",
+      "longitude": "127.0450000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.restaurant",
+    "pk": 25,
+    "fields": {
+      "category": 2,
+      "name": "이치류",
+      "address": "서울 강남구 도산대로 324",
+      "latitude": "37.5233000",
+      "longitude": "127.0375000",
+      "kakao_place_id": "",
+      "place_url": "",
+      "is_approved": true,
+      "created_by": null,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.bingotemplate",
+    "pk": 1,
+    "fields": {
+      "category": 1,
+      "title": "서울 레전드 맛집 빙고",
+      "description": "서울에서 꼭 가봐야 할 전설의 맛집 25곳! 오래된 역사와 맛으로 검증된 곳들입니다.",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.bingotemplate",
+    "pk": 2,
+    "fields": {
+      "category": 2,
+      "title": "강남 미식 투어 빙고",
+      "description": "강남/청담/압구정 지역 미식 명소 25곳. 세련된 분위기와 퀄리티 높은 음식을 경험해보세요.",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 1,
+    "fields": {"template": 1, "restaurant": 1, "position": 0}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 2,
+    "fields": {"template": 1, "restaurant": 2, "position": 1}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 3,
+    "fields": {"template": 1, "restaurant": 3, "position": 2}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 4,
+    "fields": {"template": 1, "restaurant": 4, "position": 3}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 5,
+    "fields": {"template": 1, "restaurant": 5, "position": 4}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 6,
+    "fields": {"template": 1, "restaurant": 6, "position": 5}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 7,
+    "fields": {"template": 1, "restaurant": 7, "position": 6}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 8,
+    "fields": {"template": 1, "restaurant": 8, "position": 7}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 9,
+    "fields": {"template": 1, "restaurant": 9, "position": 8}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 10,
+    "fields": {"template": 1, "restaurant": 10, "position": 9}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 11,
+    "fields": {"template": 1, "restaurant": 11, "position": 10}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 12,
+    "fields": {"template": 1, "restaurant": 12, "position": 11}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 13,
+    "fields": {"template": 1, "restaurant": 13, "position": 12}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 14,
+    "fields": {"template": 1, "restaurant": 14, "position": 13}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 15,
+    "fields": {"template": 1, "restaurant": 15, "position": 14}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 16,
+    "fields": {"template": 1, "restaurant": 16, "position": 15}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 17,
+    "fields": {"template": 1, "restaurant": 17, "position": 16}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 18,
+    "fields": {"template": 1, "restaurant": 18, "position": 17}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 19,
+    "fields": {"template": 1, "restaurant": 19, "position": 18}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 20,
+    "fields": {"template": 1, "restaurant": 20, "position": 19}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 21,
+    "fields": {"template": 1, "restaurant": 21, "position": 20}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 22,
+    "fields": {"template": 1, "restaurant": 22, "position": 21}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 23,
+    "fields": {"template": 1, "restaurant": 23, "position": 22}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 24,
+    "fields": {"template": 1, "restaurant": 24, "position": 23}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 25,
+    "fields": {"template": 1, "restaurant": 25, "position": 24}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 26,
+    "fields": {"template": 2, "restaurant": 14, "position": 0}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 27,
+    "fields": {"template": 2, "restaurant": 15, "position": 1}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 28,
+    "fields": {"template": 2, "restaurant": 16, "position": 2}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 29,
+    "fields": {"template": 2, "restaurant": 17, "position": 3}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 30,
+    "fields": {"template": 2, "restaurant": 18, "position": 4}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 31,
+    "fields": {"template": 2, "restaurant": 19, "position": 5}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 32,
+    "fields": {"template": 2, "restaurant": 20, "position": 6}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 33,
+    "fields": {"template": 2, "restaurant": 21, "position": 7}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 34,
+    "fields": {"template": 2, "restaurant": 22, "position": 8}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 35,
+    "fields": {"template": 2, "restaurant": 23, "position": 9}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 36,
+    "fields": {"template": 2, "restaurant": 24, "position": 10}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 37,
+    "fields": {"template": 2, "restaurant": 25, "position": 11}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 38,
+    "fields": {"template": 2, "restaurant": 1, "position": 12}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 39,
+    "fields": {"template": 2, "restaurant": 2, "position": 13}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 40,
+    "fields": {"template": 2, "restaurant": 3, "position": 14}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 41,
+    "fields": {"template": 2, "restaurant": 4, "position": 15}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 42,
+    "fields": {"template": 2, "restaurant": 5, "position": 16}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 43,
+    "fields": {"template": 2, "restaurant": 6, "position": 17}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 44,
+    "fields": {"template": 2, "restaurant": 7, "position": 18}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 45,
+    "fields": {"template": 2, "restaurant": 8, "position": 19}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 46,
+    "fields": {"template": 2, "restaurant": 9, "position": 20}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 47,
+    "fields": {"template": 2, "restaurant": 10, "position": 21}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 48,
+    "fields": {"template": 2, "restaurant": 11, "position": 22}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 49,
+    "fields": {"template": 2, "restaurant": 12, "position": 23}
+  },
+  {
+    "model": "api.bingotemplateitem",
+    "pk": 50,
+    "fields": {"template": 2, "restaurant": 13, "position": 24}
+  }
+]
