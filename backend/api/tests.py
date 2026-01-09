@@ -699,3 +699,169 @@ class LeaderboardAPITest(APITestCase):
         self.assertEqual(response.data['most_completions'][0]['completed_count'], 2)
         self.assertEqual(response.data['most_completions'][1]['username'], 'user2')
         self.assertEqual(response.data['most_completions'][1]['completed_count'], 1)
+
+
+# =============================================================================
+# Auth API 테스트
+# =============================================================================
+
+class RegisterAPITest(APITestCase):
+    """회원가입 API 테스트"""
+
+    def test_register_success(self):
+        """정상적인 회원가입"""
+        response = self.client.post('/api/auth/register/', {
+            'username': 'newuser',
+            'email': 'newuser@test.com',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('token', response.data)
+        self.assertIn('user', response.data)
+        self.assertEqual(response.data['user']['username'], 'newuser')
+        self.assertEqual(response.data['user']['email'], 'newuser@test.com')
+
+    def test_register_creates_user(self):
+        """회원가입 시 사용자가 생성되어야 한다"""
+        self.client.post('/api/auth/register/', {
+            'username': 'newuser',
+            'email': 'newuser@test.com',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        })
+        self.assertTrue(User.objects.filter(username='newuser').exists())
+
+    def test_register_returns_valid_token(self):
+        """회원가입 후 반환된 토큰으로 인증이 가능해야 한다"""
+        response = self.client.post('/api/auth/register/', {
+            'username': 'newuser',
+            'email': 'newuser@test.com',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        })
+        token = response.data['token']
+
+        # 토큰으로 /api/auth/me/ 요청
+        me_response = self.client.get(
+            '/api/auth/me/',
+            HTTP_AUTHORIZATION=f'Token {token}'
+        )
+        self.assertEqual(me_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(me_response.data['username'], 'newuser')
+
+    def test_register_username_required(self):
+        """사용자명은 필수"""
+        response = self.client.post('/api/auth/register/', {
+            'username': '',
+            'email': 'test@test.com',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', response.data['errors'])
+
+    def test_register_username_min_length(self):
+        """사용자명은 3자 이상이어야 한다"""
+        response = self.client.post('/api/auth/register/', {
+            'username': 'ab',
+            'email': 'test@test.com',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', response.data['errors'])
+
+    def test_register_username_max_length(self):
+        """사용자명은 20자 이하여야 한다"""
+        response = self.client.post('/api/auth/register/', {
+            'username': 'a' * 21,
+            'email': 'test@test.com',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', response.data['errors'])
+
+    def test_register_username_unique(self):
+        """사용자명은 중복될 수 없다"""
+        User.objects.create_user('existinguser', password='testpass')
+        response = self.client.post('/api/auth/register/', {
+            'username': 'existinguser',
+            'email': 'new@test.com',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', response.data['errors'])
+
+    def test_register_email_required(self):
+        """이메일은 필수"""
+        response = self.client.post('/api/auth/register/', {
+            'username': 'newuser',
+            'email': '',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('email', response.data['errors'])
+
+    def test_register_email_unique(self):
+        """이메일은 중복될 수 없다"""
+        User.objects.create_user('existinguser', email='existing@test.com', password='testpass')
+        response = self.client.post('/api/auth/register/', {
+            'username': 'newuser',
+            'email': 'existing@test.com',
+            'password': 'password123',
+            'password_confirm': 'password123'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('email', response.data['errors'])
+
+    def test_register_password_required(self):
+        """비밀번호는 필수"""
+        response = self.client.post('/api/auth/register/', {
+            'username': 'newuser',
+            'email': 'test@test.com',
+            'password': '',
+            'password_confirm': ''
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('password', response.data['errors'])
+
+    def test_register_password_min_length(self):
+        """비밀번호는 6자 이상이어야 한다"""
+        response = self.client.post('/api/auth/register/', {
+            'username': 'newuser',
+            'email': 'test@test.com',
+            'password': '12345',
+            'password_confirm': '12345'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('password', response.data['errors'])
+
+    def test_register_password_confirm_must_match(self):
+        """비밀번호 확인이 일치해야 한다"""
+        response = self.client.post('/api/auth/register/', {
+            'username': 'newuser',
+            'email': 'test@test.com',
+            'password': 'password123',
+            'password_confirm': 'different123'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('password_confirm', response.data['errors'])
+
+    def test_register_multiple_errors(self):
+        """여러 에러가 동시에 반환될 수 있다"""
+        response = self.client.post('/api/auth/register/', {
+            'username': 'ab',
+            'email': '',
+            'password': '123',
+            'password_confirm': '456'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errors = response.data['errors']
+        self.assertIn('username', errors)
+        self.assertIn('email', errors)
+        self.assertIn('password', errors)
+        self.assertIn('password_confirm', errors)
