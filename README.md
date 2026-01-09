@@ -259,11 +259,48 @@ delicious_bingo/
 │   │   ├── components/      # React 컴포넌트
 │   │   ├── hooks/           # Custom Hooks
 │   │   └── pages/           # 페이지 컴포넌트
+│   ├── e2e-prod-test.cjs    # E2E 프로덕션 테스트
 │   ├── vercel.json          # Vercel SPA 설정
 │   └── package.json
 ├── DEPLOY.md                # 배포 가이드
 └── README.md                # 이 파일
 ```
+
+---
+
+## 테스트
+
+### 유닛 테스트
+
+```bash
+# Backend
+cd backend && python manage.py test
+
+# Frontend
+cd frontend && npm run test:run
+```
+
+### E2E 프로덕션 테스트
+
+Playwright 기반으로 프로덕션 환경의 전체 기능을 테스트합니다.
+
+```bash
+cd frontend
+
+# 최초 1회 설치
+npm install -D playwright
+npx playwright install chromium
+
+# 테스트 실행
+node e2e-prod-test.cjs
+```
+
+**테스트 항목 (12개):**
+- 홈페이지, 템플릿 목록/상세, 로그인/회원가입 페이지
+- 테스트 계정 숨김 (Production)
+- 리더보드, API 연결
+- 회원가입/로그인 플로우
+- 보호된 라우트, 모바일 반응형
 
 ---
 

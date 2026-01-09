@@ -77,6 +77,7 @@ delicious_bingo/
 │   │   ├── router.jsx
 │   │   ├── main.jsx
 │   │   └── index.css          # 커스텀 애니메이션
+│   ├── e2e-prod-test.cjs  # E2E 프로덕션 테스트
 │   ├── package.json
 │   └── vite.config.js
 │
@@ -180,8 +181,37 @@ cd backend && python manage.py test
 # Frontend (25 tests)
 cd frontend && npm run test:run
 
+# E2E 프로덕션 테스트 (12 tests)
+cd frontend && node e2e-prod-test.cjs
+
 # Lint
 cd frontend && npm run lint
+```
+
+## E2E 프로덕션 테스트
+
+`frontend/e2e-prod-test.cjs` - Playwright 기반 프로덕션 환경 E2E 테스트
+
+### 테스트 항목 (12개)
+1. 홈페이지 로딩
+2. 템플릿 목록
+3. 템플릿 상세
+4. 로그인 페이지
+5. 테스트 계정 숨김 (Production 환경)
+6. 회원가입 페이지
+7. 리더보드 페이지
+8. API 연결
+9. 회원가입 플로우
+10. 로그인 플로우
+11. 내 보드 페이지 (보호된 라우트)
+12. 모바일 반응형
+
+### 실행 방법
+```bash
+cd frontend
+npm install -D playwright  # 최초 1회
+npx playwright install chromium  # 최초 1회
+node e2e-prod-test.cjs
 ```
 
 ## 주요 기술적 결정
@@ -220,11 +250,11 @@ cd frontend && npm run lint
 ### 주요 설정 파일
 | 파일 | 설명 |
 |------|------|
+| `backend/Dockerfile` | Railway Docker 빌드 설정 |
+| `backend/start.sh` | 컨테이너 시작 스크립트 (마이그레이션 + gunicorn) |
 | `backend/requirements.txt` | Python 의존성 (gunicorn, whitenoise, dj-database-url) |
-| `backend/Procfile` | Railway/Heroku 시작 명령 |
-| `backend/railway.json` | Railway 배포 설정 |
 | `backend/.env.example` | 환경 변수 예시 |
-| `frontend/vercel.json` | Vercel SPA 라우팅 설정 |
+| `frontend/vercel.json` | Vercel SPA 라우팅 + 캐시 헤더 설정 |
 | `frontend/.env.example` | 환경 변수 예시 |
 
 ### 환경 변수
