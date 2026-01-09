@@ -98,11 +98,13 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
-          <p className="text-xs sm:text-sm text-gray-600 text-center">
-            테스트 계정: <code className="bg-gray-200 px-1 rounded">testuser</code> / <code className="bg-gray-200 px-1 rounded">testpass123</code>
-          </p>
-        </div>
+        {import.meta.env.DEV && (
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+            <p className="text-xs sm:text-sm text-gray-600 text-center">
+              테스트 계정: <code className="bg-gray-200 px-1 rounded">testuser</code> / <code className="bg-gray-200 px-1 rounded">testpass123</code>
+            </p>
+          </div>
+        )}
 
         <div className="mt-4 text-center">
           <Link to="/" className="text-gray-500 hover:text-gray-700 text-sm">
