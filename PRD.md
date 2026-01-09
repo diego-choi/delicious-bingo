@@ -67,6 +67,10 @@
 - [x] Django Admin으로 `BingoTemplate` 관리
 - [x] 25개 `Restaurant`를 특정 `position`에 할당
 - [x] 초기 데이터 fixture (`loaddata initial_data`)
+- [x] 커스텀 관리자 페이지 (Staff 전용)
+  - [x] 식당 관리 (CRUD + 카카오 Places 검색)
+  - [x] 템플릿 관리 (5x5 그리드 빌더)
+  - [x] 카테고리 관리 (CRUD)
 
 ### 4.2. Bingo Gameplay (P0) ✅ 완료
 - [x] 템플릿 선택 → `BingoBoard` 인스턴스 생성
@@ -115,6 +119,17 @@
 | GET | `/api/boards/:id/` | 빙고판 상세 |
 | POST | `/api/reviews/` | 리뷰 생성 → 셀 활성화 |
 
+### Admin Endpoints (Staff 권한 필요)
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| GET/POST | `/api/admin/restaurants/` | 식당 목록/생성 |
+| GET/PATCH/DELETE | `/api/admin/restaurants/:id/` | 식당 상세/수정/삭제 |
+| GET/POST | `/api/admin/templates/` | 템플릿 목록/생성 |
+| GET/PATCH/DELETE | `/api/admin/templates/:id/` | 템플릿 상세/수정/삭제 |
+| GET/POST | `/api/admin/categories/` | 카테고리 목록/생성 |
+| GET/PATCH/DELETE | `/api/admin/categories/:id/` | 카테고리 상세/수정/삭제 |
+| GET | `/api/admin/kakao/search/` | 카카오 Places 검색 프록시 |
+
 ## 6. Production Deployment ✅ 완료
 
 ### Backend (Railway)
@@ -130,7 +145,7 @@
 ### Environment Variables
 ```bash
 # Backend (Railway)
-SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL, CORS_ALLOWED_ORIGINS, CLOUDINARY_URL
+SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL, CORS_ALLOWED_ORIGINS, CLOUDINARY_URL, KAKAO_REST_API_KEY
 
 # Frontend (Vercel)
 VITE_API_URL, VITE_KAKAO_JS_KEY
@@ -139,11 +154,12 @@ VITE_API_URL, VITE_KAKAO_JS_KEY
 ## 7. Testing ✅ 완료
 
 ### Backend
-- 63개 유닛 테스트
+- 87개 유닛 테스트
 - BingoService 라인 감지 테스트
 - API 인증 테스트
 - 이미지 URL 테스트
 - 프로필 API 테스트
+- Admin API 테스트
 
 ### Frontend
 - 57개 컴포넌트 테스트 (Vitest + Testing Library)

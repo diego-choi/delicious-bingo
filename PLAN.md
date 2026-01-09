@@ -1,6 +1,6 @@
 # Delicious Bingo 구현 계획
 
-## 현재 상태: 모든 Phase 완료 + 프로덕션 배포 완료
+## 현재 상태: 모든 Phase 완료 + 프로덕션 배포 완료 + 관리자 페이지 완료
 
 - [x] Django 프로젝트 초기화
 - [x] Django 모델 정의 (Category, Restaurant, BingoTemplate, BingoTemplateItem, BingoBoard, Review)
@@ -11,6 +11,7 @@
 - [x] 모바일 반응형 디자인 적용
 - [x] 프로덕션 배포 (Railway + Vercel)
 - [x] E2E 테스트 구현
+- [x] 커스텀 관리자 페이지 (식당/템플릿/카테고리 관리)
 
 ---
 
@@ -170,7 +171,7 @@
 ## Phase 8: 테스트 및 마무리 ✅ 완료
 
 ### TODO
-- [x] 백엔드 테스트 (55개 테스트)
+- [x] 백엔드 테스트 (87개 테스트)
   - [x] BingoService 라인 감지 테스트
   - [x] API 인증 테스트
   - [x] 리뷰 생성 → 빙고 완료 통합 테스트
@@ -183,8 +184,8 @@
 - [x] 커스텀 애니메이션 (bounce-in, pulse-line)
 
 ### 검증
-- [x] `python manage.py test` 통과 (55 tests)
-- [x] `npm run test:run` 통과 (25 tests)
+- [x] `python manage.py test` 통과 (87 tests)
+- [x] `npm run test:run` 통과 (57 tests)
 - [x] `npm run build` 성공
 
 ---
@@ -259,6 +260,41 @@
 
 ---
 
+## 추가 구현: 커스텀 관리자 페이지 ✅ 완료
+
+### 기능
+- [x] 식당 관리 (CRUD + 카카오 Places 검색 연동)
+- [x] 템플릿 관리 (5x5 그리드 빌더)
+- [x] 카테고리 관리 (CRUD)
+- [x] Staff 권한 체크 (is_staff)
+
+### Backend
+- [x] `permissions.py` - IsAdminUser 권한 클래스
+- [x] `views_admin.py` - Restaurant/Template/Category Admin ViewSets
+- [x] `serializers_admin.py` - Admin Serializers
+- [x] `urls.py` - `/api/admin/` 라우트 추가
+- [x] Kakao REST API 프록시 (`/api/admin/kakao/search/`)
+
+### Frontend
+- [x] `frontend/src/admin/` 모듈 전체 구현
+- [x] AdminLayout, AdminGuard 컴포넌트
+- [x] KakaoPlaceSearch, KakaoMapPicker 컴포넌트
+- [x] RestaurantForm, TemplateBuilder 컴포넌트
+- [x] useAdminRestaurants, useAdminTemplates, useKakaoSearch 훅
+- [x] 6개 관리자 페이지 (Dashboard, Restaurants, Templates, Categories)
+
+### 환경변수
+- `KAKAO_REST_API_KEY` (Backend) - 카카오 REST API 키
+- `VITE_KAKAO_JS_KEY` (Frontend) - 카카오 JavaScript 키
+
+### 검증
+- [x] Staff 계정으로 /admin 접근 확인
+- [x] 카카오 검색으로 식당 등록
+- [x] 템플릿 빌더로 25개 식당 배치
+- [x] 일반 사용자 /admin 접근 차단 확인
+
+---
+
 ## E2E 테스트 체크리스트 ✅ 모두 완료
 
 - [x] 템플릿 목록 조회
@@ -291,10 +327,13 @@ delicious_bingo/
 │   │   ├── models.py              ✅ 완료
 │   │   ├── admin.py               ✅ 완료
 │   │   ├── serializers.py         ✅ 완료
+│   │   ├── serializers_admin.py   ✅ 완료
 │   │   ├── services.py            ✅ 완료
 │   │   ├── views.py               ✅ 완료
+│   │   ├── views_admin.py         ✅ 완료
+│   │   ├── permissions.py         ✅ 완료
 │   │   ├── urls.py                ✅ 완료
-│   │   └── tests.py               ✅ 완료 (55 tests)
+│   │   └── tests.py               ✅ 완료 (87 tests)
 │   ├── config/
 │   │   ├── settings.py            ✅ 완료
 │   │   └── urls.py                ✅ 완료
@@ -303,6 +342,11 @@ delicious_bingo/
 │   └── requirements.txt           ✅ 완료
 └── frontend/
     ├── src/
+    │   ├── admin/                 ✅ 완료 (관리자 모듈)
+    │   │   ├── api/               ✅ 완료
+    │   │   ├── components/        ✅ 완료
+    │   │   ├── hooks/             ✅ 완료
+    │   │   └── pages/             ✅ 완료
     │   ├── api/
     │   │   ├── client.js          ✅ 완료
     │   │   └── endpoints.js       ✅ 완료
@@ -350,3 +394,4 @@ delicious_bingo/
 | 프로덕션 배포 | ✅ 완료 | 2026-01-10 |
 | E2E 테스트 | ✅ 완료 | 2026-01-10 |
 | Cloudinary 연동 | ✅ 완료 | 2026-01-10 |
+| 관리자 페이지 | ✅ 완료 | 2026-01-10 |
