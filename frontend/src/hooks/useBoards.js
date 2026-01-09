@@ -63,9 +63,9 @@ export function useCreateReview() {
       return response.data;
     },
     onSuccess: (data) => {
-      // 해당 보드 데이터 갱신
+      // 해당 보드 데이터 갱신 (ID를 문자열로 변환하여 쿼리 키 타입 일치)
       if (data.bingo_board) {
-        queryClient.invalidateQueries({ queryKey: ['board', data.bingo_board] });
+        queryClient.invalidateQueries({ queryKey: ['board', String(data.bingo_board)] });
       }
       queryClient.invalidateQueries({ queryKey: ['boards'] });
     },
