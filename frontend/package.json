@@ -9,7 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "e2e": "node e2e-dev-test.cjs",
+    "e2e:headed": "node e2e-dev-test.cjs --headed",
+    "e2e:slow": "node e2e-dev-test.cjs --headed --slow",
+    "e2e:prod": "node e2e-prod-test.cjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.16",

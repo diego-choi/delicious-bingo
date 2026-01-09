@@ -287,9 +287,9 @@ cd backend && python manage.py test
 cd frontend && npm run test:run
 ```
 
-### E2E 프로덕션 테스트
+### E2E 테스트
 
-Playwright 기반으로 프로덕션 환경의 전체 기능을 테스트합니다.
+Playwright 기반으로 전체 기능을 테스트합니다.
 
 ```bash
 cd frontend
@@ -297,16 +297,37 @@ cd frontend
 # 최초 1회 설치
 npm install -D playwright
 npx playwright install chromium
-
-# 테스트 실행
-node e2e-prod-test.cjs
 ```
 
-**테스트 항목 (12개):**
+#### 개발 환경 E2E 테스트 (17개)
+
+```bash
+# 사전 준비: 개발 서버 실행
+# 터미널 1: cd backend && python manage.py runserver
+# 터미널 2: cd frontend && npm run dev
+
+# 테스트 실행
+npm run e2e              # headless 모드
+npm run e2e:headed       # 브라우저 표시
+npm run e2e:slow         # 느린 모드 (디버깅용)
+```
+
+**테스트 항목:**
 - 홈페이지, 템플릿 목록/상세, 로그인/회원가입 페이지
-- 테스트 계정 숨김 (Production)
-- 리더보드, API 연결
-- 회원가입/로그인 플로우
+- 테스트 계정 로그인, 내 빙고 페이지, 프로필 페이지
+- 빙고 도전 시작, 그리드 표시, 셀 클릭 모달
+- 관리자 페이지 접근, 모바일 반응형, 로그아웃
+
+#### 프로덕션 E2E 테스트 (15개)
+
+```bash
+npm run e2e:prod
+```
+
+**테스트 항목:**
+- 홈페이지, 템플릿 목록/상세, 로그인/회원가입 페이지
+- 테스트 계정 숨김 (Production), 리더보드, API 연결
+- 회원가입/로그인 플로우, 프로필 페이지
 - 보호된 라우트, 모바일 반응형
 
 ---
