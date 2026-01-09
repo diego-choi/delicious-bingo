@@ -144,4 +144,5 @@ class BingoBoardSerializer(serializers.ModelSerializer):
 class BingoBoardCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = BingoBoard
-        fields = ['template', 'target_line_count']
+        fields = ['id', 'template', 'target_line_count']
+        read_only_fields = ['id']
