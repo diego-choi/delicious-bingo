@@ -484,6 +484,20 @@ class BingoBoardAPITest(APITestCase):
         self.assertEqual(BingoBoard.objects.count(), 1)
         self.assertEqual(BingoBoard.objects.first().user, self.user)
 
+    def test_create_board_response_includes_id(self):
+        """보드 생성 응답에 id가 포함되어야 한다 (프론트엔드 리다이렉트용)"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/api/boards/', {
+            'template': self.template.id,
+            'target_line_count': 1
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('id', response.data)
+        self.assertIsNotNone(response.data['id'])
+        # 생성된 보드의 ID와 일치하는지 확인
+        created_board = BingoBoard.objects.first()
+        self.assertEqual(response.data['id'], created_board.id)
+
     def test_get_board_detail_includes_cells(self):
         """GET /api/boards/:id/ 는 cells를 포함해야 한다"""
         board = BingoBoard.objects.create(
