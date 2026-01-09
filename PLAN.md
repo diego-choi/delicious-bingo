@@ -1,6 +1,6 @@
 # Delicious Bingo 구현 계획
 
-## 현재 상태: 모든 Phase 완료 + 프로덕션 배포 완료 + 관리자 페이지 완료
+## 현재 상태: 모든 Phase 완료 + 프로덕션 배포 완료 + UI 개편 진행 예정
 
 - [x] Django 프로젝트 초기화
 - [x] Django 모델 정의 (Category, Restaurant, BingoTemplate, BingoTemplateItem, BingoBoard, Review)
@@ -386,6 +386,91 @@ delicious_bingo/
 
 ---
 
+## UI 전면 개편: 캐치테이블 스타일 + Vibrant Orange 🍊
+
+### 디자인 컨셉
+
+**톤앤매너:** 캐치테이블의 정갈한 레이아웃 + 식욕을 자극하는 활기찬 컬러
+
+| 컬러명 | HEX 코드 | 용도 |
+|--------|----------|------|
+| `brand-orange` | `#FF8A00` | 포인트 (버튼, 프로그레스 바, 활성 셀) |
+| `brand-beige` | `#FFF9F0` | 서브 배경 (강조 박스) |
+| `brand-charcoal` | `#1A1A1A` | 텍스트 |
+| `brand-gold` | `#FFD700` | 컨페티, 축하 효과 |
+| White | `#FFFFFF` | 기본 배경 |
+
+### Phase 1: 디자인 시스템 구축
+
+- [ ] `framer-motion` 의존성 추가
+- [ ] `tailwind.config.js` 생성 (커스텀 컬러)
+- [ ] `index.css` 업데이트 (컨페티 애니메이션, 포커스 스타일)
+
+### Phase 2: 핵심 빙고 컴포넌트
+
+#### BingoCell.jsx
+- [ ] 방문 전: `bg-[#F5F3F0]` 연한 베이지 그레이, `rounded-xl`
+- [ ] 방문 완료: 리뷰 이미지 + 오렌지 반투명 오버레이 + 흰색 체크
+- [ ] 이미지 없으면 오렌지 배경 + 체크
+
+#### BingoHeader.jsx
+- [ ] 프로그레스 바: `bg-brand-orange`, `h-3` (굵게)
+- [ ] 통계 숫자: `text-brand-orange`
+- [ ] 서브 배경: `bg-brand-beige`
+
+#### BingoGrid.jsx
+- [ ] 배경: `bg-white rounded-2xl shadow-lg`
+- [ ] 그리드 간격: `gap-2 sm:gap-3`
+
+### Phase 3: 모달 & 애니메이션
+
+#### CellDetailModal.jsx → Framer Motion 바텀 시트
+- [ ] AnimatePresence + motion.div
+- [ ] 드래그 핸들 (상단 회색 바)
+- [ ] 스와이프 다운 닫기
+- [ ] 버튼: `bg-brand-orange text-white`
+
+#### CompletionCelebration.jsx
+- [ ] 오렌지/골드 원형 컨페티 (CSS 낙하 애니메이션)
+- [ ] 버튼: `bg-brand-orange`
+
+### Phase 4: 레이아웃 & 페이지
+
+#### Layout.jsx
+- [ ] 배경: `bg-white`
+- [ ] 로고: `text-brand-orange font-bold`
+- [ ] 활성 네비: `bg-brand-beige text-brand-orange`
+
+#### 페이지별 변경
+- [ ] HomePage: 히어로 `bg-brand-beige`, CTA `bg-brand-orange`
+- [ ] TemplateListPage: 카드 hover `border-brand-orange`
+- [ ] TemplateDetailPage: 도전 버튼 `bg-brand-orange`
+- [ ] LoginPage/RegisterPage: 버튼 `bg-brand-orange`
+- [ ] LeaderboardPage: 1위 강조 `text-brand-orange`
+
+### Phase 5: 테스트 & 마무리
+
+- [ ] 유닛 테스트 실행 (Frontend)
+- [ ] E2E 개발 환경 테스트
+- [ ] 시각적 QA (모바일/데스크탑)
+
+### 파일 변경 목록
+
+| 우선순위 | 파일 | 작업 |
+|:--------:|------|------|
+| 1 | `package.json` | framer-motion 추가 |
+| 2 | `tailwind.config.js` | 커스텀 컬러 정의 (신규) |
+| 3 | `index.css` | 컨페티 애니메이션, 스타일 |
+| 4 | `BingoCell.jsx` | 셀 디자인 전면 개편 |
+| 5 | `BingoHeader.jsx` | 오렌지 프로그레스 바 |
+| 6 | `BingoGrid.jsx` | 그리드 스타일 |
+| 7 | `CellDetailModal.jsx` | Framer Motion 바텀 시트 |
+| 8 | `CompletionCelebration.jsx` | 오렌지/골드 컨페티 |
+| 9 | `Layout.jsx` | 전체 톤앤매너 |
+| 10 | 페이지 컴포넌트들 | 버튼/강조색 통일 |
+
+---
+
 ## 진행 상황
 
 | Phase | 상태 | 완료일 |
@@ -405,3 +490,4 @@ delicious_bingo/
 | Cloudinary 연동 | ✅ 완료 | 2026-01-10 |
 | 관리자 페이지 | ✅ 완료 | 2026-01-10 |
 | E2E 개발 테스트 | ✅ 완료 | 2026-01-10 |
+| UI 전면 개편 | 🔄 진행 예정 | - |
