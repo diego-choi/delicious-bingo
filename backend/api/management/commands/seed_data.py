@@ -9,6 +9,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('샘플 데이터 생성 시작...')
 
+        # 슈퍼유저 생성 (Admin용)
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+            self.stdout.write(self.style.SUCCESS('슈퍼유저 생성: admin / admin123'))
+        else:
+            self.stdout.write('슈퍼유저가 이미 존재합니다')
+
         # 테스트 유저 생성
         test_user, created = User.objects.get_or_create(
             username='testuser',
@@ -183,6 +190,9 @@ class Command(BaseCommand):
                 self.stdout.write(f'템플릿이 이미 존재합니다: {template.title}')
 
         self.stdout.write(self.style.SUCCESS('\n샘플 데이터 생성 완료!'))
+        self.stdout.write('\n관리자 계정 (Admin):')
+        self.stdout.write('  - Username: admin')
+        self.stdout.write('  - Password: admin123')
         self.stdout.write('\n테스트 계정:')
         self.stdout.write('  - Username: testuser')
         self.stdout.write('  - Password: testpass123')
