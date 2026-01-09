@@ -8,11 +8,17 @@
 │   (Frontend)    │     │   (Backend)     │     │   (Database)    │
 │   React + Vite  │     │  Django + DRF   │     │                 │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
+        │                       │
+        ▼                       ▼
+┌─────────────────┐     ┌─────────────────┐
+│   Kakao Maps    │     │   Cloudinary    │
+│   (지도 표시)    │     │ (Image Storage) │
+└─────────────────┘     └─────────────────┘
                                │
                                ▼
                         ┌─────────────────┐
-                        │   Cloudinary    │
-                        │ (Image Storage) │
+                        │   Kakao Local   │
+                        │  (장소 검색)     │
                         └─────────────────┘
 ```
 
@@ -20,6 +26,7 @@
 - **Backend**: Railway (Django + Gunicorn)
 - **Database**: Railway PostgreSQL
 - **Image Storage**: Cloudinary
+- **Map & Search**: Kakao Developers (지도 표시 + 관리자 장소 검색)
 
 ---
 
@@ -110,13 +117,54 @@ CLOUDINARY_URL=cloudinary://...
 
 ---
 
-## 3. Frontend 배포 (Vercel)
+## 3. 카카오 개발자 설정
 
-### 3.1 Vercel 계정 생성
+카카오맵 표시와 관리자 장소 검색을 위해 카카오 개발자 설정이 필요합니다.
+
+### 3.1 카카오 개발자 계정 생성
+1. [카카오 개발자](https://developers.kakao.com) 접속
+2. 카카오 계정으로 로그인
+
+### 3.2 애플리케이션 생성
+1. "내 애플리케이션" → "애플리케이션 추가하기"
+2. 앱 이름 입력 (예: "맛집 빙고")
+3. 저장
+
+### 3.3 API 키 확인
+"앱 키" 섹션에서 두 가지 키 확인:
+
+| 키 종류 | 용도 | 설정 위치 |
+|--------|------|----------|
+| **REST API 키** | 관리자 장소 검색 (백엔드) | Railway `KAKAO_REST_API_KEY` |
+| **JavaScript 키** | 지도 표시 (프론트엔드) | Vercel `VITE_KAKAO_JS_KEY` |
+
+### 3.4 플랫폼 등록 (중요!)
+1. 좌측 메뉴 "플랫폼" 클릭
+2. "Web" 플랫폼 등록
+3. **사이트 도메인** 추가:
+   - 개발: `http://localhost:5173`
+   - 프로덕션: `https://delicious-bingo.vercel.app`
+
+> **주의**: 도메인 등록 없이는 지도가 로드되지 않습니다.
+
+### 3.5 환경변수 설정
+```bash
+# Railway (Backend)
+railway variables set KAKAO_REST_API_KEY=<REST-API-키>
+
+# Vercel (Frontend) - 대시보드에서 설정 권장
+VITE_KAKAO_JS_KEY=<JavaScript-키>
+```
+
+---
+
+## 4. Frontend 배포 (Vercel)
+
+### 4.1 Vercel 계정 생성
 1. [Vercel](https://vercel.com) 접속
 2. GitHub 계정으로 로그인
 
-### 3.2 프로젝트 배포
+### 4.2 프로젝트 배포
 1. "New Project" 클릭
 2. `delicious_bingo` 저장소 Import
 3. Framework Preset: "Vite" 선택
@@ -134,15 +182,15 @@ CLOUDINARY_URL=cloudinary://...
 
 6. "Deploy" 클릭
 
-### 3.3 도메인 설정 (선택)
+### 4.3 도메인 설정 (선택)
 1. "Settings" → "Domains"
 2. 커스텀 도메인 추가 또는 기본 `.vercel.app` 도메인 사용
 
 ---
 
-## 4. 배포 후 확인사항
+## 5. 배포 후 확인사항
 
-### 4.1 Backend 확인
+### 5.1 Backend 확인
 ```bash
 # API 헬스체크
 curl https://<your-backend>.railway.app/api/templates/
@@ -151,19 +199,19 @@ curl https://<your-backend>.railway.app/api/templates/
 https://<your-backend>.railway.app/admin/
 ```
 
-### 4.2 Frontend 확인
+### 5.2 Frontend 확인
 1. 홈페이지 접속: `https://<your-frontend>.vercel.app`
 2. 템플릿 목록 로딩 확인
 3. 로그인/회원가입 기능 테스트
 4. 빙고 게임 플레이 테스트
 
-### 4.3 CORS 확인
+### 5.3 CORS 확인
 브라우저 개발자 도구에서 네트워크 요청 확인
 - CORS 에러 발생 시 백엔드 `CORS_ALLOWED_ORIGINS` 확인
 
 ---
 
-## 5. 환경 변수 요약
+## 6. 환경 변수 요약
 
 ### Backend (Railway)
 | 변수 | 필수 | 설명 | 예시 |
@@ -174,18 +222,19 @@ https://<your-backend>.railway.app/admin/
 | `DATABASE_URL` | O | DB 연결 URL | PostgreSQL 연결 시 자동 설정 |
 | `CORS_ALLOWED_ORIGINS` | O | CORS 허용 도메인 | `https://xxx.vercel.app` |
 | `CLOUDINARY_URL` | O | Cloudinary 연결 URL | `cloudinary://API_KEY:SECRET@CLOUD_NAME` |
+| `KAKAO_REST_API_KEY` | - | 카카오 REST API 키 (관리자 검색) | `abc123...` |
 
 ### Frontend (Vercel)
 | 변수 | 필수 | 설명 | 예시 |
 |------|:----:|------|------|
 | `VITE_API_URL` | O | Backend API URL | `https://xxx.railway.app/api` |
-| `VITE_KAKAO_JS_KEY` | - | 카카오맵 API 키 | `abc123...` |
+| `VITE_KAKAO_JS_KEY` | - | 카카오 JavaScript 키 (지도) | `abc123...` |
 
 > **중요**: Vercel 환경변수는 반드시 대시보드에서 설정해야 빌드에 반영됨
 
 ---
 
-## 6. 업데이트 배포
+## 7. 업데이트 배포
 
 ### 자동 배포 (추천)
 - GitHub main 브랜치에 push하면 자동 배포
@@ -202,9 +251,9 @@ vercel --prod
 
 ---
 
-## 7. 문제 해결
+## 8. 문제 해결
 
-### 7.1 Railway 빌드 오류
+### 8.1 Railway 빌드 오류
 
 #### Nixpacks pip not found
 ```
@@ -232,7 +281,7 @@ Django==6.0.1 Requires-Python >=3.12
 
 ---
 
-### 7.2 Railway 런타임 오류
+### 8.2 Railway 런타임 오류
 
 #### ALLOWED_HOSTS 오류
 ```
@@ -247,7 +296,7 @@ Invalid HTTP_HOST header: 'xxx.up.railway.app'
 
 ---
 
-### 7.3 Vercel 오류
+### 8.3 Vercel 오류
 
 #### API 호출이 localhost로 감
 ```
@@ -261,7 +310,7 @@ GET http://localhost:8000/api/templates/ net::ERR_CONNECTION_REFUSED
 
 ---
 
-### 7.4 CORS 에러
+### 8.4 CORS 에러
 ```
 Access to XMLHttpRequest has been blocked by CORS policy
 ```
@@ -272,7 +321,7 @@ CORS_ALLOWED_ORIGINS=https://your-app.vercel.app,http://localhost:5173
 
 ---
 
-### 7.5 기타
+### 8.5 기타
 
 #### 500 Internal Server Error
 1. Railway 로그 확인: "Deployments" → "View Logs"
@@ -291,7 +340,7 @@ python manage.py migrate --run-syncdb
 
 ---
 
-## 8. 비용
+## 9. 비용
 
 ### Railway
 - 무료 티어: 월 $5 크레딧 (소규모 앱에 충분)
@@ -307,7 +356,7 @@ python manage.py migrate --run-syncdb
 
 ---
 
-## 9. 프로덕션 체크리스트
+## 10. 프로덕션 체크리스트
 
 - [ ] `SECRET_KEY` 변경됨
 - [ ] `DEBUG=False` 설정됨
@@ -315,6 +364,7 @@ python manage.py migrate --run-syncdb
 - [ ] HTTPS 활성화됨
 - [ ] CORS 설정 완료
 - [ ] Cloudinary 설정 완료 (`CLOUDINARY_URL`)
+- [ ] 카카오 개발자 플랫폼 도메인 등록 (관리자 지도 사용 시)
 - [ ] Database 백업 설정
 - [ ] 에러 모니터링 설정 (선택: Sentry)
 - [ ] 로그 모니터링 설정
