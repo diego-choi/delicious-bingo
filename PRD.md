@@ -104,6 +104,8 @@
 | POST | `/api/auth/login/` | 로그인 (토큰 발급) |
 | POST | `/api/auth/logout/` | 로그아웃 |
 | GET | `/api/auth/me/` | 현재 사용자 정보 |
+| GET | `/api/auth/profile/` | 프로필 조회 (통계, 최근 활동 포함) |
+| PATCH | `/api/auth/profile/` | 프로필 수정 (사용자명, 이메일) |
 
 ### Protected Endpoints (인증 필요)
 | Method | Endpoint | 설명 |
@@ -137,13 +139,14 @@ VITE_API_URL, VITE_KAKAO_JS_KEY
 ## 7. Testing ✅ 완료
 
 ### Backend
-- 55개 유닛 테스트
+- 63개 유닛 테스트
 - BingoService 라인 감지 테스트
 - API 인증 테스트
 - 이미지 URL 테스트
+- 프로필 API 테스트
 
 ### Frontend
-- 25개 컴포넌트 테스트 (Vitest + Testing Library)
+- 57개 컴포넌트 테스트 (Vitest + Testing Library)
 
 ### E2E Production
 - 12개 Playwright 테스트
@@ -156,6 +159,6 @@ VITE_API_URL, VITE_KAKAO_JS_KEY
 - [ ] 소셜 로그인 연동 (카카오, 구글)
 - [ ] 푸시 알림
 - [ ] 맛집 검색 기능
-- [ ] 사용자 프로필 페이지
+- [x] 사용자 프로필 페이지
 - [ ] 리뷰 좋아요/댓글
 - [ ] 템플릿 공유 기능
