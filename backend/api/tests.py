@@ -1089,3 +1089,339 @@ class ProfileAPITest(APITestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('username', response.data['errors'])
+
+
+# =============================================================================
+# Admin API 테스트
+# =============================================================================
+
+class AdminPermissionTest(APITestCase):
+    """Admin 권한 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user('normaluser', password='testpass')
+        self.staff_user = User.objects.create_user(
+            'staffuser', password='testpass', is_staff=True
+        )
+
+    def test_me_returns_is_staff_false_for_normal_user(self):
+        """일반 사용자는 is_staff가 false여야 한다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/auth/me/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('is_staff', response.data)
+        self.assertFalse(response.data['is_staff'])
+
+    def test_me_returns_is_staff_true_for_staff_user(self):
+        """staff 사용자는 is_staff가 true여야 한다"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/auth/me/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('is_staff', response.data)
+        self.assertTrue(response.data['is_staff'])
+
+    def test_admin_endpoint_requires_staff(self):
+        """Admin 엔드포인트는 staff 권한이 필요하다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/admin/restaurants/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_admin_endpoint_allows_staff(self):
+        """Staff 사용자는 admin 엔드포인트에 접근 가능하다"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/restaurants/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class AdminRestaurantAPITest(APITestCase):
+    """Admin 식당 관리 API 테스트"""
+
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            'staffuser', password='testpass', is_staff=True
+        )
+        self.category = Category.objects.create(name="평양냉면")
+        self.restaurant = Restaurant.objects.create(
+            category=self.category,
+            name="을밀대",
+            address="서울 중구 을지로3가",
+            latitude=37.5665,
+            longitude=126.9780,
+            kakao_place_id="12345",
+            is_approved=True,
+            created_by=self.staff_user
+        )
+
+    def test_list_restaurants(self):
+        """GET /api/admin/restaurants/ - 식당 목록 조회"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/restaurants/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('results', response.data)
+        self.assertEqual(len(response.data['results']), 1)
+
+    def test_create_restaurant(self):
+        """POST /api/admin/restaurants/ - 식당 생성"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.post('/api/admin/restaurants/', {
+            'category': self.category.id,
+            'name': '우래옥',
+            'address': '서울 중구 창경궁로',
+            'latitude': '37.5700',
+            'longitude': '126.9850',
+            'kakao_place_id': '67890',
+            'place_url': 'https://place.map.kakao.com/67890',
+            'is_approved': True
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['name'], '우래옥')
+        self.assertEqual(Restaurant.objects.count(), 2)
+
+    def test_create_restaurant_sets_created_by(self):
+        """식당 생성 시 created_by가 자동 설정된다"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.post('/api/admin/restaurants/', {
+            'category': self.category.id,
+            'name': '우래옥',
+            'address': '서울 중구 창경궁로',
+            'latitude': '37.5700',
+            'longitude': '126.9850',
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        restaurant = Restaurant.objects.get(name='우래옥')
+        self.assertEqual(restaurant.created_by, self.staff_user)
+
+    def test_get_restaurant_detail(self):
+        """GET /api/admin/restaurants/:id/ - 식당 상세 조회"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get(f'/api/admin/restaurants/{self.restaurant.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], '을밀대')
+
+    def test_update_restaurant(self):
+        """PATCH /api/admin/restaurants/:id/ - 식당 수정"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.patch(f'/api/admin/restaurants/{self.restaurant.id}/', {
+            'name': '을밀대 본점',
+            'is_approved': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.restaurant.refresh_from_db()
+        self.assertEqual(self.restaurant.name, '을밀대 본점')
+        self.assertFalse(self.restaurant.is_approved)
+
+    def test_delete_restaurant(self):
+        """DELETE /api/admin/restaurants/:id/ - 식당 삭제"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.delete(f'/api/admin/restaurants/{self.restaurant.id}/')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Restaurant.objects.count(), 0)
+
+    def test_filter_restaurants_by_category(self):
+        """카테고리로 필터링"""
+        other_category = Category.objects.create(name="함흥냉면")
+        Restaurant.objects.create(
+            category=other_category,
+            name="함흥면옥",
+            address="서울 어딘가",
+            latitude=37.5,
+            longitude=127.0,
+            created_by=self.staff_user
+        )
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get(f'/api/admin/restaurants/?category={self.category.id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['name'], '을밀대')
+
+    def test_filter_restaurants_by_approval(self):
+        """승인 상태로 필터링"""
+        Restaurant.objects.create(
+            category=self.category,
+            name="미승인 맛집",
+            address="서울 어딘가",
+            latitude=37.5,
+            longitude=127.0,
+            is_approved=False,
+            created_by=self.staff_user
+        )
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/restaurants/?is_approved=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['name'], '을밀대')
+
+    def test_search_restaurants(self):
+        """이름으로 검색"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/restaurants/?search=을밀')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+
+class AdminTemplateAPITest(APITestCase):
+    """Admin 템플릿 관리 API 테스트"""
+
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            'staffuser', password='testpass', is_staff=True
+        )
+        self.category = Category.objects.create(name="평양냉면")
+        self.template = BingoTemplate.objects.create(
+            category=self.category,
+            title="평양냉면 빙고",
+            description="서울 평양냉면 맛집 투어"
+        )
+        # 식당 생성
+        self.restaurants = []
+        for i in range(5):
+            restaurant = Restaurant.objects.create(
+                category=self.category,
+                name=f"맛집{i}",
+                address=f"주소{i}",
+                latitude=37.0 + i * 0.01,
+                longitude=127.0,
+                is_approved=True,
+                created_by=self.staff_user
+            )
+            self.restaurants.append(restaurant)
+            BingoTemplateItem.objects.create(
+                template=self.template,
+                restaurant=restaurant,
+                position=i
+            )
+
+    def test_list_templates(self):
+        """GET /api/admin/templates/ - 템플릿 목록 조회"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/templates/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('results', response.data)
+        self.assertEqual(len(response.data['results']), 1)
+
+    def test_list_templates_includes_inactive(self):
+        """비활성 템플릿도 목록에 포함된다"""
+        BingoTemplate.objects.create(
+            category=self.category,
+            title="비활성 템플릿",
+            is_active=False
+        )
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/templates/')
+        self.assertEqual(len(response.data['results']), 2)
+
+    def test_get_template_detail(self):
+        """GET /api/admin/templates/:id/ - 템플릿 상세 조회"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get(f'/api/admin/templates/{self.template.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], '평양냉면 빙고')
+        self.assertIn('items', response.data)
+        self.assertEqual(len(response.data['items']), 5)
+
+    def test_create_template_with_items(self):
+        """POST /api/admin/templates/ - 템플릿과 아이템 함께 생성"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.post('/api/admin/templates/', {
+            'category': self.category.id,
+            'title': '새 템플릿',
+            'description': '새로운 빙고 템플릿',
+            'is_active': True,
+            'items': [
+                {'position': 0, 'restaurant': self.restaurants[0].id},
+                {'position': 1, 'restaurant': self.restaurants[1].id},
+            ]
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'], '새 템플릿')
+        new_template = BingoTemplate.objects.get(title='새 템플릿')
+        self.assertEqual(new_template.items.count(), 2)
+
+    def test_update_template(self):
+        """PATCH /api/admin/templates/:id/ - 템플릿 수정"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.patch(f'/api/admin/templates/{self.template.id}/', {
+            'title': '수정된 템플릿',
+            'is_active': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.template.refresh_from_db()
+        self.assertEqual(self.template.title, '수정된 템플릿')
+        self.assertFalse(self.template.is_active)
+
+    def test_update_template_items(self):
+        """템플릿 아이템 수정"""
+        new_restaurant = Restaurant.objects.create(
+            category=self.category,
+            name="새 맛집",
+            address="새 주소",
+            latitude=37.5,
+            longitude=127.0,
+            is_approved=True,
+            created_by=self.staff_user
+        )
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.patch(f'/api/admin/templates/{self.template.id}/', {
+            'items': [
+                {'position': 0, 'restaurant': new_restaurant.id},
+            ]
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.template.refresh_from_db()
+        self.assertEqual(self.template.items.count(), 1)
+        self.assertEqual(self.template.items.first().restaurant.name, '새 맛집')
+
+    def test_delete_template(self):
+        """DELETE /api/admin/templates/:id/ - 템플릿 삭제"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.delete(f'/api/admin/templates/{self.template.id}/')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(BingoTemplate.objects.count(), 0)
+
+
+class AdminCategoryAPITest(APITestCase):
+    """Admin 카테고리 관리 API 테스트"""
+
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            'staffuser', password='testpass', is_staff=True
+        )
+        self.category = Category.objects.create(
+            name="평양냉면",
+            description="평양 스타일 냉면"
+        )
+
+    def test_list_categories(self):
+        """GET /api/admin/categories/ - 카테고리 목록 조회"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/categories/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_create_category(self):
+        """POST /api/admin/categories/ - 카테고리 생성"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.post('/api/admin/categories/', {
+            'name': '함흥냉면',
+            'description': '함흥 스타일 냉면'
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['name'], '함흥냉면')
+        self.assertEqual(Category.objects.count(), 2)
+
+    def test_update_category(self):
+        """PATCH /api/admin/categories/:id/ - 카테고리 수정"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.patch(f'/api/admin/categories/{self.category.id}/', {
+            'description': '수정된 설명'
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.category.refresh_from_db()
+        self.assertEqual(self.category.description, '수정된 설명')
+
+    def test_delete_category(self):
+        """DELETE /api/admin/categories/:id/ - 카테고리 삭제"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.delete(f'/api/admin/categories/{self.category.id}/')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Category.objects.count(), 0)

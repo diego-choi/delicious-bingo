@@ -58,6 +58,7 @@ export function AuthProvider({ children }) {
     user,
     isLoading,
     isAuthenticated: !!user,
+    isStaff: user?.is_staff || false,
     register,
     login,
     logout,

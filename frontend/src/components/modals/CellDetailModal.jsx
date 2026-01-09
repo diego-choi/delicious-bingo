@@ -60,6 +60,7 @@ export default function CellDetailModal({
               latitude={restaurant.latitude}
               longitude={restaurant.longitude}
               name={restaurant.name}
+              placeUrl={restaurant.place_url}
               className="h-48"
             />
           )}

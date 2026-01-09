@@ -7,12 +7,14 @@ import { useKakaoMapSDK } from '../../hooks/useKakaoMap';
  * @param {number} props.latitude - 위도
  * @param {number} props.longitude - 경도
  * @param {string} props.name - 맛집 이름
+ * @param {string} props.placeUrl - 카카오맵 장소 URL
  * @param {string} props.className - 추가 CSS 클래스
  */
 export default function KakaoMap({
   latitude,
   longitude,
   name,
+  placeUrl,
   className = '',
 }) {
   const mapRef = useRef(null);
@@ -40,8 +42,14 @@ export default function KakaoMap({
 
     // 인포윈도우 생성
     if (name) {
+      const linkUrl = placeUrl || `https://map.kakao.com/link/map/${name},${latitude},${longitude}`;
       const infowindow = new kakao.maps.InfoWindow({
-        content: `<div style="padding:5px;font-size:12px;white-space:nowrap;">${name}</div>`,
+        content: `<div style="padding:8px;font-size:12px;white-space:nowrap;">
+          <a href="${linkUrl}" target="_blank" rel="noopener noreferrer"
+             style="color:#1a73e8;text-decoration:none;font-weight:500;">
+            ${name} →
+          </a>
+        </div>`,
       });
       infowindow.open(map, marker);
     }
@@ -50,7 +58,7 @@ export default function KakaoMap({
     const zoomControl = new kakao.maps.ZoomControl();
     map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
-  }, [isLoaded, latitude, longitude, name]);
+  }, [isLoaded, latitude, longitude, name, placeUrl]);
 
   // 좌표가 없는 경우
   if (!latitude || !longitude) {

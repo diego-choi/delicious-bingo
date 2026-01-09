@@ -17,3 +17,7 @@ pillow==12.1.0
 # Cloud storage (production)
 cloudinary==1.40.0
 django-cloudinary-storage==0.3.0
+django-filter==25.2
+
+# HTTP client
+requests==2.32.3
