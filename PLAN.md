@@ -232,11 +232,19 @@
 
 ---
 
-## 추가 구현: E2E 프로덕션 테스트 ✅ 완료
+## 추가 구현: E2E 테스트 ✅ 완료
 
-- [x] Playwright 기반 테스트 스크립트
-- [x] 12개 테스트 항목
+### 개발 환경 E2E 테스트 (17개)
+- [x] `frontend/e2e-dev-test.cjs`
+- [x] 서버 실행 상태 자동 확인
+- [x] `--headed`, `--slow` 옵션 지원
+- [x] npm 스크립트: `e2e`, `e2e:headed`, `e2e:slow`
+- [x] 테스트 항목: 로그인, 빙고 플로우, 관리자 페이지 등
+
+### 프로덕션 E2E 테스트 (15개)
 - [x] `frontend/e2e-prod-test.cjs`
+- [x] npm 스크립트: `e2e:prod`
+- [x] 테스트 항목: 회원가입/로그인 플로우, 프로필 페이지 등
 
 ---
 
@@ -370,7 +378,8 @@ delicious_bingo/
     │   ├── router.jsx             ✅ 완료
     │   ├── main.jsx               ✅ 완료
     │   └── index.css              ✅ 완료
-    ├── e2e-prod-test.cjs          ✅ 완료 (12 tests)
+    ├── e2e-dev-test.cjs           ✅ 완료 (17 tests)
+    ├── e2e-prod-test.cjs          ✅ 완료 (15 tests)
     ├── vercel.json                ✅ 완료
     └── package.json               ✅ 완료
 ```
@@ -392,6 +401,7 @@ delicious_bingo/
 | 인증 시스템 | ✅ 완료 | 2026-01-09 |
 | 모바일 반응형 | ✅ 완료 | 2026-01-09 |
 | 프로덕션 배포 | ✅ 완료 | 2026-01-10 |
-| E2E 테스트 | ✅ 완료 | 2026-01-10 |
+| E2E 프로덕션 테스트 | ✅ 완료 | 2026-01-10 |
 | Cloudinary 연동 | ✅ 완료 | 2026-01-10 |
 | 관리자 페이지 | ✅ 완료 | 2026-01-10 |
+| E2E 개발 테스트 | ✅ 완료 | 2026-01-10 |

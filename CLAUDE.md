@@ -248,38 +248,79 @@ cd backend && source venv/bin/activate && python manage.py test
 # Frontend (57 tests)
 cd frontend && npm run test:run
 
+# E2E 개발 환경 테스트 (17 tests)
+cd frontend && npm run e2e
+
 # E2E 프로덕션 테스트 (15 tests)
-cd frontend && node e2e-prod-test.cjs
+cd frontend && npm run e2e:prod
 
 # Lint
 cd frontend && npm run lint
 ```
 
-## E2E 프로덕션 테스트
+## E2E 테스트
 
-`frontend/e2e-prod-test.cjs` - Playwright 기반 프로덕션 환경 E2E 테스트
+Playwright 기반 E2E 테스트. 개발 환경과 프로덕션 환경 모두 지원.
 
-### 테스트 항목 (12개)
+### 최초 설치
+```bash
+cd frontend
+npm install -D playwright
+npx playwright install chromium
+```
+
+### 개발 환경 E2E 테스트 (17개)
+
+`frontend/e2e-dev-test.cjs` - 로컬 개발 서버 대상 테스트
+
+```bash
+# 사전 준비: 개발 서버 실행
+# 터미널 1: cd backend && python manage.py runserver
+# 터미널 2: cd frontend && npm run dev
+
+npm run e2e              # headless 모드
+npm run e2e:headed       # 브라우저 표시
+npm run e2e:slow         # 디버깅용 느린 모드
+```
+
+**테스트 항목:**
 1. 홈페이지 로딩
 2. 템플릿 목록
 3. 템플릿 상세
-4. 로그인 페이지
-5. 테스트 계정 숨김 (Production 환경)
+4. 로그인 폼
+5. 테스트 계정 표시 (Dev)
 6. 회원가입 페이지
 7. 리더보드 페이지
 8. API 연결
-9. 회원가입 플로우
-10. 로그인 플로우
-11. 내 보드 페이지 (보호된 라우트)
-12. 모바일 반응형
+9. 테스트 계정 로그인
+10. 내 빙고 페이지 (인증)
+11. 프로필 페이지 (인증)
+12. 빙고 도전 시작
+13. 빙고 그리드 표시
+14. 셀 클릭 모달
+15. 관리자 페이지 접근
+16. 모바일 반응형
+17. 로그아웃
 
-### 실행 방법
+**특징:**
+- 서버 실행 상태 자동 확인
+- `--headed` 옵션으로 브라우저 화면 확인
+- `--slow` 옵션으로 느린 모드 디버깅
+- 환경변수로 URL 커스터마이징 (`E2E_BASE_URL`, `E2E_API_URL`)
+
+### 프로덕션 E2E 테스트 (15개)
+
+`frontend/e2e-prod-test.cjs` - 프로덕션 환경 테스트
+
 ```bash
-cd frontend
-npm install -D playwright  # 최초 1회
-npx playwright install chromium  # 최초 1회
-node e2e-prod-test.cjs
+npm run e2e:prod
 ```
+
+**테스트 항목:**
+- 홈페이지, 템플릿 목록/상세, 로그인/회원가입 페이지
+- 테스트 계정 숨김 (Production), 리더보드, API 연결
+- 회원가입/로그인 플로우, 프로필 페이지
+- 보호된 라우트, 모바일 반응형
 
 ## 주요 기술적 결정
 
