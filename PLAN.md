@@ -1,12 +1,16 @@
 # Delicious Bingo 구현 계획
 
-## 현재 상태
+## 현재 상태: 모든 Phase 완료 + 프로덕션 배포 완료
+
 - [x] Django 프로젝트 초기화
 - [x] Django 모델 정의 (Category, Restaurant, BingoTemplate, BingoTemplateItem, BingoBoard, Review)
 - [x] Django Admin 설정
 - [x] Django 설정 구성 (CORS, DRF)
 - [x] React + Vite 프로젝트 초기화
 - [x] Tailwind CSS 설정
+- [x] 모바일 반응형 디자인 적용
+- [x] 프로덕션 배포 (Railway + Vercel)
+- [x] E2E 테스트 구현
 
 ---
 
@@ -64,215 +68,190 @@
 
 ---
 
-## Phase 3: 프론트엔드 인프라 (라우팅, API 클라이언트, 상태 관리)
+## Phase 3: 프론트엔드 인프라 (라우팅, API 클라이언트, 상태 관리) ✅ 완료
 
 ### TODO
-- [ ] 패키지 설치
-  ```bash
-  npm install react-router-dom axios @tanstack/react-query
-  ```
-- [ ] `frontend/src/api/client.js` 생성
-  - [ ] Axios 인스턴스 설정
-  - [ ] 인증 토큰 인터셉터
-- [ ] `frontend/src/api/endpoints.js` 생성
-  - [ ] templatesApi (getAll, getById)
-  - [ ] boardsApi (getAll, getById, create)
-  - [ ] reviewsApi (create)
-- [ ] `frontend/src/hooks/useTemplates.js` 생성
-  - [ ] useTemplates()
-  - [ ] useTemplate(id)
-- [ ] `frontend/src/hooks/useBoards.js` 생성
-  - [ ] useBoards()
-  - [ ] useBoard(id)
-  - [ ] useCreateBoard()
-  - [ ] useCreateReview()
-- [ ] `frontend/src/router.jsx` 생성
-  - [ ] 라우트 정의 (/, /templates, /templates/:id, /boards, /boards/:id, /leaderboard)
-- [ ] `frontend/src/components/Layout.jsx` 생성
-  - [ ] 헤더 네비게이션
-  - [ ] Outlet 구성
-- [ ] `frontend/src/main.jsx` 수정
-  - [ ] QueryClientProvider 추가
-  - [ ] RouterProvider 추가
-- [ ] 페이지 플레이스홀더 생성
-  - [ ] `frontend/src/pages/HomePage.jsx`
-  - [ ] `frontend/src/pages/TemplateListPage.jsx`
-  - [ ] `frontend/src/pages/TemplateDetailPage.jsx`
-  - [ ] `frontend/src/pages/BoardPage.jsx`
-  - [ ] `frontend/src/pages/MyBoardsPage.jsx`
-  - [ ] `frontend/src/pages/LeaderboardPage.jsx`
+- [x] 패키지 설치 (react-router-dom, axios, @tanstack/react-query)
+- [x] `frontend/src/api/client.js` 생성
+  - [x] Axios 인스턴스 설정
+  - [x] 인증 토큰 인터셉터
+- [x] `frontend/src/api/endpoints.js` 생성
+  - [x] templatesApi (getAll, getById)
+  - [x] boardsApi (getAll, getById, create)
+  - [x] reviewsApi (create)
+- [x] `frontend/src/hooks/useTemplates.js` 생성
+- [x] `frontend/src/hooks/useBoards.js` 생성
+- [x] `frontend/src/router.jsx` 생성
+- [x] `frontend/src/components/Layout.jsx` 생성 (모바일 햄버거 메뉴 포함)
+- [x] `frontend/src/main.jsx` 수정
+- [x] 모든 페이지 플레이스홀더 생성
 
 ### 검증
-- [ ] 모든 라우트 접근 확인
-- [ ] API 클라이언트 연결 확인
-- [ ] React Query 캐싱 동작 확인
+- [x] 모든 라우트 접근 확인
+- [x] API 클라이언트 연결 확인
+- [x] React Query 캐싱 동작 확인
 
 ---
 
-## Phase 4: 핵심 게임 컴포넌트 (BingoGrid, BingoCell)
+## Phase 4: 핵심 게임 컴포넌트 (BingoGrid, BingoCell) ✅ 완료
 
 ### TODO
-- [ ] `frontend/src/components/bingo/BingoGrid.jsx` 생성
-  - [ ] 5x5 그리드 레이아웃 (grid-cols-5)
-  - [ ] 완료 라인 하이라이트 로직
-  - [ ] onCellClick 핸들러
-- [ ] `frontend/src/components/bingo/BingoCell.jsx` 생성
-  - [ ] 비활성화 상태 UI (흰 배경)
-  - [ ] 활성화 상태 UI (녹색 + 체크마크)
-  - [ ] 하이라이트 상태 (빙고 라인)
-  - [ ] 호버 효과
-- [ ] `frontend/src/components/bingo/BingoHeader.jsx` 생성
-  - [ ] 템플릿 제목 표시
-  - [ ] 목표 라인 / 완료 라인 표시
-  - [ ] 진행률 바
-  - [ ] 빙고 완료 배지
-- [ ] `frontend/src/pages/BoardPage.jsx` 구현
-  - [ ] useBoard 훅 연동
-  - [ ] BingoHeader, BingoGrid 통합
-  - [ ] 셀 클릭 시 모달 열기
+- [x] `frontend/src/components/bingo/BingoGrid.jsx` 생성
+  - [x] 5x5 그리드 레이아웃 (grid-cols-5)
+  - [x] 완료 라인 하이라이트 로직
+  - [x] onCellClick 핸들러
+- [x] `frontend/src/components/bingo/BingoCell.jsx` 생성
+  - [x] 비활성화/활성화 상태 UI
+  - [x] 하이라이트 상태 (빙고 라인)
+  - [x] 호버 효과
+- [x] `frontend/src/components/bingo/BingoHeader.jsx` 생성
+- [x] `frontend/src/pages/BoardPage.jsx` 구현
 
 ### 검증
-- [ ] 5x5 그리드 정상 렌더링
-- [ ] 활성화된 셀 녹색 표시
-- [ ] 진행률 바 업데이트
-- [ ] 셀 클릭 이벤트 동작
+- [x] 5x5 그리드 정상 렌더링
+- [x] 활성화된 셀 녹색 표시
+- [x] 진행률 바 업데이트
+- [x] 셀 클릭 이벤트 동작
 
 ---
 
-## Phase 5: 리뷰 및 인터랙션 (ReviewModal, 폼 처리)
+## Phase 5: 리뷰 및 인터랙션 (ReviewModal, 폼 처리) ✅ 완료
 
 ### TODO
-- [ ] `frontend/src/components/modals/CellDetailModal.jsx` 생성
-  - [ ] 맛집 정보 표시 (이름, 주소, 카카오맵 링크)
-  - [ ] 지도 영역 플레이스홀더
-  - [ ] 기존 리뷰 표시 (활성화된 경우)
-  - [ ] 리뷰 작성 버튼 / 폼 토글
-- [ ] `frontend/src/components/forms/ReviewForm.jsx` 생성
-  - [ ] 이미지 업로드 (필수, 미리보기)
-  - [ ] 별점 선택 (1-5)
-  - [ ] 리뷰 내용 (최소 10자 검증)
-  - [ ] 방문일 선택
-  - [ ] 공개 여부 토글
-  - [ ] 폼 제출 및 에러 처리
-- [ ] `frontend/src/pages/TemplateDetailPage.jsx` 구현
-  - [ ] 템플릿 정보 표시
-  - [ ] 25개 맛집 미리보기
-  - [ ] 목표 라인 선택 (1, 3, 5)
-  - [ ] 도전 시작 버튼
-- [ ] `frontend/src/pages/TemplateListPage.jsx` 구현
-  - [ ] 템플릿 카드 목록
-  - [ ] 카테고리 필터 (선택)
+- [x] `frontend/src/components/modals/CellDetailModal.jsx` 생성
+  - [x] 맛집 정보 표시
+  - [x] 기존 리뷰 표시
+  - [x] 리뷰 작성 폼 토글
+  - [x] 모바일 바텀시트 UI
+- [x] `frontend/src/components/forms/ReviewForm.jsx` 생성
+  - [x] 이미지 업로드 (필수, 미리보기)
+  - [x] 별점 선택 (1-5)
+  - [x] 리뷰 내용 (최소 10자 검증)
+  - [x] 방문일 선택
+- [x] `frontend/src/pages/TemplateDetailPage.jsx` 구현
+- [x] `frontend/src/pages/TemplateListPage.jsx` 구현
 
 ### 검증
-- [ ] 리뷰 폼 검증 동작 (이미지, 10자)
-- [ ] 리뷰 제출 후 셀 활성화
-- [ ] 도전 시작 → 보드 생성 → 리다이렉트
+- [x] 리뷰 폼 검증 동작
+- [x] 리뷰 제출 후 셀 활성화
+- [x] 도전 시작 → 보드 생성 → 리다이렉트
 
 ---
 
-## Phase 6: 카카오맵 연동
+## Phase 6: 카카오맵 연동 ✅ 완료
 
 ### TODO
-- [ ] `frontend/.env.local` 생성
-  ```
-  VITE_API_URL=http://localhost:8000/api
-  VITE_KAKAO_JS_KEY=your_kakao_javascript_key
-  ```
-- [ ] `frontend/src/components/map/KakaoMap.jsx` 생성
-  - [ ] Kakao Maps SDK 동적 로딩
-  - [ ] 지도 초기화 (위도/경도 기반)
-  - [ ] 마커 표시
-  - [ ] 인포윈도우 (맛집명)
-- [ ] `frontend/src/components/modals/CellDetailModal.jsx` 수정
-  - [ ] KakaoMap 컴포넌트 통합
-- [ ] `frontend/index.html` 수정 (선택)
-  - [ ] Kakao SDK 프리로드
+- [x] `frontend/src/components/map/KakaoMap.jsx` 생성
+- [x] `frontend/src/hooks/useKakaoMap.js` 생성
+- [x] CellDetailModal에 KakaoMap 통합
 
 ### 검증
-- [ ] 지도 정상 렌더링
-- [ ] 마커 위치 정확성
-- [ ] 인포윈도우 표시
+- [x] 지도 정상 렌더링
+- [x] 마커 위치 정확성
+- [x] 인포윈도우 표시
 
 ---
 
-## Phase 7: 리더보드 및 완료 기능
+## Phase 7: 리더보드 및 완료 기능 ✅ 완료
 
 ### TODO
-- [ ] `backend/api/views.py` 추가
-  - [ ] leaderboard() 함수 뷰
-  - [ ] 최단 시간 클리어 쿼리
-  - [ ] 총 완료 횟수 쿼리
-- [ ] `backend/api/urls.py` 수정
-  - [ ] `/api/leaderboard/` 경로 추가
-- [ ] `frontend/src/api/endpoints.js` 수정
-  - [ ] leaderboardApi 추가
-- [ ] `frontend/src/hooks/useLeaderboard.js` 생성
-  - [ ] useLeaderboard(templateId)
-- [ ] `frontend/src/pages/LeaderboardPage.jsx` 구현
-  - [ ] 템플릿 필터 드롭다운
-  - [ ] 최단 시간 클리어 순위표
-  - [ ] 총 완료 횟수 순위표
-  - [ ] 순위별 스타일링 (금/은/동)
-- [ ] `frontend/src/components/bingo/CompletionCelebration.jsx` 생성
-  - [ ] 축하 모달 UI
-  - [ ] 클리어 시간 표시
-  - [ ] 애니메이션 효과
-- [ ] `frontend/src/pages/BoardPage.jsx` 수정
-  - [ ] 빙고 완료 시 축하 모달 표시
+- [x] `backend/api/views.py` - leaderboard() 함수 뷰 추가
+- [x] `backend/api/urls.py` - `/api/leaderboard/` 경로 추가
+- [x] `frontend/src/hooks/useLeaderboard.js` 생성
+- [x] `frontend/src/pages/LeaderboardPage.jsx` 구현
+- [x] `frontend/src/components/bingo/CompletionCelebration.jsx` 생성
 
 ### 검증
-- [ ] 리더보드 데이터 정상 로드
-- [ ] 템플릿 필터 동작
-- [ ] 빙고 완료 시 축하 모달 표시
+- [x] 리더보드 데이터 정상 로드
+- [x] 빙고 완료 시 축하 모달 표시
 
 ---
 
-## Phase 8: 테스트 및 마무리
+## Phase 8: 테스트 및 마무리 ✅ 완료
 
 ### TODO
-- [ ] 백엔드 테스트 (`backend/api/tests.py`)
-  - [ ] BingoService 가로 라인 감지 테스트
-  - [ ] BingoService 세로 라인 감지 테스트
-  - [ ] BingoService 대각선 라인 감지 테스트
-  - [ ] API 인증 테스트
-  - [ ] 리뷰 생성 → 빙고 완료 통합 테스트
-- [ ] 프론트엔드 테스트
-  - [ ] 테스트 패키지 설치
-    ```bash
-    npm install -D vitest @testing-library/react @testing-library/jest-dom
-    ```
-  - [ ] BingoCell 컴포넌트 테스트
-  - [ ] ReviewForm 검증 테스트
-- [ ] 공통 컴포넌트 생성
-  - [ ] `frontend/src/components/common/ErrorBoundary.jsx`
-  - [ ] `frontend/src/components/common/LoadingSpinner.jsx`
-- [ ] `frontend/src/index.css` 수정
-  - [ ] bounce-in 애니메이션
-  - [ ] pulse-line 애니메이션
-- [ ] `frontend/src/main.jsx` 수정
-  - [ ] ErrorBoundary 래핑
+- [x] 백엔드 테스트 (53개 테스트)
+  - [x] BingoService 라인 감지 테스트
+  - [x] API 인증 테스트
+  - [x] 리뷰 생성 → 빙고 완료 통합 테스트
+- [x] 프론트엔드 테스트 (25개 테스트)
+  - [x] Vitest + Testing Library 설정
+  - [x] 컴포넌트 테스트
+- [x] 공통 컴포넌트 생성
+  - [x] ErrorBoundary
+  - [x] LoadingSpinner
+- [x] 커스텀 애니메이션 (bounce-in, pulse-line)
 
 ### 검증
-- [ ] `python manage.py test` 통과
-- [ ] `npm test` 통과
-- [ ] `npm run build` 성공
-- [ ] E2E 시나리오 수동 테스트
+- [x] `python manage.py test` 통과 (53 tests)
+- [x] `npm run test:run` 통과 (25 tests)
+- [x] `npm run build` 성공
 
 ---
 
-## E2E 테스트 체크리스트
+## 추가 구현: 인증 시스템 ✅ 완료
 
-- [ ] 템플릿 목록 조회
-- [ ] 템플릿 상세 보기
-- [ ] 목표 라인 설정 후 도전 시작
-- [ ] 빙고 보드 5x5 그리드 표시
-- [ ] 셀 클릭 → 맛집 상세 모달
-- [ ] 카카오맵 맛집 위치 표시
-- [ ] 리뷰 작성 (이미지, 내용, 평점)
-- [ ] 리뷰 제출 → 셀 활성화
-- [ ] 빙고 라인 완성 감지
-- [ ] 목표 달성 → 축하 모달
-- [ ] 리더보드 순위 확인
+- [x] Token Authentication 설정
+- [x] 회원가입 API (`POST /api/auth/register/`)
+- [x] 로그인 API (`POST /api/auth/login/`)
+- [x] 로그아웃 API (`POST /api/auth/logout/`)
+- [x] 현재 사용자 API (`GET /api/auth/me/`)
+- [x] AuthContext + AuthProvider
+- [x] LoginPage, RegisterPage
+- [x] 테스트 계정 Production 숨김 (`import.meta.env.DEV`)
+
+---
+
+## 추가 구현: 모바일 반응형 ✅ 완료
+
+- [x] 모바일 우선 디자인 (기본 모바일, sm: 데스크탑)
+- [x] 햄버거 메뉴 네비게이션
+- [x] 바텀시트 모달 (CellDetailModal)
+- [x] 반응형 그리드/텍스트/간격
+- [x] 터치 친화적 UI
+
+---
+
+## 추가 구현: 프로덕션 배포 ✅ 완료
+
+### Backend (Railway)
+- [x] Dockerfile + start.sh
+- [x] PostgreSQL 연결
+- [x] 환경변수 설정 (SECRET_KEY, ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS)
+- [x] 초기 데이터 fixture (loaddata initial_data)
+
+### Frontend (Vercel)
+- [x] vercel.json (SPA 라우팅 + 캐시 헤더)
+- [x] 환경변수 설정 (VITE_API_URL)
+- [x] stale-while-revalidate 캐시 전략
+
+### 배포 URL
+- Backend: https://delicious-bingo-production.up.railway.app
+- Frontend: https://frontend-ashy-rho-12.vercel.app
+
+---
+
+## 추가 구현: E2E 프로덕션 테스트 ✅ 완료
+
+- [x] Playwright 기반 테스트 스크립트
+- [x] 12개 테스트 항목
+- [x] `frontend/e2e-prod-test.cjs`
+
+---
+
+## E2E 테스트 체크리스트 ✅ 모두 완료
+
+- [x] 템플릿 목록 조회
+- [x] 템플릿 상세 보기
+- [x] 목표 라인 설정 후 도전 시작
+- [x] 빙고 보드 5x5 그리드 표시
+- [x] 셀 클릭 → 맛집 상세 모달
+- [x] 카카오맵 맛집 위치 표시
+- [x] 리뷰 작성 (이미지, 내용, 평점)
+- [x] 리뷰 제출 → 셀 활성화
+- [x] 빙고 라인 완성 감지
+- [x] 목표 달성 → 축하 모달
+- [x] 리더보드 순위 확인
 
 ---
 
@@ -280,60 +259,56 @@
 
 ```
 delicious_bingo/
-├── PLAN.md
-├── PRD.md
+├── PLAN.md                     ✅ 완료
+├── PRD.md                      ✅ 완료
+├── README.md                   ✅ 완료
+├── DEPLOY.md                   ✅ 완료
+├── CLAUDE.md                   ✅ 완료
 ├── backend/
 │   ├── api/
-│   │   ├── models.py        ✅ 완료
-│   │   ├── admin.py         ✅ 완료
-│   │   ├── serializers.py   ✅ Phase 1-2 완료
-│   │   ├── services.py      ✅ Phase 2 완료
-│   │   ├── views.py         ✅ Phase 1-2 완료 (Phase 7 추가 예정)
-│   │   ├── urls.py          ✅ Phase 1-2 완료 (Phase 7 추가 예정)
-│   │   └── tests.py         ✅ Phase 1-2 완료 (Phase 8 추가 예정)
+│   │   ├── fixtures/
+│   │   │   └── initial_data.json  ✅ 완료
+│   │   ├── models.py              ✅ 완료
+│   │   ├── admin.py               ✅ 완료
+│   │   ├── serializers.py         ✅ 완료
+│   │   ├── services.py            ✅ 완료
+│   │   ├── views.py               ✅ 완료
+│   │   ├── urls.py                ✅ 완료
+│   │   └── tests.py               ✅ 완료 (53 tests)
 │   ├── config/
-│   │   ├── settings.py      ✅ 완료
-│   │   └── urls.py          ✅ Phase 1 완료
-│   └── requirements.txt     ✅ 완료
+│   │   ├── settings.py            ✅ 완료
+│   │   └── urls.py                ✅ 완료
+│   ├── Dockerfile                 ✅ 완료
+│   ├── start.sh                   ✅ 완료
+│   └── requirements.txt           ✅ 완료
 └── frontend/
     ├── src/
     │   ├── api/
-    │   │   ├── client.js    📋 Phase 3
-    │   │   └── endpoints.js 📋 Phase 3, 7
+    │   │   ├── client.js          ✅ 완료
+    │   │   └── endpoints.js       ✅ 완료
+    │   ├── contexts/
+    │   │   ├── authContext.js     ✅ 완료
+    │   │   └── AuthProvider.jsx   ✅ 완료
     │   ├── hooks/
-    │   │   ├── useTemplates.js  📋 Phase 3
-    │   │   ├── useBoards.js     📋 Phase 3
-    │   │   └── useLeaderboard.js 📋 Phase 7
+    │   │   ├── useAuth.js         ✅ 완료
+    │   │   ├── useTemplates.js    ✅ 완료
+    │   │   ├── useBoards.js       ✅ 완료
+    │   │   ├── useLeaderboard.js  ✅ 완료
+    │   │   └── useKakaoMap.js     ✅ 완료
     │   ├── components/
-    │   │   ├── Layout.jsx           📋 Phase 3
-    │   │   ├── bingo/
-    │   │   │   ├── BingoGrid.jsx    📋 Phase 4
-    │   │   │   ├── BingoCell.jsx    📋 Phase 4
-    │   │   │   ├── BingoHeader.jsx  📋 Phase 4
-    │   │   │   └── CompletionCelebration.jsx 📋 Phase 7
-    │   │   ├── modals/
-    │   │   │   └── CellDetailModal.jsx 📋 Phase 5-6
-    │   │   ├── forms/
-    │   │   │   └── ReviewForm.jsx   📋 Phase 5
-    │   │   ├── map/
-    │   │   │   └── KakaoMap.jsx     📋 Phase 6
-    │   │   └── common/
-    │   │       ├── ErrorBoundary.jsx 📋 Phase 8
-    │   │       └── LoadingSpinner.jsx 📋 Phase 8
-    │   ├── pages/
-    │   │   ├── HomePage.jsx         📋 Phase 3
-    │   │   ├── TemplateListPage.jsx 📋 Phase 3, 5
-    │   │   ├── TemplateDetailPage.jsx 📋 Phase 3, 5
-    │   │   ├── BoardPage.jsx        📋 Phase 3-5, 7
-    │   │   ├── MyBoardsPage.jsx     📋 Phase 3
-    │   │   └── LeaderboardPage.jsx  📋 Phase 3, 7
-    │   ├── router.jsx       📋 Phase 3
-    │   ├── main.jsx         📋 Phase 3, 8
-    │   ├── App.jsx          ✅ 완료
-    │   └── index.css        📋 Phase 8
-    ├── .env.local           📋 Phase 6
-    ├── index.html           📋 Phase 6
-    └── package.json         ✅ 완료
+    │   │   ├── Layout.jsx         ✅ 완료
+    │   │   ├── bingo/             ✅ 완료
+    │   │   ├── modals/            ✅ 완료
+    │   │   ├── forms/             ✅ 완료
+    │   │   ├── map/               ✅ 완료
+    │   │   └── common/            ✅ 완료
+    │   ├── pages/                 ✅ 완료 (8 pages)
+    │   ├── router.jsx             ✅ 완료
+    │   ├── main.jsx               ✅ 완료
+    │   └── index.css              ✅ 완료
+    ├── e2e-prod-test.cjs          ✅ 완료 (12 tests)
+    ├── vercel.json                ✅ 완료
+    └── package.json               ✅ 완료
 ```
 
 ---
@@ -344,9 +319,13 @@ delicious_bingo/
 |-------|------|--------|
 | Phase 1 | ✅ 완료 | 2026-01-09 |
 | Phase 2 | ✅ 완료 | 2026-01-09 |
-| Phase 3 | ⬜ 대기 | - |
-| Phase 4 | ⬜ 대기 | - |
-| Phase 5 | ⬜ 대기 | - |
-| Phase 6 | ⬜ 대기 | - |
-| Phase 7 | ⬜ 대기 | - |
-| Phase 8 | ⬜ 대기 | - |
+| Phase 3 | ✅ 완료 | 2026-01-09 |
+| Phase 4 | ✅ 완료 | 2026-01-09 |
+| Phase 5 | ✅ 완료 | 2026-01-09 |
+| Phase 6 | ✅ 완료 | 2026-01-09 |
+| Phase 7 | ✅ 완료 | 2026-01-09 |
+| Phase 8 | ✅ 완료 | 2026-01-09 |
+| 인증 시스템 | ✅ 완료 | 2026-01-09 |
+| 모바일 반응형 | ✅ 완료 | 2026-01-09 |
+| 프로덕션 배포 | ✅ 완료 | 2026-01-10 |
+| E2E 테스트 | ✅ 완료 | 2026-01-10 |
