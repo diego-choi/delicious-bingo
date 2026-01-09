@@ -149,9 +149,10 @@ VITE_API_URL, VITE_KAKAO_JS_KEY
 - 57개 컴포넌트 테스트 (Vitest + Testing Library)
 
 ### E2E Production
-- 12개 Playwright 테스트
+- 15개 Playwright 테스트
 - 홈페이지, 템플릿, 로그인/회원가입, 리더보드
 - 회원가입/로그인 플로우
+- 프로필 페이지 (통계, 수정 버튼)
 - 모바일 반응형
 
 ## 8. Future Improvements (TODO)
