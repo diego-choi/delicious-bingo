@@ -62,7 +62,12 @@ export default function Layout() {
                   <span className="text-gray-400 text-sm">...</span>
                 ) : isAuthenticated ? (
                   <div className="flex items-center space-x-3">
-                    <span className="text-sm text-gray-600 hidden lg:inline">{user.username}</span>
+                    <Link
+                      to="/profile"
+                      className="text-sm text-gray-600 hover:text-amber-600 hidden lg:inline"
+                    >
+                      {user.username}
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
@@ -133,7 +138,13 @@ export default function Layout() {
                 <span className="text-gray-400 text-sm">...</span>
               ) : isAuthenticated ? (
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-600 px-3">{user.username}님</p>
+                  <Link
+                    to="/profile"
+                    onClick={handleNavClick}
+                    className="block px-3 py-2 text-base text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                  >
+                    {user.username}님의 프로필
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-3 py-2 text-base text-gray-600 hover:bg-gray-100 rounded-md transition-colors"

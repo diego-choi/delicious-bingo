@@ -292,3 +292,91 @@ def me_view(request):
         'username': user.username,
         'email': user.email,
     })
+
+
+@api_view(['GET', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def profile_view(request):
+    """
+    사용자 프로필 조회 및 수정 API
+    GET: 프로필 정보, 통계, 최근 활동 조회
+    PATCH: 프로필 정보 수정 (username, email)
+    """
+    from django.db import models
+    from .serializers import UserProfileUpdateSerializer
+
+    user = request.user
+
+    if request.method == 'PATCH':
+        serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+            })
+        return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    # GET method - 전체 프로필 데이터 반환
+    # 통계 계산
+    total_boards = BingoBoard.objects.filter(user=user).count()
+    completed_boards = BingoBoard.objects.filter(user=user, is_completed=True).count()
+    total_reviews = Review.objects.filter(user=user).count()
+
+    avg_rating = Review.objects.filter(user=user).aggregate(
+        avg=models.Avg('rating')
+    )['avg']
+    if avg_rating:
+        avg_rating = round(avg_rating, 1)
+
+    # 최근 활동
+    recent_completed = (
+        BingoBoard.objects
+        .filter(user=user, is_completed=True)
+        .select_related('template')
+        .order_by('-completed_at')[:5]
+    )
+
+    recent_reviews = (
+        Review.objects
+        .filter(user=user)
+        .select_related('restaurant')
+        .order_by('-created_at')[:5]
+    )
+
+    return Response({
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'date_joined': user.date_joined.isoformat(),
+        },
+        'statistics': {
+            'total_boards': total_boards,
+            'completed_boards': completed_boards,
+            'total_reviews': total_reviews,
+            'average_rating': avg_rating,
+        },
+        'recent_activity': {
+            'completed_boards': [
+                {
+                    'id': board.id,
+                    'template_title': board.template.title,
+                    'completed_at': board.completed_at.isoformat(),
+                    'target_line_count': board.target_line_count,
+                }
+                for board in recent_completed
+            ],
+            'recent_reviews': [
+                {
+                    'id': review.id,
+                    'restaurant_name': review.restaurant.name,
+                    'rating': review.rating,
+                    'visited_date': review.visited_date.isoformat(),
+                    'created_at': review.created_at.isoformat(),
+                }
+                for review in recent_reviews
+            ],
+        },
+    })

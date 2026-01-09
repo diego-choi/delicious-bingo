@@ -945,3 +945,147 @@ class ReviewImageURLTest(APITestCase):
         # 이미지 URL이 존재하고 비어있지 않아야 함
         image_url = activated_cell['review']['image']
         self.assertTrue(len(image_url) > 0)
+
+
+# =============================================================================
+# Profile API 테스트
+# =============================================================================
+
+class ProfileAPITest(APITestCase):
+    """프로필 API 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'testuser',
+            email='test@test.com',
+            password='testpass'
+        )
+        self.category = Category.objects.create(name="테스트")
+        self.template = BingoTemplate.objects.create(
+            category=self.category,
+            title="테스트 빙고"
+        )
+        # 25개 레스토랑과 템플릿 아이템 생성
+        self.restaurants = []
+        for i in range(25):
+            restaurant = Restaurant.objects.create(
+                category=self.category,
+                name=f"맛집{i}",
+                address=f"주소{i}",
+                latitude=37.0,
+                longitude=127.0,
+                is_approved=True,
+                created_by=self.user
+            )
+            self.restaurants.append(restaurant)
+            BingoTemplateItem.objects.create(
+                template=self.template,
+                restaurant=restaurant,
+                position=i
+            )
+
+    def test_profile_requires_auth(self):
+        """GET /api/auth/profile/ 는 인증이 필요하다"""
+        response = self.client.get('/api/auth/profile/')
+        self.assertIn(response.status_code, [401, 403])
+
+    def test_profile_returns_user_info(self):
+        """프로필에 사용자 정보가 포함되어야 한다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/auth/profile/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('user', response.data)
+        self.assertEqual(response.data['user']['username'], 'testuser')
+        self.assertEqual(response.data['user']['email'], 'test@test.com')
+        self.assertIn('date_joined', response.data['user'])
+
+    def test_profile_returns_statistics(self):
+        """프로필에 통계 정보가 포함되어야 한다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/auth/profile/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('statistics', response.data)
+        stats = response.data['statistics']
+        self.assertIn('total_boards', stats)
+        self.assertIn('completed_boards', stats)
+        self.assertIn('total_reviews', stats)
+        self.assertIn('average_rating', stats)
+
+    def test_profile_statistics_accuracy(self):
+        """통계가 정확하게 계산되어야 한다"""
+        from django.utils import timezone
+        # 빙고 보드 생성 (완료됨)
+        board = BingoBoard.objects.create(
+            user=self.user,
+            template=self.template,
+            target_line_count=1,
+            is_completed=True,
+            completed_at=timezone.now()
+        )
+        # 리뷰 2개 생성
+        Review.objects.create(
+            user=self.user,
+            bingo_board=board,
+            restaurant=self.restaurants[0],
+            content='테스트 리뷰입니다 10자 이상',
+            rating=4,
+            visited_date='2025-01-01'
+        )
+        Review.objects.create(
+            user=self.user,
+            bingo_board=board,
+            restaurant=self.restaurants[1],
+            content='두번째 리뷰입니다 10자 이상',
+            rating=5,
+            visited_date='2025-01-02'
+        )
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/auth/profile/')
+        stats = response.data['statistics']
+        self.assertEqual(stats['total_boards'], 1)
+        self.assertEqual(stats['completed_boards'], 1)
+        self.assertEqual(stats['total_reviews'], 2)
+        self.assertEqual(stats['average_rating'], 4.5)
+
+    def test_profile_returns_recent_activity(self):
+        """프로필에 최근 활동이 포함되어야 한다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/auth/profile/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('recent_activity', response.data)
+        activity = response.data['recent_activity']
+        self.assertIn('completed_boards', activity)
+        self.assertIn('recent_reviews', activity)
+
+    def test_profile_update_success(self):
+        """프로필 수정이 성공해야 한다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch('/api/auth/profile/', {
+            'username': 'newusername',
+            'email': 'newemail@test.com'
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], 'newusername')
+        self.assertEqual(response.data['email'], 'newemail@test.com')
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, 'newusername')
+
+    def test_profile_update_username_validation(self):
+        """사용자명 유효성 검사가 작동해야 한다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch('/api/auth/profile/', {
+            'username': 'ab'  # Too short
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', response.data['errors'])
+
+    def test_profile_update_username_unique(self):
+        """다른 사용자의 사용자명으로 변경 불가"""
+        User.objects.create_user('existinguser', password='testpass')
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch('/api/auth/profile/', {
+            'username': 'existinguser'
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', response.data['errors'])

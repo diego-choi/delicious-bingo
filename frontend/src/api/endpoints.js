@@ -41,4 +41,6 @@ export const authApi = {
     apiClient.post('/auth/login/', { username, password }),
   logout: () => apiClient.post('/auth/logout/'),
   me: () => apiClient.get('/auth/me/'),
+  getProfile: () => apiClient.get('/auth/profile/'),
+  updateProfile: (data) => apiClient.patch('/auth/profile/', data),
 };
