@@ -21,4 +21,4 @@ RUN python manage.py collectstatic --noinput
 ENV PORT=8000
 
 # Run migrations and start gunicorn
-CMD python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:$PORT
+CMD ["/bin/sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:${PORT}"]
