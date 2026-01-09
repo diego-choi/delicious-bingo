@@ -203,10 +203,38 @@ cd frontend && npm run lint
 ## 알려진 이슈 / TODO
 
 - [ ] 카카오맵 API 키 설정 필요 (`.env.local`에 `VITE_KAKAO_JS_KEY`)
-- [ ] 프로덕션 배포 설정
+- [x] 프로덕션 배포 설정 (구현 완료 - `DEPLOY.md` 참조)
 - [x] 회원가입 기능 (구현 완료)
 - [ ] 소셜 로그인 연동
 - [x] 모바일 반응형 최적화 (구현 완료)
+
+## 프로덕션 배포
+
+자세한 배포 가이드는 `DEPLOY.md` 참조.
+
+### 배포 아키텍처
+- **Frontend**: Vercel (React + Vite)
+- **Backend**: Railway (Django + Gunicorn + WhiteNoise)
+- **Database**: Railway PostgreSQL
+
+### 주요 설정 파일
+| 파일 | 설명 |
+|------|------|
+| `backend/requirements.txt` | Python 의존성 (gunicorn, whitenoise, dj-database-url) |
+| `backend/Procfile` | Railway/Heroku 시작 명령 |
+| `backend/railway.json` | Railway 배포 설정 |
+| `backend/.env.example` | 환경 변수 예시 |
+| `frontend/vercel.json` | Vercel SPA 라우팅 설정 |
+| `frontend/.env.example` | 환경 변수 예시 |
+
+### 환경 변수
+```bash
+# Backend
+SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL, CORS_ALLOWED_ORIGINS
+
+# Frontend
+VITE_API_URL, VITE_KAKAO_JS_KEY
+```
 
 ## 모바일 반응형 디자인
 

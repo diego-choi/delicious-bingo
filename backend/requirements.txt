@@ -1,7 +1,15 @@
-asgiref==3.11.0
+# Django
 Django==6.0.1
-django-cors-headers==4.9.0
 djangorestframework==3.16.1
-pillow==12.1.0
+django-cors-headers==4.9.0
+
+# Database
 psycopg2-binary==2.9.11
-sqlparse==0.5.5
+dj-database-url==2.3.0
+
+# Production server
+gunicorn==23.0.0
+whitenoise==6.8.2
+
+# Image processing
+pillow==12.1.0
