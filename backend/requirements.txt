@@ -13,3 +13,7 @@ whitenoise==6.8.2
 
 # Image processing
 pillow==12.1.0
+
+# Cloud storage (production)
+cloudinary==1.40.0
+django-cloudinary-storage==0.3.0

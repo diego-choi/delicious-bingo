@@ -879,3 +879,69 @@ class RegisterAPITest(APITestCase):
         self.assertIn('email', errors)
         self.assertIn('password', errors)
         self.assertIn('password_confirm', errors)
+
+
+# =============================================================================
+# 이미지 URL 테스트 (Cloudinary 연동)
+# =============================================================================
+
+class ReviewImageURLTest(APITestCase):
+    """리뷰 이미지 URL 테스트 - 프로덕션에서 절대 경로 반환 확인"""
+
+    def setUp(self):
+        self.user = User.objects.create_user('testuser', password='testpass')
+        self.category = Category.objects.create(name="테스트")
+        self.template = BingoTemplate.objects.create(
+            category=self.category,
+            title="테스트 빙고"
+        )
+        self.restaurant = Restaurant.objects.create(
+            category=self.category,
+            name="테스트 맛집",
+            address="테스트 주소",
+            latitude=37.0,
+            longitude=127.0,
+            is_approved=True,
+            created_by=self.user
+        )
+        BingoTemplateItem.objects.create(
+            template=self.template,
+            restaurant=self.restaurant,
+            position=0
+        )
+        self.board = BingoBoard.objects.create(
+            user=self.user,
+            template=self.template,
+            target_line_count=1
+        )
+
+    def test_review_image_url_in_board_response(self):
+        """빙고 보드 응답에서 리뷰 이미지 URL이 포함되어야 한다"""
+        # 리뷰 생성 (이미지 포함)
+        Review.objects.create(
+            user=self.user,
+            bingo_board=self.board,
+            restaurant=self.restaurant,
+            image='reviews/test.jpg',
+            content='테스트 리뷰입니다 10자 이상',
+            rating=5,
+            visited_date='2025-01-01'
+        )
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(f'/api/boards/{self.board.id}/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # 활성화된 셀의 리뷰 찾기
+        activated_cell = next(
+            (c for c in response.data['cells'] if c['is_activated']),
+            None
+        )
+        self.assertIsNotNone(activated_cell)
+        self.assertIsNotNone(activated_cell['review'])
+        self.assertIsNotNone(activated_cell['review']['image'])
+
+        # 이미지 URL이 존재하고 비어있지 않아야 함
+        image_url = activated_cell['review']['image']
+        self.assertTrue(len(image_url) > 0)
