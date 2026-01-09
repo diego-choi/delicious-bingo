@@ -65,14 +65,14 @@ export default function CompletionCelebration({
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center relative z-10">
+      <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center relative z-10 mx-4">
         {/* 아이콘 */}
-        <div className="text-6xl mb-4">
+        <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">
           {isGoalAchieved ? '🏆' : '🎉'}
         </div>
 
         {/* 제목 */}
-        <h2 className="text-2xl font-bold mb-2">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">
           {isGoalAchieved ? (
             <span className="text-amber-600">목표 달성!</span>
           ) : (
@@ -81,31 +81,31 @@ export default function CompletionCelebration({
         </h2>
 
         {/* 메시지 */}
-        <p className="text-gray-600 mb-2">
+        <p className="text-gray-600 mb-2 text-sm sm:text-base">
           {isGoalAchieved
             ? '축하합니다! 빙고 목표를 달성했습니다!'
             : `${completedLines}줄 빙고를 완성했습니다!`}
         </p>
 
         {isGoalAchieved && (
-          <p className="text-sm text-amber-600 mb-4">
+          <p className="text-xs sm:text-sm text-amber-600 mb-4">
             리더보드에 기록되었습니다! 🏅
           </p>
         )}
 
         {/* 버튼들 */}
-        <div className="space-y-3 mt-6">
+        <div className="space-y-2 sm:space-y-3 mt-4 sm:mt-6">
           {isGoalAchieved && (
             <Link
               to="/leaderboard"
-              className="block w-full py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors"
+              className="block w-full py-2.5 sm:py-3 bg-amber-500 text-white rounded-lg font-semibold text-sm sm:text-base hover:bg-amber-600 transition-colors"
             >
               리더보드 보기
             </Link>
           )}
           <button
             onClick={onClose}
-            className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+            className={`w-full py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-colors ${
               isGoalAchieved
                 ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 : 'bg-amber-500 text-white hover:bg-amber-600'

@@ -30,27 +30,27 @@ export default function TemplateListPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">빙고 템플릿</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">빙고 템플릿</h1>
 
       {templates.length === 0 ? (
-        <p className="text-gray-500 text-center py-12">
+        <p className="text-gray-500 text-center py-8 sm:py-12 text-sm sm:text-base">
           아직 등록된 빙고 템플릿이 없습니다.
         </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {templates.map((template) => (
             <Link
               key={template.id}
               to={`/templates/${template.id}`}
-              className="block bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              className="block bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
             >
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex items-start justify-between mb-2 sm:mb-3">
                 <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">
                   {template.category_name}
                 </span>
               </div>
-              <h2 className="font-semibold text-lg mb-2">{template.title}</h2>
-              <p className="text-gray-600 text-sm line-clamp-3">
+              <h2 className="font-semibold text-base sm:text-lg mb-1 sm:mb-2">{template.title}</h2>
+              <p className="text-gray-600 text-xs sm:text-sm line-clamp-3">
                 {template.description}
               </p>
             </Link>

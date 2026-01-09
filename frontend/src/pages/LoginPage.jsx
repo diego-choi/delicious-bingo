@@ -32,11 +32,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">로그인</h1>
-          <p className="text-gray-500 mt-2">빙고 도전을 시작하세요!</p>
+    <div className="min-h-[80vh] flex items-center justify-center px-4 sm:px-0">
+      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-6 sm:p-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">로그인</h1>
+          <p className="text-gray-500 mt-2 text-sm sm:text-base">빙고 도전을 시작하세요!</p>
         </div>
 
         {error && (
@@ -91,15 +91,15 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-4 sm:mt-6 text-center text-sm text-gray-600">
           계정이 없으신가요?{' '}
           <Link to="/register" className="text-amber-600 hover:text-amber-700 font-medium">
             회원가입
           </Link>
         </div>
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-600 text-center">
+        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+          <p className="text-xs sm:text-sm text-gray-600 text-center">
             테스트 계정: <code className="bg-gray-200 px-1 rounded">testuser</code> / <code className="bg-gray-200 px-1 rounded">testpass123</code>
           </p>
         </div>

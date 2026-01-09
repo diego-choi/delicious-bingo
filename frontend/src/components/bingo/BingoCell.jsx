@@ -11,11 +11,11 @@ function BingoCell({ cell, isHighlighted = false, onClick }) {
   const { restaurant, is_activated } = cell;
 
   const baseClasses =
-    'aspect-square p-2 rounded-lg text-center text-xs font-medium transition-all duration-200 cursor-pointer flex flex-col items-center justify-center';
+    'aspect-square p-1 sm:p-2 rounded-md sm:rounded-lg text-center text-[10px] sm:text-xs font-medium transition-all duration-200 cursor-pointer flex flex-col items-center justify-center';
 
   const stateClasses = is_activated
     ? 'bg-green-500 text-white shadow-md'
-    : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-amber-400 hover:bg-amber-50';
+    : 'bg-white border border-gray-200 sm:border-2 text-gray-700 hover:border-amber-400 hover:bg-amber-50';
 
   const highlightClasses = isHighlighted
     ? 'ring-2 ring-amber-500 ring-offset-1 animate-pulse'
@@ -27,9 +27,9 @@ function BingoCell({ cell, isHighlighted = false, onClick }) {
       onClick={() => onClick(cell)}
       className={`${baseClasses} ${stateClasses} ${highlightClasses}`}
     >
-      <span className="line-clamp-2 leading-tight">{restaurant.name}</span>
+      <span className="line-clamp-2 leading-tight break-keep">{restaurant.name}</span>
       {is_activated && (
-        <span className="mt-1 text-base">✓</span>
+        <span className="mt-0.5 sm:mt-1 text-sm sm:text-base">✓</span>
       )}
     </button>
   );

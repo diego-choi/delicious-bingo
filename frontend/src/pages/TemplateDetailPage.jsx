@@ -39,24 +39,24 @@ export default function TemplateDetailPage() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* 템플릿 정보 */}
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-4 sm:mb-6">
         <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">
           {template.category_name}
         </span>
-        <h1 className="text-2xl font-bold mt-3 mb-2">{template.title}</h1>
-        <p className="text-gray-600">{template.description}</p>
+        <h1 className="text-xl sm:text-2xl font-bold mt-2 sm:mt-3 mb-1 sm:mb-2">{template.title}</h1>
+        <p className="text-gray-600 text-sm sm:text-base">{template.description}</p>
       </div>
 
       {/* 맛집 목록 미리보기 */}
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
-        <h2 className="font-semibold text-lg mb-4">포함된 맛집 ({template.items?.length || 0}개)</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-4 sm:mb-6">
+        <h2 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">포함된 맛집 ({template.items?.length || 0}개)</h2>
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {template.items?.map((item, index) => (
             <div
               key={item.id}
-              className="p-3 bg-gray-50 rounded text-center text-sm"
+              className="p-2 sm:p-3 bg-gray-50 rounded text-center text-xs sm:text-sm"
             >
-              <span className="text-gray-400 text-xs">#{index + 1}</span>
+              <span className="text-gray-400 text-[10px] sm:text-xs">#{index + 1}</span>
               <p className="font-medium truncate">{item.restaurant.name}</p>
             </div>
           ))}
@@ -64,23 +64,23 @@ export default function TemplateDetailPage() {
       </div>
 
       {/* 도전 시작 */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="font-semibold text-lg mb-4">빙고 도전하기</h2>
-        <p className="text-gray-600 mb-4">목표 라인 수를 선택하세요 (최대 12줄)</p>
-        <div className="flex flex-wrap gap-3">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">빙고 도전하기</h2>
+        <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">목표 라인 수를 선택하세요 (최대 12줄)</p>
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
           {[1, 3, 5, 12].map((lines) => (
             <button
               key={lines}
               onClick={() => handleStartChallenge(lines)}
               disabled={createBoard.isPending}
-              className="px-6 py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-amber-500 text-white rounded-lg font-semibold text-sm sm:text-base hover:bg-amber-600 transition-colors disabled:opacity-50"
             >
               {lines}줄 빙고 도전
             </button>
           ))}
         </div>
         {createBoard.isPending && (
-          <p className="text-gray-500 mt-3">보드 생성 중...</p>
+          <p className="text-gray-500 text-sm mt-3">보드 생성 중...</p>
         )}
       </div>
     </div>

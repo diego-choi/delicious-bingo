@@ -40,27 +40,27 @@ export default function MyBoardsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">내 빙고 보드</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">내 빙고 보드</h1>
 
       {boards.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow">
-          <p className="text-gray-500 mb-4">아직 시작한 빙고가 없습니다.</p>
+        <div className="text-center py-8 sm:py-12 bg-white rounded-lg shadow">
+          <p className="text-gray-500 mb-4 text-sm sm:text-base">아직 시작한 빙고가 없습니다.</p>
           <Link
             to="/templates"
-            className="inline-block bg-amber-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-600 transition-colors"
+            className="inline-block bg-amber-500 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base hover:bg-amber-600 transition-colors"
           >
             빙고 도전하기
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {boards.map((board) => (
             <Link
               key={board.id}
               to={`/boards/${board.id}`}
-              className="block bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow relative"
+              className="block bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow relative"
             >
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex items-start justify-between mb-2 sm:mb-3">
                 <span className={`text-xs px-2 py-1 rounded ${
                   board.is_completed
                     ? 'bg-green-100 text-green-700'
@@ -70,13 +70,13 @@ export default function MyBoardsPage() {
                 </span>
                 <button
                   onClick={(e) => handleDelete(board.id, e)}
-                  className="text-gray-400 hover:text-red-500 transition-colors"
+                  className="text-gray-400 hover:text-red-500 transition-colors text-sm"
                 >
                   삭제
                 </button>
               </div>
-              <h2 className="font-semibold text-lg mb-2">{board.template_title}</h2>
-              <div className="text-sm text-gray-600 space-y-1">
+              <h2 className="font-semibold text-base sm:text-lg mb-2">{board.template_title}</h2>
+              <div className="text-xs sm:text-sm text-gray-600 space-y-1">
                 <p>목표: {board.target_line_count}줄</p>
                 <p>완료 라인: {board.completed_lines || 0}줄</p>
                 <p>진행률: {board.progress?.percentage || 0}%</p>
