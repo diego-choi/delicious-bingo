@@ -17,8 +17,8 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Expose port
-EXPOSE 8000
+# Default port (Railway provides PORT env var)
+ENV PORT=8000
 
-# Run gunicorn
-CMD ["gunicorn", "config.wsgi", "--bind", "0.0.0.0:8000"]
+# Run migrations and start gunicorn
+CMD python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:$PORT
