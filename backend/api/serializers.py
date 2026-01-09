@@ -119,9 +119,9 @@ class BingoBoardSerializer(serializers.ModelSerializer):
             review = reviews_by_restaurant.get(item.restaurant_id)
             cells.append({
                 'position': item.position,
-                'restaurant': RestaurantSerializer(item.restaurant).data,
+                'restaurant': RestaurantSerializer(item.restaurant, context=self.context).data,
                 'is_activated': review is not None,
-                'review': ReviewSerializer(review).data if review else None,
+                'review': ReviewSerializer(review, context=self.context).data if review else None,
             })
         return sorted(cells, key=lambda x: x['position'])
 
