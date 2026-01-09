@@ -34,14 +34,18 @@ delicious_bingo/
 │   │   ├── services.py        # BingoService (라인 감지 로직)
 │   │   ├── urls.py            # API 라우팅
 │   │   ├── admin.py           # Admin 설정
-│   │   ├── tests.py           # 40개 테스트
-│   │   └── management/commands/seed_data.py  # 샘플 데이터 생성
+│   │   ├── tests.py           # 54개 테스트
+│   │   ├── fixtures/initial_data.json  # 프로덕션 초기 데이터
+│   │   └── management/commands/seed_data.py  # 개발용 샘플 데이터
 │   ├── config/
 │   │   ├── settings.py        # Django 설정 (CORS, DRF, Auth)
 │   │   └── urls.py
-│   ├── venv/                  # Python 가상환경
-│   ├── media/                 # 업로드된 이미지
-│   └── db.sqlite3
+│   ├── Dockerfile             # Railway Docker 빌드
+│   ├── start.sh               # 컨테이너 시작 스크립트
+│   ├── requirements.txt       # Python 의존성
+│   ├── venv/                  # Python 가상환경 (로컬)
+│   ├── media/                 # 업로드된 이미지 (로컬)
+│   └── db.sqlite3             # SQLite DB (로컬)
 │
 ├── frontend/
 │   ├── src/
@@ -141,7 +145,7 @@ WINNING_LINES = [
 5. **리뷰 및 인터랙션**: ReviewForm, CellDetailModal
 6. **카카오맵 연동**: KakaoMap, useKakaoMap
 7. **리더보드**: Leaderboard API, LeaderboardPage, CompletionCelebration
-8. **테스트 및 마무리**: Backend 53 tests, Frontend 40 tests
+8. **테스트 및 마무리**: Backend 54 tests, Frontend 25 tests
 
 ### 추가 구현
 
@@ -175,8 +179,8 @@ python manage.py seed_data
 ## 테스트 실행
 
 ```bash
-# Backend (40 tests)
-cd backend && python manage.py test
+# Backend (54 tests)
+cd backend && source venv/bin/activate && python manage.py test
 
 # Frontend (25 tests)
 cd frontend && npm run test:run
@@ -222,21 +226,10 @@ node e2e-prod-test.cjs
 4. **이미지 업로드**: multipart/form-data로 처리
 5. **ESLint 규칙**: react-refresh, react-hooks 엄격 적용
 
-## 해결된 이슈
-
-- [x] **리뷰 후 보드 미갱신**: React Query 쿼리 키 타입 불일치 (`useParams()`는 string, API 응답은 number)
-  - 해결: `String(data.bingo_board)`로 타입 일치
-  - 테스트: `useBoards.test.jsx` 5개 테스트 추가
-- [x] **리뷰 이미지 미표시**: 중첩 Serializer에 request context 미전달로 상대 URL 반환
-  - 해결: `ReviewSerializer(review, context=self.context)` context 전달
-
-## 알려진 이슈 / TODO
+## TODO
 
 - [ ] 카카오맵 API 키 설정 필요 (`.env.local`에 `VITE_KAKAO_JS_KEY`)
-- [x] 프로덕션 배포 설정 (구현 완료 - `DEPLOY.md` 참조)
-- [x] 회원가입 기능 (구현 완료)
 - [ ] 소셜 로그인 연동
-- [x] 모바일 반응형 최적화 (구현 완료)
 
 ## 프로덕션 배포
 
