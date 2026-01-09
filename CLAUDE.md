@@ -10,8 +10,9 @@
 - Django 6.0.1
 - Django REST Framework 3.16
 - Token Authentication (rest_framework.authtoken)
-- SQLite (개발)
+- SQLite (개발) / PostgreSQL (프로덕션)
 - Pillow (이미지 처리)
+- Cloudinary (프로덕션 이미지 저장소)
 
 ### Frontend
 - React 19
@@ -34,7 +35,7 @@ delicious_bingo/
 │   │   ├── services.py        # BingoService (라인 감지 로직)
 │   │   ├── urls.py            # API 라우팅
 │   │   ├── admin.py           # Admin 설정
-│   │   ├── tests.py           # 54개 테스트
+│   │   ├── tests.py           # 55개 테스트
 │   │   ├── fixtures/initial_data.json  # 프로덕션 초기 데이터
 │   │   └── management/commands/seed_data.py  # 개발용 샘플 데이터
 │   ├── config/
@@ -145,7 +146,7 @@ WINNING_LINES = [
 5. **리뷰 및 인터랙션**: ReviewForm, CellDetailModal
 6. **카카오맵 연동**: KakaoMap, useKakaoMap
 7. **리더보드**: Leaderboard API, LeaderboardPage, CompletionCelebration
-8. **테스트 및 마무리**: Backend 54 tests, Frontend 25 tests
+8. **테스트 및 마무리**: Backend 55 tests, Frontend 25 tests
 
 ### 추가 구현
 
@@ -154,6 +155,7 @@ WINNING_LINES = [
 - **축하 모달**: 빙고 완료 시 컨페티 효과
 - **빙고 라인 하이라이트**: 완료된 라인 시각적 표시
 - **모바일 반응형**: 전체 컴포넌트 모바일 우선 디자인 적용
+- **Cloudinary 연동**: 프로덕션 이미지 저장소 (Django 6.0 STORAGES 설정)
 
 ## 개발 환경 실행
 
@@ -179,7 +181,7 @@ python manage.py seed_data
 ## 테스트 실행
 
 ```bash
-# Backend (54 tests)
+# Backend (55 tests)
 cd backend && source venv/bin/activate && python manage.py test
 
 # Frontend (25 tests)
@@ -252,12 +254,18 @@ node e2e-prod-test.cjs
 
 ### 환경 변수
 ```bash
-# Backend
-SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL, CORS_ALLOWED_ORIGINS
+# Backend (Railway)
+SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL, CORS_ALLOWED_ORIGINS, CLOUDINARY_URL
 
-# Frontend
+# Frontend (Vercel)
 VITE_API_URL, VITE_KAKAO_JS_KEY
 ```
+
+### Cloudinary 설정
+- **환경변수**: `CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME`
+- **개발 환경**: 로컬 파일시스템 (`/media/`)
+- **프로덕션**: Cloudinary 클라우드 스토리지
+- **Django 설정**: `STORAGES` (Django 5+ 방식, `DEFAULT_FILE_STORAGE` deprecated)
 
 ## 모바일 반응형 디자인
 

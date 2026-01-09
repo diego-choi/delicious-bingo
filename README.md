@@ -10,6 +10,7 @@
 - Django REST Framework
 - PostgreSQL
 - Gunicorn
+- Cloudinary (이미지 저장소)
 
 ### Frontend
 - React 18
@@ -229,6 +230,7 @@ python manage.py createsuperuser
 | `ALLOWED_HOSTS` | O | 허용 호스트 | `.railway.app` |
 | `DATABASE_URL` | O | PostgreSQL URL | 자동 설정 (Railway) |
 | `CORS_ALLOWED_ORIGINS` | O | CORS 허용 도메인 | `https://xxx.vercel.app` |
+| `CLOUDINARY_URL` | O | Cloudinary 연결 URL | `cloudinary://API_KEY:SECRET@CLOUD_NAME` |
 
 ### Vercel (Frontend)
 | 변수 | 필수 | 설명 | 예시 |

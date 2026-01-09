@@ -170,7 +170,7 @@
 ## Phase 8: 테스트 및 마무리 ✅ 완료
 
 ### TODO
-- [x] 백엔드 테스트 (53개 테스트)
+- [x] 백엔드 테스트 (55개 테스트)
   - [x] BingoService 라인 감지 테스트
   - [x] API 인증 테스트
   - [x] 리뷰 생성 → 빙고 완료 통합 테스트
@@ -183,7 +183,7 @@
 - [x] 커스텀 애니메이션 (bounce-in, pulse-line)
 
 ### 검증
-- [x] `python manage.py test` 통과 (53 tests)
+- [x] `python manage.py test` 통과 (55 tests)
 - [x] `npm run test:run` 통과 (25 tests)
 - [x] `npm run build` 성공
 
@@ -239,6 +239,26 @@
 
 ---
 
+## 추가 구현: Cloudinary 클라우드 스토리지 ✅ 완료
+
+### 문제
+- 프로덕션에서 리뷰 이미지 404 오류
+- Railway 컨테이너 휘발성 파일시스템
+- WhiteNoise는 static 파일만 서빙 (media 미지원)
+
+### 해결
+- [x] cloudinary, django-cloudinary-storage 패키지 추가
+- [x] Django 6.0 `STORAGES` 설정 구성
+- [x] CLOUDINARY_URL 환경변수 기반 조건부 설정
+- [x] TDD 방식으로 이미지 URL 테스트 추가
+
+### 검증
+- [x] 로컬 환경: 로컬 파일시스템 사용
+- [x] 프로덕션 환경: Cloudinary 사용 (res.cloudinary.com 도메인)
+- [x] 컨테이너 재시작 후 이미지 유지 확인
+
+---
+
 ## E2E 테스트 체크리스트 ✅ 모두 완료
 
 - [x] 템플릿 목록 조회
@@ -274,7 +294,7 @@ delicious_bingo/
 │   │   ├── services.py            ✅ 완료
 │   │   ├── views.py               ✅ 완료
 │   │   ├── urls.py                ✅ 완료
-│   │   └── tests.py               ✅ 완료 (53 tests)
+│   │   └── tests.py               ✅ 완료 (55 tests)
 │   ├── config/
 │   │   ├── settings.py            ✅ 완료
 │   │   └── urls.py                ✅ 완료
@@ -329,3 +349,4 @@ delicious_bingo/
 | 모바일 반응형 | ✅ 완료 | 2026-01-09 |
 | 프로덕션 배포 | ✅ 완료 | 2026-01-10 |
 | E2E 테스트 | ✅ 완료 | 2026-01-10 |
+| Cloudinary 연동 | ✅ 완료 | 2026-01-10 |

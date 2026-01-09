@@ -8,11 +8,18 @@
 │   (Frontend)    │     │   (Backend)     │     │   (Database)    │
 │   React + Vite  │     │  Django + DRF   │     │                 │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
+                               │
+                               ▼
+                        ┌─────────────────┐
+                        │   Cloudinary    │
+                        │ (Image Storage) │
+                        └─────────────────┘
 ```
 
 - **Frontend**: Vercel (React + Vite)
 - **Backend**: Railway (Django + Gunicorn)
 - **Database**: Railway PostgreSQL
+- **Image Storage**: Cloudinary
 
 ---
 
@@ -42,6 +49,7 @@ DEBUG=False
 ALLOWED_HOSTS=.railway.app
 DATABASE_URL=<PostgreSQL-URL>  # PostgreSQL 서비스 연결 시 자동 설정
 CORS_ALLOWED_ORIGINS=https://<your-frontend>.vercel.app
+CLOUDINARY_URL=cloudinary://<API_KEY>:<API_SECRET>@<CLOUD_NAME>
 
 # 시크릿 키 생성 (터미널에서 실행)
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
@@ -67,13 +75,48 @@ python manage.py loaddata initial_data
 
 ---
 
-## 2. Frontend 배포 (Vercel)
+## 2. Cloudinary 설정 (이미지 저장소)
 
-### 2.1 Vercel 계정 생성
+Railway 컨테이너는 휘발성 파일시스템이므로, 리뷰 이미지는 Cloudinary에 저장됩니다.
+
+### 2.1 Cloudinary 계정 생성
+1. [Cloudinary](https://cloudinary.com) 접속
+2. 회원가입 (무료 티어: 25GB 저장, 25GB 대역폭/월)
+
+### 2.2 API 자격 증명 확인
+1. Dashboard 접속
+2. 다음 정보 확인:
+   - **Cloud Name**
+   - **API Key**
+   - **API Secret**
+
+### 2.3 CLOUDINARY_URL 형식
+```
+cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+```
+
+예시:
+```
+cloudinary://123456789012345:abcDEFghiJKLmnoPQRstu-vwxyz@my-cloud-name
+```
+
+### 2.4 Railway 환경변수 등록
+Railway Dashboard → 프로젝트 → Variables:
+```
+CLOUDINARY_URL=cloudinary://...
+```
+
+> **참고**: `CLOUDINARY_URL`이 설정되지 않으면 로컬 파일시스템을 사용합니다 (개발 환경용).
+
+---
+
+## 3. Frontend 배포 (Vercel)
+
+### 3.1 Vercel 계정 생성
 1. [Vercel](https://vercel.com) 접속
 2. GitHub 계정으로 로그인
 
-### 2.2 프로젝트 배포
+### 3.2 프로젝트 배포
 1. "New Project" 클릭
 2. `delicious_bingo` 저장소 Import
 3. Framework Preset: "Vite" 선택
@@ -91,15 +134,15 @@ python manage.py loaddata initial_data
 
 6. "Deploy" 클릭
 
-### 2.3 도메인 설정 (선택)
+### 3.3 도메인 설정 (선택)
 1. "Settings" → "Domains"
 2. 커스텀 도메인 추가 또는 기본 `.vercel.app` 도메인 사용
 
 ---
 
-## 3. 배포 후 확인사항
+## 4. 배포 후 확인사항
 
-### 3.1 Backend 확인
+### 4.1 Backend 확인
 ```bash
 # API 헬스체크
 curl https://<your-backend>.railway.app/api/templates/
@@ -108,19 +151,19 @@ curl https://<your-backend>.railway.app/api/templates/
 https://<your-backend>.railway.app/admin/
 ```
 
-### 3.2 Frontend 확인
+### 4.2 Frontend 확인
 1. 홈페이지 접속: `https://<your-frontend>.vercel.app`
 2. 템플릿 목록 로딩 확인
 3. 로그인/회원가입 기능 테스트
 4. 빙고 게임 플레이 테스트
 
-### 3.3 CORS 확인
+### 4.3 CORS 확인
 브라우저 개발자 도구에서 네트워크 요청 확인
 - CORS 에러 발생 시 백엔드 `CORS_ALLOWED_ORIGINS` 확인
 
 ---
 
-## 4. 환경 변수 요약
+## 5. 환경 변수 요약
 
 ### Backend (Railway)
 | 변수 | 필수 | 설명 | 예시 |
@@ -130,6 +173,7 @@ https://<your-backend>.railway.app/admin/
 | `ALLOWED_HOSTS` | O | 허용 호스트 (점으로 시작) | `.railway.app` |
 | `DATABASE_URL` | O | DB 연결 URL | PostgreSQL 연결 시 자동 설정 |
 | `CORS_ALLOWED_ORIGINS` | O | CORS 허용 도메인 | `https://xxx.vercel.app` |
+| `CLOUDINARY_URL` | O | Cloudinary 연결 URL | `cloudinary://API_KEY:SECRET@CLOUD_NAME` |
 
 ### Frontend (Vercel)
 | 변수 | 필수 | 설명 | 예시 |
@@ -141,7 +185,7 @@ https://<your-backend>.railway.app/admin/
 
 ---
 
-## 5. 업데이트 배포
+## 6. 업데이트 배포
 
 ### 자동 배포 (추천)
 - GitHub main 브랜치에 push하면 자동 배포
@@ -158,9 +202,9 @@ vercel --prod
 
 ---
 
-## 6. 문제 해결
+## 7. 문제 해결
 
-### 6.1 Railway 빌드 오류
+### 7.1 Railway 빌드 오류
 
 #### Nixpacks pip not found
 ```
@@ -188,7 +232,7 @@ Django==6.0.1 Requires-Python >=3.12
 
 ---
 
-### 6.2 Railway 런타임 오류
+### 7.2 Railway 런타임 오류
 
 #### ALLOWED_HOSTS 오류
 ```
@@ -203,7 +247,7 @@ Invalid HTTP_HOST header: 'xxx.up.railway.app'
 
 ---
 
-### 6.3 Vercel 오류
+### 7.3 Vercel 오류
 
 #### API 호출이 localhost로 감
 ```
@@ -217,7 +261,7 @@ GET http://localhost:8000/api/templates/ net::ERR_CONNECTION_REFUSED
 
 ---
 
-### 6.4 CORS 에러
+### 7.4 CORS 에러
 ```
 Access to XMLHttpRequest has been blocked by CORS policy
 ```
@@ -228,7 +272,7 @@ CORS_ALLOWED_ORIGINS=https://your-app.vercel.app,http://localhost:5173
 
 ---
 
-### 6.5 기타
+### 7.5 기타
 
 #### 500 Internal Server Error
 1. Railway 로그 확인: "Deployments" → "View Logs"
@@ -247,7 +291,7 @@ python manage.py migrate --run-syncdb
 
 ---
 
-## 7. 비용
+## 8. 비용
 
 ### Railway
 - 무료 티어: 월 $5 크레딧 (소규모 앱에 충분)
@@ -257,15 +301,20 @@ python manage.py migrate --run-syncdb
 - 무료 티어: 개인 프로젝트 무제한
 - 유료: 팀/상업용
 
+### Cloudinary
+- 무료 티어: 25GB 저장, 25GB 대역폭/월
+- 유료: 사용량 기반 과금
+
 ---
 
-## 8. 프로덕션 체크리스트
+## 9. 프로덕션 체크리스트
 
 - [ ] `SECRET_KEY` 변경됨
 - [ ] `DEBUG=False` 설정됨
 - [ ] `ALLOWED_HOSTS` 설정됨
 - [ ] HTTPS 활성화됨
 - [ ] CORS 설정 완료
+- [ ] Cloudinary 설정 완료 (`CLOUDINARY_URL`)
 - [ ] Database 백업 설정
 - [ ] 에러 모니터링 설정 (선택: Sentry)
 - [ ] 로그 모니터링 설정

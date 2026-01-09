@@ -15,6 +15,7 @@
 - Token Authentication
 - PostgreSQL (Railway)
 - Gunicorn + WhiteNoise
+- Cloudinary (이미지 저장소)
 
 ### Frontend
 - React 19
@@ -29,6 +30,7 @@
 - Backend: Railway (Docker)
 - Frontend: Vercel
 - Database: Railway PostgreSQL
+- Image Storage: Cloudinary
 
 ### Maps API
 - Kakao Maps API
@@ -126,7 +128,7 @@
 ### Environment Variables
 ```bash
 # Backend (Railway)
-SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL, CORS_ALLOWED_ORIGINS
+SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL, CORS_ALLOWED_ORIGINS, CLOUDINARY_URL
 
 # Frontend (Vercel)
 VITE_API_URL, VITE_KAKAO_JS_KEY
@@ -135,9 +137,10 @@ VITE_API_URL, VITE_KAKAO_JS_KEY
 ## 7. Testing ✅ 완료
 
 ### Backend
-- 53개 유닛 테스트
+- 55개 유닛 테스트
 - BingoService 라인 감지 테스트
 - API 인증 테스트
+- 이미지 URL 테스트
 
 ### Frontend
 - 25개 컴포넌트 테스트 (Vitest + Testing Library)
@@ -151,7 +154,6 @@ VITE_API_URL, VITE_KAKAO_JS_KEY
 ## 8. Future Improvements (TODO)
 
 - [ ] 소셜 로그인 연동 (카카오, 구글)
-- [ ] 이미지 최적화 (리사이징, WebP 변환)
 - [ ] 푸시 알림
 - [ ] 맛집 검색 기능
 - [ ] 사용자 프로필 페이지
