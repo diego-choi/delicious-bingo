@@ -1,0 +1,120 @@
+import { useEffect, useMemo, useRef } from 'react';
+import { Link } from 'react-router-dom';
+
+const CONFETTI_EMOJIS = ['🎉', '🎊', '⭐', '✨', '🌟'];
+
+/**
+ * 빙고 완료 축하 모달 컴포넌트
+ * @param {Object} props
+ * @param {boolean} props.isOpen - 모달 표시 여부
+ * @param {function} props.onClose - 모달 닫기 핸들러
+ * @param {number} props.completedLines - 완료된 라인 수
+ * @param {boolean} props.isGoalAchieved - 목표 달성 여부
+ */
+export default function CompletionCelebration({
+  isOpen,
+  onClose,
+  completedLines,
+  isGoalAchieved = false,
+}) {
+  const confettiRef = useRef(null);
+
+  // 컨페티 요소들의 값을 미리 계산
+  const confettiItems = useMemo(() => {
+    return Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      left: (i * 37 + 13) % 100, // 의사 랜덤 분포
+      delay: (i * 0.04) % 2,
+      duration: 2 + (i % 3),
+      emoji: CONFETTI_EMOJIS[i % CONFETTI_EMOJIS.length],
+    }));
+  }, []);
+
+  // 컨페티 타이머 (DOM 조작)
+  useEffect(() => {
+    if (isOpen && confettiRef.current) {
+      confettiRef.current.style.display = 'block';
+      const timer = setTimeout(() => {
+        if (confettiRef.current) {
+          confettiRef.current.style.display = 'none';
+        }
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      {/* 컨페티 효과 */}
+      <div ref={confettiRef} className="absolute inset-0 pointer-events-none overflow-hidden">
+        {confettiItems.map((item) => (
+          <div
+            key={item.id}
+            className="absolute animate-bounce"
+            style={{
+              left: `${item.left}%`,
+              top: `-20px`,
+              animationDelay: `${item.delay}s`,
+              animationDuration: `${item.duration}s`,
+            }}
+          >
+            {item.emoji}
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center relative z-10">
+        {/* 아이콘 */}
+        <div className="text-6xl mb-4">
+          {isGoalAchieved ? '🏆' : '🎉'}
+        </div>
+
+        {/* 제목 */}
+        <h2 className="text-2xl font-bold mb-2">
+          {isGoalAchieved ? (
+            <span className="text-amber-600">목표 달성!</span>
+          ) : (
+            <span className="text-green-600">빙고!</span>
+          )}
+        </h2>
+
+        {/* 메시지 */}
+        <p className="text-gray-600 mb-2">
+          {isGoalAchieved
+            ? '축하합니다! 빙고 목표를 달성했습니다!'
+            : `${completedLines}줄 빙고를 완성했습니다!`}
+        </p>
+
+        {isGoalAchieved && (
+          <p className="text-sm text-amber-600 mb-4">
+            리더보드에 기록되었습니다! 🏅
+          </p>
+        )}
+
+        {/* 버튼들 */}
+        <div className="space-y-3 mt-6">
+          {isGoalAchieved && (
+            <Link
+              to="/leaderboard"
+              className="block w-full py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors"
+            >
+              리더보드 보기
+            </Link>
+          )}
+          <button
+            onClick={onClose}
+            className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+              isGoalAchieved
+                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-amber-500 text-white hover:bg-amber-600'
+            }`}
+          >
+            계속하기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

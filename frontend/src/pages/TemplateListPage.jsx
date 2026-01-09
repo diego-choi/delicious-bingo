@@ -1,0 +1,62 @@
+import { Link } from 'react-router-dom';
+import { useTemplates } from '../hooks/useTemplates';
+
+export default function TemplateListPage() {
+  const { data, isLoading, error } = useTemplates();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-gray-500">로딩 중...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500">템플릿을 불러오는데 실패했습니다.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 text-amber-600 hover:underline"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
+  const templates = data?.results || [];
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6">빙고 템플릿</h1>
+
+      {templates.length === 0 ? (
+        <p className="text-gray-500 text-center py-12">
+          아직 등록된 빙고 템플릿이 없습니다.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {templates.map((template) => (
+            <Link
+              key={template.id}
+              to={`/templates/${template.id}`}
+              className="block bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">
+                  {template.category_name}
+                </span>
+              </div>
+              <h2 className="font-semibold text-lg mb-2">{template.title}</h2>
+              <p className="text-gray-600 text-sm line-clamp-3">
+                {template.description}
+              </p>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
