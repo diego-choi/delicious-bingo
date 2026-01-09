@@ -138,7 +138,7 @@ WINNING_LINES = [
 5. **리뷰 및 인터랙션**: ReviewForm, CellDetailModal
 6. **카카오맵 연동**: KakaoMap, useKakaoMap
 7. **리더보드**: Leaderboard API, LeaderboardPage, CompletionCelebration
-8. **테스트 및 마무리**: Backend 40 tests, Frontend 25 tests
+8. **테스트 및 마무리**: Backend 40 tests, Frontend 30 tests
 
 ### 추가 구현
 
@@ -188,6 +188,14 @@ cd frontend && npm run lint
 3. **빙고 라인 감지**: 프론트엔드와 백엔드 양쪽에서 계산
 4. **이미지 업로드**: multipart/form-data로 처리
 5. **ESLint 규칙**: react-refresh, react-hooks 엄격 적용
+
+## 해결된 이슈
+
+- [x] **리뷰 후 보드 미갱신**: React Query 쿼리 키 타입 불일치 (`useParams()`는 string, API 응답은 number)
+  - 해결: `String(data.bingo_board)`로 타입 일치
+  - 테스트: `useBoards.test.jsx` 5개 테스트 추가
+- [x] **리뷰 이미지 미표시**: 중첩 Serializer에 request context 미전달로 상대 URL 반환
+  - 해결: `ReviewSerializer(review, context=self.context)` context 전달
 
 ## 알려진 이슈 / TODO
 

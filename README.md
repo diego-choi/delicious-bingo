@@ -245,7 +245,7 @@ python manage.py test api.tests.LeaderboardAPITest
 - `BingoServiceTest` - 빙고 라인 감지 로직
 - `LeaderboardAPITest` - 리더보드 API
 
-### Frontend 테스트 (25개)
+### Frontend 테스트 (30개)
 
 ```bash
 cd frontend
@@ -261,6 +261,7 @@ npm run test:run
 - `LoadingSpinner.test.jsx` - 로딩 스피너 컴포넌트
 - `BingoCell.test.jsx` - 빙고 셀 컴포넌트
 - `bingoUtils.test.js` - 빙고 유틸리티 함수
+- `useBoards.test.jsx` - 빙고 보드 훅 (쿼리 캐시 무효화)
 
 ### 린트 검사
 
