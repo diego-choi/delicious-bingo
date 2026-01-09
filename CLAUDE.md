@@ -148,6 +148,7 @@ WINNING_LINES = [
 - **샘플 데이터**: seed_data 커맨드 (3개 템플릿, 75개 맛집)
 - **축하 모달**: 빙고 완료 시 컨페티 효과
 - **빙고 라인 하이라이트**: 완료된 라인 시각적 표시
+- **모바일 반응형**: 전체 컴포넌트 모바일 우선 디자인 적용
 
 ## 개발 환경 실행
 
@@ -205,7 +206,41 @@ cd frontend && npm run lint
 - [ ] 프로덕션 배포 설정
 - [x] 회원가입 기능 (구현 완료)
 - [ ] 소셜 로그인 연동
-- [ ] 모바일 반응형 최적화
+- [x] 모바일 반응형 최적화 (구현 완료)
+
+## 모바일 반응형 디자인
+
+### 적용된 패턴
+
+- **모바일 우선**: 기본 스타일은 모바일, `sm:` 브레이크포인트로 데스크탑 확장
+- **반응형 텍스트**: `text-sm sm:text-base`, `text-xl sm:text-2xl` 등
+- **반응형 간격**: `p-4 sm:p-6`, `gap-2 sm:gap-4`, `mb-4 sm:mb-6` 등
+- **반응형 그리드**: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
+
+### 변경된 컴포넌트
+
+| 컴포넌트 | 변경 사항 |
+|----------|-----------|
+| `Layout.jsx` | 모바일 햄버거 메뉴, 드롭다운 네비게이션 |
+| `BingoGrid.jsx` | 반응형 패딩/간격 (`p-2 sm:p-4`, `gap-1 sm:gap-2`) |
+| `BingoCell.jsx` | 셀 크기/텍스트 (`text-[10px] sm:text-xs`) |
+| `BingoHeader.jsx` | 통계 카드, 진행률 바 크기 조정 |
+| `CellDetailModal.jsx` | 모바일: 바텀시트, 데스크탑: 중앙 모달 |
+| `CompletionCelebration.jsx` | 패딩/버튼 크기 조정 |
+| `HomePage.jsx` | 히어로 섹션, 카드 그리드, 사용방법 |
+| `LeaderboardPage.jsx` | 탭 버튼, 랭킹 리스트 |
+| `TemplateListPage.jsx` | 템플릿 카드 그리드 |
+| `TemplateDetailPage.jsx` | 맛집 미리보기 그리드, 도전 버튼 |
+| `MyBoardsPage.jsx` | 보드 카드 리스트 |
+| `LoginPage.jsx` | 폼 패딩/텍스트 |
+| `RegisterPage.jsx` | 폼 레이아웃 |
+| `BoardPage.jsx` | 페이지 간격 |
+
+### 모바일 특화 UI
+
+- **햄버거 메뉴**: `md:hidden` 버튼, 드롭다운 네비게이션
+- **바텀시트 모달**: `items-end sm:items-center` + `rounded-t-xl sm:rounded-xl`
+- **터치 친화적**: 버튼/입력 필드 충분한 터치 영역 확보
 
 ## 코드 컨벤션
 
