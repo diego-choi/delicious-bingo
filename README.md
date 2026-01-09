@@ -231,12 +231,13 @@ python manage.py createsuperuser
 | `DATABASE_URL` | O | PostgreSQL URL | 자동 설정 (Railway) |
 | `CORS_ALLOWED_ORIGINS` | O | CORS 허용 도메인 | `https://xxx.vercel.app` |
 | `CLOUDINARY_URL` | O | Cloudinary 연결 URL | `cloudinary://API_KEY:SECRET@CLOUD_NAME` |
+| `KAKAO_REST_API_KEY` | - | 카카오 REST API 키 (관리자 검색용) | `abc123...` |
 
 ### Vercel (Frontend)
 | 변수 | 필수 | 설명 | 예시 |
 |------|:----:|------|------|
 | `VITE_API_URL` | O | Backend API URL | `https://xxx.railway.app/api` |
-| `VITE_KAKAO_JS_KEY` | - | 카카오맵 API 키 | `abc123...` |
+| `VITE_KAKAO_JS_KEY` | - | 카카오 JavaScript 키 (지도용) | `abc123...` |
 
 ---
 
@@ -249,8 +250,11 @@ delicious_bingo/
 │   │   ├── fixtures/        # 초기 데이터
 │   │   ├── models.py        # 데이터 모델
 │   │   ├── serializers.py   # DRF Serializers
+│   │   ├── serializers_admin.py  # Admin API Serializers
 │   │   ├── services.py      # 비즈니스 로직 (빙고 판정)
-│   │   └── views.py         # API Views
+│   │   ├── views.py         # API Views
+│   │   ├── views_admin.py   # Admin API Views
+│   │   └── permissions.py   # 권한 클래스
 │   ├── config/              # Django 설정
 │   ├── Dockerfile           # 프로덕션 빌드
 │   ├── start.sh             # 컨테이너 시작 스크립트
@@ -258,6 +262,7 @@ delicious_bingo/
 ├── frontend/
 │   ├── src/
 │   │   ├── api/             # API 클라이언트
+│   │   ├── admin/           # 관리자 페이지 (식당/템플릿/카테고리)
 │   │   ├── components/      # React 컴포넌트
 │   │   ├── hooks/           # Custom Hooks
 │   │   └── pages/           # 페이지 컴포넌트

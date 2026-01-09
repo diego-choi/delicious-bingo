@@ -31,11 +31,14 @@ delicious_bingo/
 │   ├── api/
 │   │   ├── models.py          # Category, Restaurant, BingoTemplate, BingoBoard, Review
 │   │   ├── serializers.py     # DRF Serializers
+│   │   ├── serializers_admin.py # Admin API Serializers
 │   │   ├── views.py           # ViewSets + Auth APIs + Leaderboard
+│   │   ├── views_admin.py     # Admin ViewSets + 카카오 검색 프록시
+│   │   ├── permissions.py     # IsAdminUser 권한 클래스
 │   │   ├── services.py        # BingoService (라인 감지 로직)
 │   │   ├── urls.py            # API 라우팅
-│   │   ├── admin.py           # Admin 설정
-│   │   ├── tests.py           # 55개 테스트
+│   │   ├── admin.py           # Django Admin 설정
+│   │   ├── tests.py           # 87개 테스트
 │   │   ├── fixtures/initial_data.json  # 프로덕션 초기 데이터
 │   │   └── management/commands/seed_data.py  # 개발용 샘플 데이터
 │   ├── config/
@@ -53,6 +56,11 @@ delicious_bingo/
 │   │   ├── api/
 │   │   │   ├── client.js      # Axios 인스턴스 (Token 인터셉터)
 │   │   │   └── endpoints.js   # API 함수들
+│   │   ├── admin/             # 관리자 페이지
+│   │   │   ├── api/adminEndpoints.js  # Admin API 클라이언트
+│   │   │   ├── components/    # AdminLayout, AdminGuard, KakaoPlaceSearch
+│   │   │   ├── hooks/         # useKakaoSearch
+│   │   │   └── pages/         # Dashboard, Restaurants, Templates, Categories
 │   │   ├── components/
 │   │   │   ├── bingo/         # BingoGrid, BingoCell, BingoHeader, CompletionCelebration
 │   │   │   ├── common/        # ErrorBoundary, LoadingSpinner
@@ -62,7 +70,7 @@ delicious_bingo/
 │   │   │   └── Layout.jsx
 │   │   ├── contexts/
 │   │   │   ├── authContext.js # AuthContext 정의
-│   │   │   └── AuthProvider.jsx
+│   │   │   └── AuthProvider.jsx # isStaff 상태 포함
 │   │   ├── hooks/
 │   │   │   ├── useAuth.js
 │   │   │   ├── useTemplates.js
@@ -109,6 +117,8 @@ User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
 
 ## API 엔드포인트
 
+### 사용자 API
+
 | Method | Endpoint | 설명 | 인증 |
 |--------|----------|------|------|
 | GET | `/api/categories/` | 카테고리 목록 | - |
@@ -120,9 +130,21 @@ User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
 | POST | `/api/reviews/` | 리뷰 생성 → 셀 활성화 | 필요 |
 | GET | `/api/leaderboard/` | 리더보드 | - |
 | POST | `/api/auth/register/` | 회원가입 (토큰 발급) | - |
-| POST | `/api/auth/login/` | 로그인 (토큰 발급) | - |
+| POST | `/api/auth/login/` | 로그인 (토큰 발급, is_staff 포함) | - |
 | POST | `/api/auth/logout/` | 로그아웃 | 필요 |
-| GET | `/api/auth/me/` | 현재 사용자 정보 | 필요 |
+| GET | `/api/auth/me/` | 현재 사용자 정보 (is_staff 포함) | 필요 |
+
+### 관리자 API (is_staff 필요)
+
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| GET/POST | `/api/admin/restaurants/` | 식당 목록/생성 |
+| GET/PATCH/DELETE | `/api/admin/restaurants/:id/` | 식당 조회/수정/삭제 |
+| GET/POST | `/api/admin/templates/` | 템플릿 목록/생성 |
+| GET/PATCH/DELETE | `/api/admin/templates/:id/` | 템플릿 조회/수정/삭제 |
+| GET/POST | `/api/admin/categories/` | 카테고리 목록/생성 |
+| GET/PATCH/DELETE | `/api/admin/categories/:id/` | 카테고리 조회/수정/삭제 |
+| GET | `/api/admin/kakao/search/` | 카카오 장소 검색 프록시 |
 
 ## 빙고 라인 규칙
 
@@ -156,6 +178,28 @@ WINNING_LINES = [
 - **빙고 라인 하이라이트**: 완료된 라인 시각적 표시
 - **모바일 반응형**: 전체 컴포넌트 모바일 우선 디자인 적용
 - **Cloudinary 연동**: 프로덕션 이미지 저장소 (Django 6.0 STORAGES 설정)
+- **관리자 페이지**: 식당/템플릿/카테고리 관리, 카카오 검색 연동
+
+## 관리자 페이지
+
+### 접근 방법
+1. `is_staff=True` 계정으로 로그인
+2. `/admin` 경로로 접근
+
+### 기능
+| 페이지 | 경로 | 기능 |
+|--------|------|------|
+| 대시보드 | `/admin` | 통계 카드 (식당/템플릿/카테고리 수) |
+| 식당 관리 | `/admin/restaurants` | 목록, 검색, 필터, 페이지네이션 |
+| 식당 등록/수정 | `/admin/restaurants/new`, `/admin/restaurants/:id` | 카카오 검색으로 식당 정보 자동 입력 |
+| 템플릿 관리 | `/admin/templates` | 목록, 활성화 토글 |
+| 템플릿 등록/수정 | `/admin/templates/new`, `/admin/templates/:id` | 5x5 그리드 빌더 |
+| 카테고리 관리 | `/admin/categories` | 인라인 CRUD |
+
+### 카카오 검색 연동
+- 식당 등록 시 카카오 장소 검색으로 정보 자동 입력
+- 이름, 주소, 좌표, place_url이 자동으로 채워짐
+- 백엔드 프록시 API로 CORS 문제 해결
 
 ## 개발 환경 실행
 
@@ -175,19 +219,36 @@ python manage.py seed_data
 
 ## 테스트 계정
 
+### 일반 사용자
 - Username: `testuser`
 - Password: `testpass123`
+
+### 관리자 (Staff)
+- Username: `admin`
+- Password: `admin1234`
+
+관리자 계정 생성:
+```bash
+python manage.py shell -c "
+from django.contrib.auth.models import User
+user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@example.com'})
+user.set_password('admin1234')
+user.is_staff = True
+user.save()
+print('Admin account ready')
+"
+```
 
 ## 테스트 실행
 
 ```bash
-# Backend (55 tests)
+# Backend (87 tests)
 cd backend && source venv/bin/activate && python manage.py test
 
-# Frontend (25 tests)
+# Frontend (57 tests)
 cd frontend && npm run test:run
 
-# E2E 프로덕션 테스트 (12 tests)
+# E2E 프로덕션 테스트 (15 tests)
 cd frontend && node e2e-prod-test.cjs
 
 # Lint
@@ -230,7 +291,9 @@ node e2e-prod-test.cjs
 
 ## TODO
 
-- [ ] 카카오맵 API 키 설정 필요 (`.env.local`에 `VITE_KAKAO_JS_KEY`)
+- [x] 카카오맵 API 키 설정 (`.env.local`에 `VITE_KAKAO_JS_KEY`)
+- [x] 관리자 페이지 구현 (식당/템플릿/카테고리 관리)
+- [x] 카카오 장소 검색 연동
 - [ ] 소셜 로그인 연동
 
 ## 프로덕션 배포
@@ -255,11 +318,22 @@ node e2e-prod-test.cjs
 ### 환경 변수
 ```bash
 # Backend (Railway)
-SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL, CORS_ALLOWED_ORIGINS, CLOUDINARY_URL
+SECRET_KEY, DEBUG, ALLOWED_HOSTS, DATABASE_URL, CORS_ALLOWED_ORIGINS, CLOUDINARY_URL, KAKAO_REST_API_KEY
 
 # Frontend (Vercel)
 VITE_API_URL, VITE_KAKAO_JS_KEY
 ```
+
+### 카카오 API 키
+| 용도 | 환경 변수 | 설정 위치 |
+|------|----------|----------|
+| 장소 검색 (Admin) | `KAKAO_REST_API_KEY` | Backend (Railway) |
+| 지도 표시 | `VITE_KAKAO_JS_KEY` | Frontend (Vercel) |
+
+카카오 개발자 콘솔에서 앱 생성 후:
+- REST API 키 → 백엔드 환경변수
+- JavaScript 키 → 프론트엔드 환경변수
+- 플랫폼 등록: Web 사이트 도메인 추가 필요
 
 ### Cloudinary 설정
 - **환경변수**: `CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME`
