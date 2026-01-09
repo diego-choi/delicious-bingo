@@ -1,6 +1,6 @@
 const { chromium } = require('playwright');
 
-const BASE_URL = 'https://frontend-ashy-rho-12.vercel.app';
+const BASE_URL = 'https://delicious-bingo.vercel.app';
 const API_URL = 'https://delicious-bingo-production.up.railway.app/api';
 
 async function runTests() {
