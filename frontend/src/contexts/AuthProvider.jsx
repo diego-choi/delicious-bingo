@@ -28,6 +28,14 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const register = useCallback(async (data) => {
+    const response = await authApi.register(data);
+    const { token, user: userData } = response.data;
+    localStorage.setItem('authToken', token);
+    setUser(userData);
+    return userData;
+  }, []);
+
   const login = useCallback(async (username, password) => {
     const response = await authApi.login(username, password);
     const { token, user: userData } = response.data;
@@ -50,6 +58,7 @@ export function AuthProvider({ children }) {
     user,
     isLoading,
     isAuthenticated: !!user,
+    register,
     login,
     logout,
   };

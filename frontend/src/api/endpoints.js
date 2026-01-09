@@ -36,6 +36,7 @@ export const leaderboardApi = {
 
 // 인증 API
 export const authApi = {
+  register: (data) => apiClient.post('/auth/register/', data),
   login: (username, password) =>
     apiClient.post('/auth/login/', { username, password }),
   logout: () => apiClient.post('/auth/logout/'),

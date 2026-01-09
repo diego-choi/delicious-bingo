@@ -91,14 +91,21 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <div className="mt-6 text-center text-sm text-gray-600">
+          계정이 없으신가요?{' '}
+          <Link to="/register" className="text-amber-600 hover:text-amber-700 font-medium">
+            회원가입
+          </Link>
+        </div>
+
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-600 text-center">
             테스트 계정: <code className="bg-gray-200 px-1 rounded">testuser</code> / <code className="bg-gray-200 px-1 rounded">testpass123</code>
           </p>
         </div>
 
-        <div className="mt-6 text-center">
-          <Link to="/" className="text-amber-600 hover:text-amber-700 text-sm">
+        <div className="mt-4 text-center">
+          <Link to="/" className="text-gray-500 hover:text-gray-700 text-sm">
             홈으로 돌아가기
           </Link>
         </div>

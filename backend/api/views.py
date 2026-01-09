@@ -186,6 +186,63 @@ def leaderboard(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+def register_view(request):
+    """회원가입 API - 사용자 생성 및 토큰 발급"""
+    username = request.data.get('username', '').strip()
+    email = request.data.get('email', '').strip()
+    password = request.data.get('password', '')
+    password_confirm = request.data.get('password_confirm', '')
+
+    errors = {}
+
+    # 유효성 검사
+    if not username:
+        errors['username'] = '사용자명을 입력해주세요.'
+    elif len(username) < 3:
+        errors['username'] = '사용자명은 3자 이상이어야 합니다.'
+    elif len(username) > 20:
+        errors['username'] = '사용자명은 20자 이하여야 합니다.'
+    elif User.objects.filter(username=username).exists():
+        errors['username'] = '이미 사용 중인 사용자명입니다.'
+
+    if not email:
+        errors['email'] = '이메일을 입력해주세요.'
+    elif User.objects.filter(email=email).exists():
+        errors['email'] = '이미 사용 중인 이메일입니다.'
+
+    if not password:
+        errors['password'] = '비밀번호를 입력해주세요.'
+    elif len(password) < 6:
+        errors['password'] = '비밀번호는 6자 이상이어야 합니다.'
+
+    if password != password_confirm:
+        errors['password_confirm'] = '비밀번호가 일치하지 않습니다.'
+
+    if errors:
+        return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 사용자 생성
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password
+    )
+
+    # 토큰 발급
+    token, _ = Token.objects.get_or_create(user=user)
+
+    return Response({
+        'token': token.key,
+        'user': {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+        }
+    }, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def login_view(request):
     """로그인 API - 토큰 발급"""
     username = request.data.get('username')

@@ -61,12 +61,20 @@ export default function Layout() {
                     </button>
                   </div>
                 ) : (
-                  <Link
-                    to="/login"
-                    className="px-4 py-1.5 bg-amber-500 text-white text-sm font-medium rounded-md hover:bg-amber-600 transition-colors"
-                  >
-                    로그인
-                  </Link>
+                  <div className="flex items-center space-x-2">
+                    <Link
+                      to="/login"
+                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      로그인
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="px-4 py-1.5 bg-amber-500 text-white text-sm font-medium rounded-md hover:bg-amber-600 transition-colors"
+                    >
+                      회원가입
+                    </Link>
+                  </div>
                 )}
               </div>
             </div>

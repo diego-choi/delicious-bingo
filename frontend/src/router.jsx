@@ -7,6 +7,7 @@ import MyBoardsPage from './pages/MyBoardsPage';
 import BoardPage from './pages/BoardPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import ErrorPage from './pages/ErrorPage';
 
 export const router = createBrowserRouter([
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
       {
         path: 'login',
         element: <LoginPage />,
+      },
+      {
+        path: 'register',
+        element: <RegisterPage />,
       },
     ],
   },
