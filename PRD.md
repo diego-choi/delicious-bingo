@@ -121,7 +121,7 @@
 - **Database:** Railway PostgreSQL
 
 ### Frontend (Vercel)
-- **URL:** https://frontend-ashy-rho-12.vercel.app
+- **URL:** https://delicious-bingo.vercel.app
 - **Build:** Vite
 - **Cache:** stale-while-revalidate 전략
 

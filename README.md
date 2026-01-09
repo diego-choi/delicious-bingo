@@ -74,7 +74,7 @@ npm run dev
 
 ### 현재 배포 URL
 - Backend API: https://delicious-bingo-production.up.railway.app/api/
-- Frontend: https://frontend-ashy-rho-12.vercel.app
+- Frontend: https://delicious-bingo.vercel.app
 
 ---
 

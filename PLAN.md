@@ -227,7 +227,7 @@
 
 ### 배포 URL
 - Backend: https://delicious-bingo-production.up.railway.app
-- Frontend: https://frontend-ashy-rho-12.vercel.app
+- Frontend: https://delicious-bingo.vercel.app
 
 ---
 
