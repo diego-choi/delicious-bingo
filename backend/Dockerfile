@@ -17,8 +17,9 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Default port (Railway provides PORT env var)
-ENV PORT=8000
+# Copy and set up start script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
-# Run migrations and start gunicorn
-CMD ["/bin/sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:${PORT}"]
+# Run start script
+CMD ["/app/start.sh"]
