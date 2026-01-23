@@ -18,7 +18,7 @@ export default function TemplateListPage() {
         <p className="text-red-500">템플릿을 불러오는데 실패했습니다.</p>
         <button
           onClick={() => window.location.reload()}
-          className="mt-4 text-amber-600 hover:underline"
+          className="mt-4 text-brand-orange hover:underline"
         >
           다시 시도
         </button>
@@ -45,7 +45,7 @@ export default function TemplateListPage() {
               className="block bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
             >
               <div className="flex items-start justify-between mb-2 sm:mb-3">
-                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">
+                <span className="text-xs bg-brand-beige text-brand-orange px-2 py-1 rounded">
                   {template.category_name}
                 </span>
               </div>

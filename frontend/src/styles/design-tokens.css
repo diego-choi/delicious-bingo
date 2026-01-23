@@ -1,0 +1,35 @@
+/* =============================================================================
+ * Design Tokens - Delicious Bingo
+ * =============================================================================
+ * 브랜드 컬러, 시맨틱 토큰, 애니메이션 정의
+ */
+
+@theme {
+  /* Brand Colors */
+  --color-brand-orange: #FF8A00;
+  --color-brand-beige: #FFF9F0;
+  --color-brand-charcoal: #1A1A1A;
+  --color-brand-gold: #FFD700;
+
+  /* Inactive Cell Color */
+  --color-cell-inactive: #F5F3F0;
+}
+
+/* =============================================================================
+ * Confetti Animation
+ * =============================================================================
+ */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti-fall {
+  animation: confetti-fall var(--confetti-duration, 3s) ease-out forwards;
+}

@@ -92,7 +92,7 @@ export default function KakaoPlaceSearch({ onSelect }) {
                 {place.road_address || place.address}
               </div>
               {place.category && (
-                <div className="text-xs text-amber-600 mt-1">{place.category}</div>
+                <div className="text-xs text-brand-orange mt-1">{place.category}</div>
               )}
             </button>
           ))}

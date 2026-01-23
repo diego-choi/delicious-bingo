@@ -79,7 +79,7 @@ export default function KakaoMap({
             href={`https://map.kakao.com/link/map/${name},${latitude},${longitude}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-amber-600 text-sm hover:underline"
+            className="text-brand-orange text-sm hover:underline"
           >
             카카오맵에서 보기 →
           </a>
@@ -93,7 +93,7 @@ export default function KakaoMap({
     return (
       <div className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto mb-2"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange mx-auto mb-2"></div>
           <p className="text-gray-500 text-sm">지도 로딩 중...</p>
         </div>
       </div>

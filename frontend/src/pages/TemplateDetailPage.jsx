@@ -40,7 +40,7 @@ export default function TemplateDetailPage() {
     <div className="max-w-4xl mx-auto">
       {/* 템플릿 정보 */}
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-4 sm:mb-6">
-        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">
+        <span className="text-xs bg-brand-beige text-brand-orange px-2 py-1 rounded">
           {template.category_name}
         </span>
         <h1 className="text-xl sm:text-2xl font-bold mt-2 sm:mt-3 mb-1 sm:mb-2">{template.title}</h1>
@@ -73,7 +73,7 @@ export default function TemplateDetailPage() {
               key={lines}
               onClick={() => handleStartChallenge(lines)}
               disabled={createBoard.isPending}
-              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-amber-500 text-white rounded-lg font-semibold text-sm sm:text-base hover:bg-amber-600 transition-colors disabled:opacity-50"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-brand-orange text-white rounded-lg font-semibold text-sm sm:text-base hover:bg-brand-orange/90 transition-colors disabled:opacity-50"
             >
               {lines}줄 빙고 도전
             </button>

@@ -150,7 +150,7 @@ export default function AdminRestaurants() {
                         <div className="text-sm font-medium text-gray-900">{restaurant.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-beige text-brand-orange">
                           {restaurant.category_name || '-'}
                         </span>
                       </td>

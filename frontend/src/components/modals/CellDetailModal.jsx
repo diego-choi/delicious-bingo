@@ -42,9 +42,14 @@ export default function CellDetailModal({
       onClick={handleBackdropClick}
     >
       <div className="bg-white rounded-t-xl sm:rounded-xl w-full sm:max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-y-auto">
+        {/* 모바일 드래그 핸들 */}
+        <div className="sm:hidden pt-2 pb-1">
+          <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto" />
+        </div>
+
         {/* 헤더 */}
         <div className="sticky top-0 bg-white border-b px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center z-10">
-          <h2 className="text-base sm:text-lg font-bold pr-2 truncate">{restaurant.name}</h2>
+          <h2 className="text-base sm:text-lg font-bold pr-2 truncate text-brand-charcoal">{restaurant.name}</h2>
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
@@ -72,7 +77,7 @@ export default function CellDetailModal({
                 #{cell.position + 1}번 칸
               </span>
               {restaurant.category_name && (
-                <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded">
+                <span className="bg-brand-beige text-brand-orange px-2 py-1 rounded">
                   {restaurant.category_name}
                 </span>
               )}
@@ -90,7 +95,7 @@ export default function CellDetailModal({
                 href={restaurant.place_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block text-sm text-amber-600 hover:underline"
+                className="inline-block text-sm text-brand-orange hover:underline"
               >
                 카카오맵에서 상세보기 →
               </a>
@@ -124,7 +129,7 @@ export default function CellDetailModal({
                         key={star}
                         className={`text-lg ${
                           star <= cell.review.rating
-                            ? 'text-amber-400'
+                            ? 'text-brand-gold'
                             : 'text-gray-300'
                         }`}
                       >
@@ -162,14 +167,14 @@ export default function CellDetailModal({
             </div>
           ) : (
             // 아직 방문하지 않은 경우
-            <div className="bg-amber-50 p-4 rounded-lg">
-              <p className="text-amber-700 mb-3">아직 방문하지 않은 맛집입니다.</p>
+            <div className="bg-brand-beige p-4 rounded-lg">
+              <p className="text-brand-orange mb-3">아직 방문하지 않은 맛집입니다.</p>
               <p className="text-sm text-gray-600 mb-4">
                 맛집을 방문하고 리뷰를 작성하면 빙고 칸이 활성화됩니다!
               </p>
               <button
                 onClick={() => setShowReviewForm(true)}
-                className="w-full py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 transition-colors"
+                className="w-full py-2 bg-brand-orange text-white rounded-lg font-medium hover:bg-brand-orange/90 transition-colors"
               >
                 리뷰 작성하기
               </button>

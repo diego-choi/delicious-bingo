@@ -108,7 +108,7 @@ export default function ReviewForm({ onSubmit, isSubmitting = false }) {
               </button>
             </div>
           ) : (
-            <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-amber-400 transition-colors">
+            <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-brand-orange transition-colors">
               <span className="text-2xl text-gray-400">+</span>
               <span className="text-xs text-gray-400">사진 추가</span>
               <input
@@ -137,7 +137,7 @@ export default function ReviewForm({ onSubmit, isSubmitting = false }) {
               type="button"
               onClick={() => handleRatingChange(star)}
               className={`text-2xl transition-colors ${
-                star <= formData.rating ? 'text-amber-400' : 'text-gray-300'
+                star <= formData.rating ? 'text-brand-gold' : 'text-gray-300'
               }`}
             >
               ★
@@ -161,7 +161,7 @@ export default function ReviewForm({ onSubmit, isSubmitting = false }) {
           value={formData.visited_date}
           onChange={handleInputChange}
           max={new Date().toISOString().split('T')[0]}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange"
         />
         {errors.visited_date && (
           <p className="text-red-500 text-sm mt-1">{errors.visited_date}</p>
@@ -180,7 +180,7 @@ export default function ReviewForm({ onSubmit, isSubmitting = false }) {
           onChange={handleInputChange}
           rows={4}
           placeholder="맛집 방문 후기를 작성해주세요..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange resize-none"
         />
         <div className="flex justify-between text-sm mt-1">
           {errors.content ? (
@@ -198,7 +198,7 @@ export default function ReviewForm({ onSubmit, isSubmitting = false }) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-3 bg-brand-orange text-white rounded-lg font-semibold hover:bg-brand-orange/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? '리뷰 등록 중...' : '리뷰 등록하기'}
       </button>

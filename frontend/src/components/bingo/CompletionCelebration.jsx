@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-
-const CONFETTI_EMOJIS = ['🎉', '🎊', '⭐', '✨', '🌟'];
+import { generateConfettiItems } from '../../constants/confetti';
 
 /**
  * 빙고 완료 축하 모달 컴포넌트
@@ -20,15 +19,7 @@ export default function CompletionCelebration({
   const confettiRef = useRef(null);
 
   // 컨페티 요소들의 값을 미리 계산
-  const confettiItems = useMemo(() => {
-    return Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      left: (i * 37 + 13) % 100, // 의사 랜덤 분포
-      delay: (i * 0.04) % 2,
-      duration: 2 + (i % 3),
-      emoji: CONFETTI_EMOJIS[i % CONFETTI_EMOJIS.length],
-    }));
-  }, []);
+  const confettiItems = useMemo(() => generateConfettiItems(), []);
 
   // 컨페티 타이머 (DOM 조작)
   useEffect(() => {
@@ -47,21 +38,22 @@ export default function CompletionCelebration({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      {/* 컨페티 효과 */}
+      {/* 컨페티 효과 - 오렌지/골드 원형 */}
       <div ref={confettiRef} className="absolute inset-0 pointer-events-none overflow-hidden">
         {confettiItems.map((item) => (
           <div
             key={item.id}
-            className="absolute animate-bounce"
+            className="absolute rounded-full animate-confetti-fall"
             style={{
               left: `${item.left}%`,
               top: `-20px`,
+              width: `${item.size}px`,
+              height: `${item.size}px`,
+              backgroundColor: item.color,
+              '--confetti-duration': `${item.duration}s`,
               animationDelay: `${item.delay}s`,
-              animationDuration: `${item.duration}s`,
             }}
-          >
-            {item.emoji}
-          </div>
+          />
         ))}
       </div>
 
@@ -74,7 +66,7 @@ export default function CompletionCelebration({
         {/* 제목 */}
         <h2 className="text-xl sm:text-2xl font-bold mb-2">
           {isGoalAchieved ? (
-            <span className="text-amber-600">목표 달성!</span>
+            <span className="text-brand-orange">목표 달성!</span>
           ) : (
             <span className="text-green-600">빙고!</span>
           )}
@@ -88,7 +80,7 @@ export default function CompletionCelebration({
         </p>
 
         {isGoalAchieved && (
-          <p className="text-xs sm:text-sm text-amber-600 mb-4">
+          <p className="text-xs sm:text-sm text-brand-orange mb-4">
             리더보드에 기록되었습니다! 🏅
           </p>
         )}
@@ -98,7 +90,7 @@ export default function CompletionCelebration({
           {isGoalAchieved && (
             <Link
               to="/leaderboard"
-              className="block w-full py-2.5 sm:py-3 bg-amber-500 text-white rounded-lg font-semibold text-sm sm:text-base hover:bg-amber-600 transition-colors"
+              className="block w-full py-2.5 sm:py-3 bg-brand-orange text-white rounded-lg font-semibold text-sm sm:text-base hover:bg-brand-orange/90 transition-colors"
             >
               리더보드 보기
             </Link>
@@ -108,7 +100,7 @@ export default function CompletionCelebration({
             className={`w-full py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-colors ${
               isGoalAchieved
                 ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                : 'bg-amber-500 text-white hover:bg-amber-600'
+                : 'bg-brand-orange text-white hover:bg-brand-orange/90'
             }`}
           >
             계속하기

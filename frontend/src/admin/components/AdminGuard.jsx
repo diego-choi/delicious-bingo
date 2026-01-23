@@ -23,7 +23,7 @@ export default function AdminGuard({ children }) {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">접근 권한 없음</h1>
           <p className="text-gray-600 mb-4">관리자만 접근할 수 있는 페이지입니다.</p>
-          <a href="/" className="text-amber-600 hover:text-amber-700">
+          <a href="/" className="text-brand-orange hover:text-brand-orange/80">
             홈으로 돌아가기
           </a>
         </div>

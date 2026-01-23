@@ -36,7 +36,7 @@ export default function Layout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* 로고 */}
-            <Link to="/" className="text-lg sm:text-xl font-bold text-amber-600">
+            <Link to="/" className="text-lg sm:text-xl font-bold text-brand-orange">
               맛집 빙고
             </Link>
 
@@ -49,7 +49,7 @@ export default function Layout() {
                     to={item.path}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       location.pathname === item.path
-                        ? 'bg-amber-100 text-amber-700'
+                        ? 'bg-brand-beige text-brand-orange'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -76,7 +76,7 @@ export default function Layout() {
                     )}
                     <Link
                       to="/profile"
-                      className="text-sm text-gray-600 hover:text-amber-600 hidden lg:inline"
+                      className="text-sm text-gray-600 hover:text-brand-orange hidden lg:inline"
                     >
                       {user.username}
                     </Link>
@@ -97,7 +97,7 @@ export default function Layout() {
                     </Link>
                     <Link
                       to="/register"
-                      className="px-3 py-1.5 bg-amber-500 text-white text-sm font-medium rounded-md hover:bg-amber-600 transition-colors"
+                      className="px-3 py-1.5 bg-brand-orange text-white text-sm font-medium rounded-md hover:bg-brand-orange/90 transition-colors"
                     >
                       회원가입
                     </Link>
@@ -137,7 +137,7 @@ export default function Layout() {
                   onClick={handleNavClick}
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     location.pathname === item.path
-                      ? 'bg-amber-100 text-amber-700'
+                      ? 'bg-brand-beige text-brand-orange'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
@@ -189,7 +189,7 @@ export default function Layout() {
                   <Link
                     to="/register"
                     onClick={handleNavClick}
-                    className="block px-3 py-2 text-base text-center bg-amber-500 text-white font-medium rounded-md hover:bg-amber-600 transition-colors"
+                    className="block px-3 py-2 text-base text-center bg-brand-orange text-white font-medium rounded-md hover:bg-brand-orange/90 transition-colors"
                   >
                     회원가입
                   </Link>

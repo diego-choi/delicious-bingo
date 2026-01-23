@@ -29,7 +29,7 @@ export default function MyBoardsPage() {
       <div className="text-center py-12">
         <p className="text-red-500">빙고 보드를 불러오는데 실패했습니다.</p>
         <p className="text-gray-500 mt-2">로그인이 필요합니다.</p>
-        <Link to="/templates" className="text-amber-600 hover:underline mt-4 inline-block">
+        <Link to="/templates" className="text-brand-orange hover:underline mt-4 inline-block">
           빙고 템플릿 보기
         </Link>
       </div>
@@ -47,7 +47,7 @@ export default function MyBoardsPage() {
           <p className="text-gray-500 mb-4 text-sm sm:text-base">아직 시작한 빙고가 없습니다.</p>
           <Link
             to="/templates"
-            className="inline-block bg-amber-500 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base hover:bg-amber-600 transition-colors"
+            className="inline-block bg-brand-orange text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base hover:bg-brand-orange/90 transition-colors"
           >
             빙고 도전하기
           </Link>
@@ -64,7 +64,7 @@ export default function MyBoardsPage() {
                 <span className={`text-xs px-2 py-1 rounded ${
                   board.is_completed
                     ? 'bg-green-100 text-green-700'
-                    : 'bg-amber-100 text-amber-700'
+                    : 'bg-brand-beige text-brand-orange'
                 }`}>
                   {board.is_completed ? '완료' : '진행 중'}
                 </span>
@@ -83,7 +83,7 @@ export default function MyBoardsPage() {
               </div>
               <div className="mt-3 bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-amber-500 rounded-full h-2 transition-all"
+                  className="bg-brand-orange rounded-full h-2 transition-all"
                   style={{ width: `${board.progress?.percentage || 0}%` }}
                 />
               </div>

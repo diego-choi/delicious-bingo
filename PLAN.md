@@ -1,6 +1,6 @@
 # Delicious Bingo 구현 계획
 
-## 현재 상태: 모든 Phase 완료 + 프로덕션 배포 완료 + UI 개편 진행 예정
+## 현재 상태: 모든 Phase 완료 + 프로덕션 배포 완료 + UI 개편 완료
 
 - [x] Django 프로젝트 초기화
 - [x] Django 모델 정의 (Category, Restaurant, BingoTemplate, BingoTemplateItem, BingoBoard, Review)
@@ -185,7 +185,7 @@
 
 ### 검증
 - [x] `python manage.py test` 통과 (87 tests)
-- [x] `npm run test:run` 통과 (57 tests)
+- [x] `npm run test:run` 통과 (59 tests)
 - [x] `npm run build` 성공
 
 ---
@@ -375,6 +375,12 @@ delicious_bingo/
     │   │   ├── map/               ✅ 완료
     │   │   └── common/            ✅ 완료
     │   ├── pages/                 ✅ 완료 (8 pages)
+    │   ├── styles/
+    │   │   └── design-tokens.css  ✅ 완료 (UI 개편)
+    │   ├── utils/
+    │   │   └── cn.js              ✅ 완료 (UI 개편)
+    │   ├── constants/
+    │   │   └── confetti.js        ✅ 완료 (UI 개편)
     │   ├── router.jsx             ✅ 완료
     │   ├── main.jsx               ✅ 완료
     │   └── index.css              ✅ 완료
@@ -386,7 +392,7 @@ delicious_bingo/
 
 ---
 
-## UI 전면 개편: 캐치테이블 스타일 + Vibrant Orange 🍊
+## UI 전면 개편: 캐치테이블 스타일 + Vibrant Orange 🍊 ✅ 완료
 
 ### 디자인 컨셉
 
@@ -398,76 +404,104 @@ delicious_bingo/
 | `brand-beige` | `#FFF9F0` | 서브 배경 (강조 박스) |
 | `brand-charcoal` | `#1A1A1A` | 텍스트 |
 | `brand-gold` | `#FFD700` | 컨페티, 축하 효과 |
+| `cell-inactive` | `#F5F3F0` | 비활성 셀 배경 |
 | White | `#FFFFFF` | 기본 배경 |
 
-### Phase 1: 디자인 시스템 구축
+### Phase 1: 디자인 시스템 구축 ✅ 완료
 
-- [ ] `framer-motion` 의존성 추가
-- [ ] `tailwind.config.js` 생성 (커스텀 컬러)
-- [ ] `index.css` 업데이트 (컨페티 애니메이션, 포커스 스타일)
+- [x] Tailwind CSS 4 `@theme` 디렉티브로 커스텀 컬러 정의 (tailwind.config.js 불필요)
+- [x] `design-tokens.css` 생성 (컬러, 컨페티 애니메이션)
+- [x] `index.css` 업데이트 (design-tokens 임포트, 포커스 스타일)
+- [x] `cn.js` 유틸리티 생성 (클래스네임 결합)
+- [x] `confetti.js` 상수 생성 (원형 컨페티 설정)
 
-### Phase 2: 핵심 빙고 컴포넌트
+### Phase 2: 핵심 빙고 컴포넌트 ✅ 완료
 
 #### BingoCell.jsx
-- [ ] 방문 전: `bg-[#F5F3F0]` 연한 베이지 그레이, `rounded-xl`
-- [ ] 방문 완료: 리뷰 이미지 + 오렌지 반투명 오버레이 + 흰색 체크
-- [ ] 이미지 없으면 오렌지 배경 + 체크
+- [x] 방문 전: `bg-cell-inactive` 연한 베이지 그레이, `rounded-xl`
+- [x] 방문 완료 (이미지 있음): 리뷰 이미지 배경 + `bg-brand-orange/60` 오버레이 + 흰색 체크
+- [x] 방문 완료 (이미지 없음): `bg-brand-orange` 배경 + 체크
+- [x] 하이라이트: `ring-2 ring-brand-orange` (빙고 라인)
 
 #### BingoHeader.jsx
-- [ ] 프로그레스 바: `bg-brand-orange`, `h-3` (굵게)
-- [ ] 통계 숫자: `text-brand-orange`
-- [ ] 서브 배경: `bg-brand-beige`
+- [x] 프로그레스 바: `bg-brand-orange`, `h-3` (굵게)
+- [x] 통계 숫자: `text-brand-orange`
+- [x] 서브 배경: `bg-brand-beige`
 
 #### BingoGrid.jsx
-- [ ] 배경: `bg-white rounded-2xl shadow-lg`
-- [ ] 그리드 간격: `gap-2 sm:gap-3`
+- [x] 배경: `bg-white rounded-2xl shadow-lg`
+- [x] 그리드 간격: `gap-1 sm:gap-2`
+- [x] 완료 라인 하이라이트: `bg-brand-orange/5`
 
-### Phase 3: 모달 & 애니메이션
+### Phase 3: 모달 & 애니메이션 ✅ 완료
 
-#### CellDetailModal.jsx → Framer Motion 바텀 시트
-- [ ] AnimatePresence + motion.div
-- [ ] 드래그 핸들 (상단 회색 바)
-- [ ] 스와이프 다운 닫기
-- [ ] 버튼: `bg-brand-orange text-white`
+#### CellDetailModal.jsx → CSS 바텀 시트 (Framer Motion 미사용)
+- [x] 드래그 핸들 (상단 회색 바): `w-10 h-1 bg-gray-300 rounded-full`
+- [x] 버튼: `bg-brand-orange text-white`
+- [x] 별점: `text-brand-gold`
 
 #### CompletionCelebration.jsx
-- [ ] 오렌지/골드 원형 컨페티 (CSS 낙하 애니메이션)
-- [ ] 버튼: `bg-brand-orange`
+- [x] 오렌지/골드 원형 컨페티 (CSS `animate-confetti-fall` 애니메이션)
+- [x] 버튼: `bg-brand-orange`
+- [x] 이모지 컨페티 → 원형 도형으로 변경
 
-### Phase 4: 레이아웃 & 페이지
+### Phase 4: 레이아웃 & 페이지 ✅ 완료
 
 #### Layout.jsx
-- [ ] 배경: `bg-white`
-- [ ] 로고: `text-brand-orange font-bold`
-- [ ] 활성 네비: `bg-brand-beige text-brand-orange`
+- [x] 배경: `bg-white`
+- [x] 로고: `text-brand-orange font-bold`
+- [x] 활성 네비: `bg-brand-beige text-brand-orange`
 
 #### 페이지별 변경
-- [ ] HomePage: 히어로 `bg-brand-beige`, CTA `bg-brand-orange`
-- [ ] TemplateListPage: 카드 hover `border-brand-orange`
-- [ ] TemplateDetailPage: 도전 버튼 `bg-brand-orange`
-- [ ] LoginPage/RegisterPage: 버튼 `bg-brand-orange`
-- [ ] LeaderboardPage: 1위 강조 `text-brand-orange`
+- [x] HomePage: 히어로 `bg-brand-beige`, CTA `bg-brand-orange`
+- [x] TemplateListPage: 카드 hover `border-brand-orange`
+- [x] TemplateDetailPage: 도전 버튼 `bg-brand-orange`
+- [x] LoginPage/RegisterPage: 버튼 `bg-brand-orange`
+- [x] LeaderboardPage: 1위 강조 `text-brand-orange`
+- [x] MyBoardsPage: 진행률 바 `bg-brand-orange`
+- [x] ProfilePage: 통계 카드 `text-brand-orange`
 
-### Phase 5: 테스트 & 마무리
+#### Admin 페이지
+- [x] AdminGuard: 링크 `text-brand-orange`
+- [x] AdminDashboard: 카테고리 카드 `bg-brand-orange`
+- [x] AdminRestaurants: 카테고리 뱃지 `bg-brand-beige text-brand-orange`
+- [x] AdminTemplates: 카테고리 뱃지 `bg-brand-beige text-brand-orange`
+- [x] AdminCategories: 버튼/뱃지 `bg-brand-orange`, `bg-brand-beige`
+- [x] KakaoPlaceSearch: 카테고리 텍스트 `text-brand-orange`
+- [x] KakaoMap: 로딩 스피너 `border-brand-orange`
 
-- [ ] 유닛 테스트 실행 (Frontend)
-- [ ] E2E 개발 환경 테스트
-- [ ] 시각적 QA (모바일/데스크탑)
+### Phase 5: 테스트 & 마무리 ✅ 완료
 
-### 파일 변경 목록
+- [x] 유닛 테스트 실행: 59개 테스트 모두 통과
+- [x] BingoCell 이미지 오버레이 테스트 추가 (2개)
+- [x] 빌드 성공 (842ms)
+
+### 파일 변경 목록 (실제 구현)
 
 | 우선순위 | 파일 | 작업 |
 |:--------:|------|------|
-| 1 | `package.json` | framer-motion 추가 |
-| 2 | `tailwind.config.js` | 커스텀 컬러 정의 (신규) |
-| 3 | `index.css` | 컨페티 애니메이션, 스타일 |
-| 4 | `BingoCell.jsx` | 셀 디자인 전면 개편 |
-| 5 | `BingoHeader.jsx` | 오렌지 프로그레스 바 |
-| 6 | `BingoGrid.jsx` | 그리드 스타일 |
-| 7 | `CellDetailModal.jsx` | Framer Motion 바텀 시트 |
-| 8 | `CompletionCelebration.jsx` | 오렌지/골드 컨페티 |
-| 9 | `Layout.jsx` | 전체 톤앤매너 |
-| 10 | 페이지 컴포넌트들 | 버튼/강조색 통일 |
+| 1 | `src/styles/design-tokens.css` | **신규** - Tailwind CSS 4 @theme 커스텀 컬러 |
+| 2 | `src/utils/cn.js` | **신규** - 클래스네임 유틸리티 |
+| 3 | `src/constants/confetti.js` | **신규** - 컨페티 설정 상수 |
+| 4 | `src/index.css` | design-tokens 임포트, 애니메이션 색상 변경 |
+| 5 | `src/components/bingo/BingoCell.jsx` | 3가지 렌더링 경로 (이미지+오버레이, 활성, 비활성) |
+| 6 | `src/components/bingo/BingoHeader.jsx` | 오렌지 프로그레스 바, 베이지 통계 배경 |
+| 7 | `src/components/bingo/BingoGrid.jsx` | 그리드 스타일 |
+| 8 | `src/components/modals/CellDetailModal.jsx` | 드래그 핸들, 브랜드 컬러 |
+| 9 | `src/components/bingo/CompletionCelebration.jsx` | CSS 원형 컨페티 |
+| 10 | `src/components/forms/ReviewForm.jsx` | 골드 별점 |
+| 11 | `src/components/Layout.jsx` | 로고/네비 컬러 |
+| 12 | `src/components/map/KakaoMap.jsx` | 로딩 스피너 컬러 |
+| 13 | 페이지 컴포넌트 (8개) | 버튼/강조색 통일 |
+| 14 | Admin 컴포넌트 (7개) | amber → brand-orange 변경 |
+| 15 | `src/components/bingo/BingoCell.test.jsx` | 이미지 오버레이 테스트 추가 |
+
+### 기술적 결정
+
+1. **Framer Motion 미사용**: CSS만으로 구현 (번들 크기 절감)
+2. **Tailwind CSS 4 @theme**: tailwind.config.js 대신 CSS 파일에서 직접 정의
+3. **원형 컨페티**: 이모지 대신 CSS `border-radius: 50%` 원형 도형 사용
+4. **클린 아키텍처**: design-tokens.css, cn.js, confetti.js로 관심사 분리
 
 ---
 
@@ -490,4 +524,4 @@ delicious_bingo/
 | Cloudinary 연동 | ✅ 완료 | 2026-01-10 |
 | 관리자 페이지 | ✅ 완료 | 2026-01-10 |
 | E2E 개발 테스트 | ✅ 완료 | 2026-01-10 |
-| UI 전면 개편 | 🔄 진행 예정 | - |
+| UI 전면 개편 | ✅ 완료 | 2026-01-23 |

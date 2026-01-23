@@ -73,7 +73,7 @@ export default function RegisterPage() {
               type="text"
               value={formData.username}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent ${
                 errors.username ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="3~20자의 사용자명"
@@ -97,7 +97,7 @@ export default function RegisterPage() {
               type="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent ${
                 errors.email ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="example@email.com"
@@ -121,7 +121,7 @@ export default function RegisterPage() {
               type="password"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent ${
                 errors.password ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="6자 이상의 비밀번호"
@@ -145,7 +145,7 @@ export default function RegisterPage() {
               type="password"
               value={formData.password_confirm}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent ${
                 errors.password_confirm ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="비밀번호를 다시 입력하세요"
@@ -159,7 +159,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-brand-orange text-white rounded-lg font-semibold hover:bg-brand-orange/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? '가입 중...' : '회원가입'}
           </button>
@@ -167,7 +167,7 @@ export default function RegisterPage() {
 
         <div className="mt-4 sm:mt-6 text-center text-sm text-gray-600">
           이미 계정이 있으신가요?{' '}
-          <Link to="/login" className="text-amber-600 hover:text-amber-700 font-medium">
+          <Link to="/login" className="text-brand-orange hover:text-brand-orange/80 font-medium">
             로그인
           </Link>
         </div>

@@ -64,7 +64,7 @@ export default function ProfilePage() {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
           <p className="text-gray-500">프로필을 불러오는 중...</p>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function ProfilePage() {
     return (
       <div className="text-center py-12">
         <p className="text-red-500 mb-4">프로필을 불러오는데 실패했습니다.</p>
-        <Link to="/" className="text-amber-600 hover:underline">
+        <Link to="/" className="text-brand-orange hover:underline">
           홈으로 돌아가기
         </Link>
       </div>
@@ -95,7 +95,7 @@ export default function ProfilePage() {
           {!isEditing && (
             <button
               onClick={handleEditClick}
-              className="text-sm text-amber-600 hover:text-amber-700"
+              className="text-sm text-brand-orange hover:text-brand-orange/80"
             >
               수정
             </button>
@@ -119,7 +119,7 @@ export default function ProfilePage() {
                 type="text"
                 value={formData.username}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent ${
                   formErrors.username ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
@@ -137,7 +137,7 @@ export default function ProfilePage() {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent ${
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent ${
                   formErrors.email ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
@@ -149,7 +149,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={updateProfile.isPending}
-                className="px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 disabled:opacity-50"
+                className="px-4 py-2 bg-brand-orange text-white rounded-lg font-medium hover:bg-brand-orange/90 disabled:opacity-50"
               >
                 {updateProfile.isPending ? '저장 중...' : '저장'}
               </button>
@@ -184,8 +184,8 @@ export default function ProfilePage() {
       <div className="bg-white rounded-xl shadow p-4 sm:p-6 mb-4 sm:mb-6">
         <h2 className="text-lg font-semibold mb-4">활동 통계</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="text-center p-3 bg-amber-50 rounded-lg">
-            <p className="text-2xl font-bold text-amber-600">{statistics.total_boards}</p>
+          <div className="text-center p-3 bg-brand-beige rounded-lg">
+            <p className="text-2xl font-bold text-brand-orange">{statistics.total_boards}</p>
             <p className="text-sm text-gray-600">시작한 빙고</p>
           </div>
           <div className="text-center p-3 bg-green-50 rounded-lg">
@@ -216,7 +216,7 @@ export default function ProfilePage() {
               <Link
                 key={board.id}
                 to={`/boards/${board.id}`}
-                className="block p-3 border border-gray-200 rounded-lg hover:border-amber-300 transition-colors"
+                className="block p-3 border border-gray-200 rounded-lg hover:border-brand-orange/50 transition-colors"
               >
                 <div className="flex justify-between items-center">
                   <div>
@@ -247,7 +247,7 @@ export default function ProfilePage() {
                   <div>
                     <p className="font-medium">{review.restaurant_name}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-amber-500">
+                      <span className="text-brand-gold">
                         {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
                       </span>
                       <span className="text-sm text-gray-500">

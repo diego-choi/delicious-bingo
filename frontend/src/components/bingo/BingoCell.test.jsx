@@ -22,14 +22,14 @@ describe('BingoCell', () => {
   it('shows inactive state by default', () => {
     render(<BingoCell cell={mockCell} onClick={() => {}} />);
     const cell = screen.getByText('테스트 맛집').closest('button');
-    expect(cell).toHaveClass('bg-white');
+    expect(cell).toHaveClass('bg-cell-inactive');
   });
 
   it('shows active state when activated', () => {
     const activatedCell = { ...mockCell, is_activated: true };
     render(<BingoCell cell={activatedCell} onClick={() => {}} />);
     const cell = screen.getByText('테스트 맛집').closest('button');
-    expect(cell).toHaveClass('bg-green-500');
+    expect(cell).toHaveClass('bg-brand-orange');
   });
 
   it('shows check icon when activated', () => {
@@ -48,6 +48,53 @@ describe('BingoCell', () => {
   it('shows highlight when isHighlighted is true', () => {
     render(<BingoCell cell={mockCell} onClick={() => {}} isHighlighted />);
     const cell = screen.getByText('테스트 맛집').closest('button');
-    expect(cell).toHaveClass('ring-2', 'ring-amber-500');
+    expect(cell).toHaveClass('ring-2', 'ring-brand-orange');
+  });
+
+  it('shows image overlay when activated with review image', () => {
+    const cellWithImage = {
+      ...mockCell,
+      is_activated: true,
+      review: {
+        id: 1,
+        image: 'https://example.com/food.jpg',
+      },
+    };
+    render(<BingoCell cell={cellWithImage} onClick={() => {}} />);
+
+    const cell = screen.getByText('테스트 맛집').closest('button');
+    expect(cell).toHaveClass('relative', 'shadow-md');
+
+    // 배경 이미지 레이어 확인
+    const imageLayer = cell.querySelector('[style*="background-image"]');
+    expect(imageLayer).toBeInTheDocument();
+    expect(imageLayer.style.backgroundImage).toContain('food.jpg');
+
+    // 오버레이 레이어 확인
+    const overlayLayer = cell.querySelector('.bg-brand-orange\\/60');
+    expect(overlayLayer).toBeInTheDocument();
+
+    // 텍스트가 흰색이고 z-10으로 오버레이 위에 표시되는지 확인
+    const textElement = screen.getByText('테스트 맛집');
+    expect(textElement).toHaveClass('relative', 'z-10', 'text-white');
+
+    // 체크마크도 표시되는지 확인
+    expect(screen.getByText('✓')).toBeInTheDocument();
+  });
+
+  it('shows orange background when activated without image', () => {
+    const activatedNoImage = {
+      ...mockCell,
+      is_activated: true,
+      review: { id: 1 }, // 이미지 없는 리뷰
+    };
+    render(<BingoCell cell={activatedNoImage} onClick={() => {}} />);
+
+    const cell = screen.getByText('테스트 맛집').closest('button');
+    expect(cell).toHaveClass('bg-brand-orange', 'text-white');
+
+    // 이미지 레이어가 없어야 함
+    const imageLayer = cell.querySelector('[style*="background-image"]');
+    expect(imageLayer).toBeNull();
   });
 });

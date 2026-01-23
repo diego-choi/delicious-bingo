@@ -84,7 +84,7 @@ export default function AdminCategories() {
         {!isAdding && (
           <button
             onClick={() => setIsAdding(true)}
-            className="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-brand-orange text-white rounded-lg hover:bg-brand-orange/90 transition-colors"
           >
             <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -101,14 +101,14 @@ export default function AdminCategories() {
           <div className="divide-y divide-gray-200">
             {/* 새 카테고리 입력 */}
             {isAdding && (
-              <div className="p-4 bg-amber-50">
+              <div className="p-4 bg-brand-beige">
                 <div className="flex items-center space-x-3">
                   <input
                     type="text"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="새 카테고리 이름"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleAdd();
@@ -117,7 +117,7 @@ export default function AdminCategories() {
                   />
                   <button
                     onClick={handleAdd}
-                    className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+                    className="px-4 py-2 bg-brand-orange text-white rounded-lg hover:bg-brand-orange/90 transition-colors"
                   >
                     추가
                   </button>
@@ -145,7 +145,7 @@ export default function AdminCategories() {
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleUpdate(category.id);
@@ -154,7 +154,7 @@ export default function AdminCategories() {
                       />
                       <button
                         onClick={() => handleUpdate(category.id)}
-                        className="px-3 py-1.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors text-sm"
+                        className="px-3 py-1.5 bg-brand-orange text-white rounded-lg hover:bg-brand-orange/90 transition-colors text-sm"
                       >
                         저장
                       </button>
@@ -168,7 +168,7 @@ export default function AdminCategories() {
                   ) : (
                     <>
                       <div className="flex items-center">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-brand-beige text-brand-orange">
                           {category.name}
                         </span>
                         <span className="ml-3 text-sm text-gray-500">
@@ -178,7 +178,7 @@ export default function AdminCategories() {
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleEdit(category)}
-                          className="px-3 py-1.5 text-sm text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-colors"
+                          className="px-3 py-1.5 text-sm text-brand-orange hover:text-brand-orange/80 hover:bg-brand-beige rounded-lg transition-colors"
                         >
                           수정
                         </button>

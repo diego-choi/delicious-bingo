@@ -9,7 +9,7 @@ export default function LeaderboardPage() {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
           <p className="text-gray-500">리더보드를 불러오는 중...</p>
         </div>
       </div>
@@ -22,7 +22,7 @@ export default function LeaderboardPage() {
         <p className="text-red-500 mb-4">리더보드를 불러오는데 실패했습니다.</p>
         <button
           onClick={() => window.location.reload()}
-          className="text-amber-600 hover:underline"
+          className="text-brand-orange hover:underline"
         >
           다시 시도
         </button>
@@ -42,7 +42,7 @@ export default function LeaderboardPage() {
           onClick={() => setActiveTab('fastest')}
           className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors ${
             activeTab === 'fastest'
-              ? 'bg-white text-amber-600 shadow'
+              ? 'bg-white text-brand-orange shadow'
               : 'text-gray-600 hover:text-gray-800'
           }`}
         >
@@ -52,7 +52,7 @@ export default function LeaderboardPage() {
           onClick={() => setActiveTab('most')}
           className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors ${
             activeTab === 'most'
-              ? 'bg-white text-amber-600 shadow'
+              ? 'bg-white text-brand-orange shadow'
               : 'text-gray-600 hover:text-gray-800'
           }`}
         >
@@ -63,7 +63,7 @@ export default function LeaderboardPage() {
       {/* 최단 시간 클리어 순위 */}
       {activeTab === 'fastest' && (
         <div className="bg-white rounded-xl shadow overflow-hidden">
-          <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-4 sm:px-6 py-3 sm:py-4">
+          <div className="bg-brand-orange px-4 sm:px-6 py-3 sm:py-4">
             <h2 className="text-white font-semibold flex items-center gap-2 text-sm sm:text-base">
               <span className="text-lg sm:text-xl">⚡</span>
               최단 시간 클리어
@@ -97,7 +97,7 @@ export default function LeaderboardPage() {
                     <p className="text-xs sm:text-sm text-gray-500 truncate">{item.template_title}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="font-semibold text-amber-600 text-sm sm:text-base">{item.completion_time}</p>
+                    <p className="font-semibold text-brand-orange text-sm sm:text-base">{item.completion_time}</p>
                   </div>
                 </div>
               ))}
