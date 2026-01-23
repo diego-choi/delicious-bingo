@@ -79,6 +79,8 @@ flowchart LR
     I --> J[리더보드 등록]
 ```
 
+#### 셀 상태 전이
+
 ```mermaid
 stateDiagram-v2
     [*] --> 비활성: 빙고판 생성
