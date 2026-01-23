@@ -182,7 +182,50 @@ VITE_KAKAO_JS_KEY=<JavaScript-키>
 
 6. "Deploy" 클릭
 
-### 4.3 도메인 설정 (선택)
+### 4.3 Git Integration 설정 (자동 배포)
+
+Vercel에서 `git push` 시 자동 배포를 위해 Git Integration 설정이 필요합니다.
+
+> **중요**: 초기 프로젝트 Import 시 GitHub 저장소를 선택했더라도, Git Integration이 자동으로 활성화되지 않을 수 있습니다. 아래 단계를 통해 명시적으로 연결해야 합니다.
+
+#### Step 1: Root Directory 설정
+1. Vercel Dashboard → 프로젝트 선택
+2. **Settings** → **Build and Deployment**
+3. **Root Directory** 섹션에서 `frontend` 입력
+4. **Save** 클릭
+
+#### Step 2: Git 저장소 연결
+1. **Settings** → **Git**
+2. **Connected Git Repository** 섹션 확인
+3. 연결되지 않은 경우 **Connect Git Repository** 클릭
+4. GitHub 저장소 (`diego-choi/delicious-bingo`) 선택
+5. **Connect** 클릭
+
+#### Step 3: 연결 확인
+```bash
+# 테스트 커밋으로 자동 배포 확인
+git commit --allow-empty -m "Test: Vercel auto-deploy"
+git push origin master
+
+# 30초 후 Vercel 배포 목록 확인
+cd frontend && vercel ls --yes
+```
+
+새 배포가 생성되고 URL에 `git-master`가 포함되어 있으면 성공:
+```
+https://project-git-master-username.vercel.app
+```
+
+#### Git Integration vs Deploy Hook
+
+| 방식 | 트리거 | 용도 |
+|------|--------|------|
+| **Git Integration** | `git push` 시 자동 | 일반적인 개발 워크플로우 (권장) |
+| **Deploy Hook** | URL 호출 시 수동 | CMS 연동, 외부 시스템 연동 |
+
+> **참고**: Deploy Hook은 Git Integration과 별개입니다. 자동 배포만 필요하면 Deploy Hook은 생성하지 않아도 됩니다.
+
+### 4.4 도메인 설정 (선택)
 1. "Settings" → "Domains"
 2. 커스텀 도메인 추가 또는 기본 `.vercel.app` 도메인 사용
 
@@ -237,16 +280,36 @@ https://<your-backend>.railway.app/admin/
 ## 7. 업데이트 배포
 
 ### 자동 배포 (추천)
-- GitHub main 브랜치에 push하면 자동 배포
-- Railway, Vercel 모두 GitHub 연동 시 자동 배포
+
+GitHub에 push하면 Railway와 Vercel 모두 자동 배포됩니다.
+
+```bash
+git add -A
+git commit -m "Feat: 새 기능 추가"
+git push origin master
+# → Railway: 자동 빌드 및 배포
+# → Vercel: 자동 빌드 및 배포
+```
+
+#### 자동 배포 전제 조건
+
+| 플랫폼 | 필수 설정 | 확인 방법 |
+|--------|----------|----------|
+| **Railway** | GitHub Repo 연결 | Settings → Source 확인 |
+| **Vercel** | Git Integration 연결 | Settings → Git → Connected Git Repository 확인 |
+
+> **주의**: Vercel은 초기 Import 후에도 Git Integration이 연결되지 않을 수 있습니다. [4.3 Git Integration 설정](#43-git-integration-설정-자동-배포) 참조.
 
 ### 수동 배포
-```bash
-# Backend
-railway up
 
-# Frontend
-vercel --prod
+자동 배포가 실패하거나 즉시 배포가 필요한 경우:
+
+```bash
+# Backend (Railway)
+cd backend && railway up
+
+# Frontend (Vercel)
+cd frontend && vercel --prod
 ```
 
 ---
@@ -297,6 +360,19 @@ Invalid HTTP_HOST header: 'xxx.up.railway.app'
 ---
 
 ### 8.3 Vercel 오류
+
+#### git push 해도 자동 배포가 안됨
+**원인**: Git Integration이 연결되지 않음
+**확인**:
+```bash
+# GitHub 웹훅 확인 (Vercel 웹훅이 있어야 함)
+gh api repos/<owner>/<repo>/hooks
+```
+**해결**:
+1. Vercel Dashboard → 프로젝트 → Settings → Git
+2. Connected Git Repository 섹션 확인
+3. 연결되지 않은 경우 **Connect Git Repository** 클릭
+4. GitHub 저장소 선택 후 연결
 
 #### API 호출이 localhost로 감
 ```
@@ -358,6 +434,7 @@ python manage.py migrate --run-syncdb
 
 ## 10. 프로덕션 체크리스트
 
+### 환경 설정
 - [ ] `SECRET_KEY` 변경됨
 - [ ] `DEBUG=False` 설정됨
 - [ ] `ALLOWED_HOSTS` 설정됨
@@ -365,6 +442,15 @@ python manage.py migrate --run-syncdb
 - [ ] CORS 설정 완료
 - [ ] Cloudinary 설정 완료 (`CLOUDINARY_URL`)
 - [ ] 카카오 개발자 플랫폼 도메인 등록 (관리자 지도 사용 시)
+
+### 자동 배포 설정
+- [ ] Railway: GitHub 저장소 연결됨
+- [ ] Railway: Root Directory `backend` 설정됨
+- [ ] Vercel: Git Integration 연결됨 (Settings → Git)
+- [ ] Vercel: Root Directory `frontend` 설정됨 (Settings → Build and Deployment)
+- [ ] 자동 배포 테스트 완료 (`git push` → 배포 확인)
+
+### 운영
 - [ ] Database 백업 설정
 - [ ] 에러 모니터링 설정 (선택: Sentry)
 - [ ] 로그 모니터링 설정
