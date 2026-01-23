@@ -1,243 +1,76 @@
 # Delicious Bingo (맛집 빙고)
 
-맛집 탐방을 게임화한 빙고 웹 애플리케이션입니다. 5x5 빙고판의 맛집들을 방문하고 리뷰를 작성하여 빙고를 완성하세요!
+맛집 탐방을 게임화한 5x5 빙고 웹 애플리케이션입니다.
 
-## 기술 스택
-
-### Backend
-- Python 3.12
-- Django 6.0
-- Django REST Framework
-- PostgreSQL
-- Gunicorn
-- Cloudinary (이미지 저장소)
-
-### Frontend
-- React 18
-- Vite
-- Tailwind CSS
-- React Query
-- React Router
-
-### 배포
-- Backend: Railway
-- Frontend: Vercel
-- Database: Railway PostgreSQL
+**Live Demo**: https://delicious-bingo.vercel.app
 
 ---
 
-## 로컬 개발 환경 설정
+## 핵심 기능
+
+- **빙고 게임**: 5x5 맛집 빙고판, 목표 라인(1/3/5줄) 선택
+- **리뷰 시스템**: 맛집 방문 후 리뷰 작성 → 셀 활성화
+- **리더보드**: 최단 시간 클리어, 최다 완료 랭킹
+- **관리자 페이지**: 식당/템플릿/카테고리/사용자 관리, 카카오 장소 검색 연동
+
+---
+
+## 기술 스택
+
+| 영역 | 기술 |
+|------|------|
+| **Frontend** | React 19, Vite 7, Tailwind CSS 4, React Router 7, TanStack Query 5 |
+| **Backend** | Django 6.0, Django REST Framework 3.16, Token Authentication |
+| **Database** | PostgreSQL (Railway) |
+| **Storage** | Cloudinary (이미지) |
+| **Deploy** | Vercel (Frontend), Railway (Backend) |
+
+---
+
+## 로컬 개발 환경
 
 ### Backend
-
 ```bash
 cd backend
-
-# 가상환경 생성 및 활성화
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 의존성 설치
 pip install -r requirements.txt
-
-# 마이그레이션
 python manage.py migrate
-
-# 초기 데이터 로드
-python manage.py loaddata initial_data
-
-# 개발 서버 실행
+python manage.py seed_data  # 샘플 데이터 생성
 python manage.py runserver
 ```
 
 ### Frontend
-
 ```bash
 cd frontend
-
-# 의존성 설치
 npm install
-
-# 환경 변수 설정
-cp .env.example .env.local
-# .env.local 파일에서 VITE_API_URL 설정
-
-# 개발 서버 실행
+cp .env.example .env.local  # VITE_API_URL 설정
 npm run dev
 ```
 
----
-
-## 프로덕션 배포
-
-자세한 배포 가이드는 [DEPLOY.md](./DEPLOY.md)를 참조하세요.
-
-### 현재 배포 URL
-- Backend API: https://delicious-bingo-production.up.railway.app/api/
-- Frontend: https://delicious-bingo.vercel.app
+### 테스트 계정
+| 계정 | Username | Password |
+|------|----------|----------|
+| 일반 사용자 | `testuser` | `testpass123` |
+| 관리자 | `admin` | `admin1234` |
 
 ---
 
-## 배포 트러블슈팅
+## 테스트
 
-### 1. Railway: Nixpacks pip not found 오류
-
-**증상:**
-```
-/bin/bash: line 1: pip: command not found
-```
-
-**원인:** Nixpacks 빌더가 pip을 찾지 못함
-
-**해결:** Dockerfile 사용으로 전환
-```dockerfile
-FROM python:3.12-slim
-# ... Dockerfile로 직접 빌드 환경 제어
-```
-
----
-
-### 2. Railway: Django 버전과 Python 버전 불일치
-
-**증상:**
-```
-Django==6.0.1 Requires-Python >=3.12
-```
-
-**원인:** Dockerfile에서 Python 3.11 사용
-
-**해결:** Dockerfile에서 Python 3.12 사용
-```dockerfile
-FROM python:3.12-slim  # 3.11 대신 3.12 사용
-```
-
----
-
-### 3. Railway: $PORT 환경변수 미적용
-
-**증상:**
-```
-Error: '$PORT' is not a valid port number.
-```
-
-**원인:** `railway.json`이 Dockerfile을 무시하고 Nixpacks 빌더와 startCommand를 강제 적용. startCommand에서 `$PORT`가 문자열 그대로 전달됨.
-
-**해결:** `railway.json` 삭제
 ```bash
-rm backend/railway.json
+# Backend (87 tests)
+cd backend && python manage.py test
+
+# Frontend (59 tests)
+cd frontend && npm run test:run
+
+# E2E 개발 환경 (18 tests)
+cd frontend && npm run e2e
+
+# E2E 프로덕션 (15 tests)
+cd frontend && npm run e2e:prod
 ```
-
-Railway가 자동으로 Dockerfile을 감지하여 사용. `start.sh`에서 환경변수 확장이 정상 동작:
-```bash
-exec gunicorn config.wsgi --bind "0.0.0.0:${PORT:-8000}"
-```
-
----
-
-### 4. Railway: Root Directory 미설정
-
-**증상:** 배포 시 Dockerfile을 찾지 못하거나, 로그 없이 crashed 상태
-
-**원인:** 모노레포 구조에서 backend 디렉토리를 인식하지 못함
-
-**해결:** Railway 대시보드에서 설정
-1. 서비스 선택 → **Settings** 탭
-2. **General** → **Root Directory**: `backend` 입력
-3. Save 후 Redeploy
-
----
-
-### 5. Railway: ALLOWED_HOSTS 설정
-
-**증상:**
-```
-Invalid HTTP_HOST header: 'your-app.railway.app'
-```
-
-**해결:** Railway 환경변수 설정
-```
-ALLOWED_HOSTS=.railway.app
-```
-
-> `.railway.app`은 모든 서브도메인을 허용 (예: `xxx.up.railway.app`)
-
----
-
-### 6. Vercel: VITE_API_URL 환경변수 미적용
-
-**증상:** 프론트엔드에서 API 호출 시 `http://localhost:8000`으로 요청
-
-**원인:** Vite 환경변수는 빌드 시점에 번들에 포함되어야 함. CLI로 전달한 `-e` 옵션이 빌드에 반영되지 않음.
-
-**해결:** Vercel 대시보드에서 환경변수 설정
-1. Vercel 대시보드 → 프로젝트 선택
-2. **Settings** → **Environment Variables**
-3. 추가:
-   - Name: `VITE_API_URL`
-   - Value: `https://your-backend.railway.app/api`
-   - Environment: Production (체크)
-4. **Redeploy** 실행
-
-또는 Vercel CLI:
-```bash
-vercel env add VITE_API_URL production
-# 값 입력: https://your-backend.railway.app/api
-vercel --prod
-```
-
----
-
-### 7. CORS 오류
-
-**증상:**
-```
-Access to XMLHttpRequest has been blocked by CORS policy
-```
-
-**해결:** Railway 환경변수에 프론트엔드 도메인 추가
-```
-CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,http://localhost:5173
-```
-
----
-
-### 8. 초기 데이터 로드
-
-**Railway SSH 접속:**
-```bash
-railway ssh
-```
-
-**데이터 로드:**
-```bash
-python manage.py loaddata initial_data
-```
-
-**슈퍼유저 생성:**
-```bash
-python manage.py createsuperuser
-```
-
----
-
-## 환경변수 체크리스트
-
-### Railway (Backend)
-| 변수 | 필수 | 설명 | 예시 |
-|------|:----:|------|------|
-| `SECRET_KEY` | O | Django 시크릿 키 | `django-insecure-xxx...` |
-| `DEBUG` | O | 디버그 모드 | `False` |
-| `ALLOWED_HOSTS` | O | 허용 호스트 | `.railway.app` |
-| `DATABASE_URL` | O | PostgreSQL URL | 자동 설정 (Railway) |
-| `CORS_ALLOWED_ORIGINS` | O | CORS 허용 도메인 | `https://xxx.vercel.app` |
-| `CLOUDINARY_URL` | O | Cloudinary 연결 URL | `cloudinary://API_KEY:SECRET@CLOUD_NAME` |
-| `KAKAO_REST_API_KEY` | - | 카카오 REST API 키 (관리자 검색용) | `abc123...` |
-
-### Vercel (Frontend)
-| 변수 | 필수 | 설명 | 예시 |
-|------|:----:|------|------|
-| `VITE_API_URL` | O | Backend API URL | `https://xxx.railway.app/api` |
-| `VITE_KAKAO_JS_KEY` | - | 카카오 JavaScript 키 (지도용) | `abc123...` |
 
 ---
 
@@ -246,89 +79,52 @@ python manage.py createsuperuser
 ```
 delicious_bingo/
 ├── backend/
-│   ├── api/                 # Django 앱
-│   │   ├── fixtures/        # 초기 데이터
-│   │   ├── models.py        # 데이터 모델
-│   │   ├── serializers.py   # DRF Serializers
-│   │   ├── serializers_admin.py  # Admin API Serializers
-│   │   ├── services.py      # 비즈니스 로직 (빙고 판정)
-│   │   ├── views.py         # API Views
-│   │   ├── views_admin.py   # Admin API Views
-│   │   └── permissions.py   # 권한 클래스
-│   ├── config/              # Django 설정
-│   ├── Dockerfile           # 프로덕션 빌드
-│   ├── start.sh             # 컨테이너 시작 스크립트
+│   ├── api/                    # Django 앱
+│   │   ├── models.py           # 데이터 모델
+│   │   ├── serializers.py      # DRF Serializers
+│   │   ├── views.py            # API Views
+│   │   ├── views_admin.py      # Admin API Views
+│   │   ├── services.py         # 빙고 라인 판정 로직
+│   │   └── fixtures/           # 초기 데이터
+│   ├── config/                 # Django 설정
+│   ├── Dockerfile              # 프로덕션 빌드
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── api/             # API 클라이언트
-│   │   ├── admin/           # 관리자 페이지 (식당/템플릿/카테고리)
-│   │   ├── components/      # React 컴포넌트
-│   │   ├── hooks/           # Custom Hooks
-│   │   └── pages/           # 페이지 컴포넌트
-│   ├── e2e-prod-test.cjs    # E2E 프로덕션 테스트
-│   ├── vercel.json          # Vercel SPA 설정
+│   │   ├── api/                # API 클라이언트
+│   │   ├── admin/              # 관리자 페이지
+│   │   ├── components/         # React 컴포넌트
+│   │   ├── contexts/           # Auth Context
+│   │   ├── hooks/              # Custom Hooks
+│   │   ├── pages/              # 페이지 컴포넌트
+│   │   └── styles/             # 브랜드 컬러, 애니메이션
 │   └── package.json
-├── DEPLOY.md                # 배포 가이드
-└── README.md                # 이 파일
+├── CLAUDE.md                   # AI 개발 컨텍스트
+├── DEPLOY.md                   # 배포 가이드
+├── HISTORY.md                  # 개발 히스토리
+├── PRD.md                      # 제품 요구사항
+└── TROUBLESHOOTING.md          # 트러블슈팅 가이드
 ```
 
 ---
 
-## 테스트
+## 문서
 
-### 유닛 테스트
+| 문서 | 설명 |
+|------|------|
+| [PRD.md](./PRD.md) | 제품 요구사항, 데이터 모델, API 명세 |
+| [DEPLOY.md](./DEPLOY.md) | Railway/Vercel 배포 가이드 |
+| [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | 배포 트러블슈팅 |
+| [HISTORY.md](./HISTORY.md) | 개발 히스토리 |
+| [CLAUDE.md](./CLAUDE.md) | AI 개발 컨텍스트 |
 
-```bash
-# Backend
-cd backend && python manage.py test
+---
 
-# Frontend
-cd frontend && npm run test:run
-```
+## 배포
 
-### E2E 테스트
+자동 배포: `git push origin master` → Railway + Vercel 자동 빌드
 
-Playwright 기반으로 전체 기능을 테스트합니다.
-
-```bash
-cd frontend
-
-# 최초 1회 설치
-npm install -D playwright
-npx playwright install chromium
-```
-
-#### 개발 환경 E2E 테스트 (17개)
-
-```bash
-# 사전 준비: 개발 서버 실행
-# 터미널 1: cd backend && python manage.py runserver
-# 터미널 2: cd frontend && npm run dev
-
-# 테스트 실행
-npm run e2e              # headless 모드
-npm run e2e:headed       # 브라우저 표시
-npm run e2e:slow         # 느린 모드 (디버깅용)
-```
-
-**테스트 항목:**
-- 홈페이지, 템플릿 목록/상세, 로그인/회원가입 페이지
-- 테스트 계정 로그인, 내 빙고 페이지, 프로필 페이지
-- 빙고 도전 시작, 그리드 표시, 셀 클릭 모달
-- 관리자 페이지 접근, 모바일 반응형, 로그아웃
-
-#### 프로덕션 E2E 테스트 (15개)
-
-```bash
-npm run e2e:prod
-```
-
-**테스트 항목:**
-- 홈페이지, 템플릿 목록/상세, 로그인/회원가입 페이지
-- 테스트 계정 숨김 (Production), 리더보드, API 연결
-- 회원가입/로그인 플로우, 프로필 페이지
-- 보호된 라우트, 모바일 반응형
+자세한 내용은 [DEPLOY.md](./DEPLOY.md) 참조.
 
 ---
 
