@@ -201,7 +201,27 @@ Vercel에서 `git push` 시 자동 배포를 위해 Git Integration 설정이 �
 4. GitHub 저장소 (`diego-choi/delicious-bingo`) 선택
 5. **Connect** 클릭
 
-#### Step 3: 연결 확인
+#### Step 3: Ignored Build Step 설정 (선택적 빌드)
+
+Monorepo 구조에서 `frontend/` 디렉토리 변경 시에만 빌드하도록 설정합니다.
+
+1. **Settings** → **Build and Deployment**
+2. **Ignored Build Step** 섹션 찾기
+3. 드롭다운에서 **Custom** 선택
+4. 다음 명령어 입력:
+   ```bash
+   git diff --quiet HEAD^ HEAD -- .
+   ```
+5. **Save** 클릭
+
+| 상황 | 동작 |
+|------|------|
+| `frontend/` 변경 있음 | 빌드 진행 (Ready) |
+| `frontend/` 변경 없음 | 빌드 스킵 (Canceled) |
+
+> **참고**: 이 설정이 없으면 `backend/`, `README.md` 등 다른 파일 변경 시에도 불필요한 빌드가 실행됩니다.
+
+#### Step 4: 연결 확인
 ```bash
 # 테스트 커밋으로 자동 배포 확인
 git commit --allow-empty -m "Test: Vercel auto-deploy"
@@ -447,6 +467,7 @@ python manage.py migrate --run-syncdb
 - [ ] Railway: GitHub 저장소 연결됨
 - [ ] Railway: Root Directory `backend` 설정됨
 - [ ] Vercel: Git Integration 연결됨 (Settings → Git)
+- [ ] Vercel: Ignored Build Step 설정됨 (`git diff --quiet HEAD^ HEAD -- .`)
 - [ ] Vercel: Root Directory `frontend` 설정됨 (Settings → Build and Deployment)
 - [ ] 자동 배포 테스트 완료 (`git push` → 배포 확인)
 
