@@ -349,7 +349,7 @@ npm run e2e:prod
 
 ```
 delicious_bingo/
-├── PLAN.md                     # 개발 히스토리 (현재 문서)
+├── HISTORY.md                  # 개발 히스토리 (현재 문서)
 ├── PRD.md                      # 제품 요구사항
 ├── CLAUDE.md                   # Claude Code 컨텍스트
 ├── DEPLOY.md                   # 배포 가이드

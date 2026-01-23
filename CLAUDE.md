@@ -94,7 +94,7 @@ delicious_bingo/
 │   ├── package.json
 │   └── vite.config.js
 │
-├── PLAN.md                    # 8단계 구현 계획
+├── HISTORY.md                 # 개발 히스토리
 ├── PRD.md                     # 제품 요구사항
 └── README.md                  # 프로젝트 문서
 ```
