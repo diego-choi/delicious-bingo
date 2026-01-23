@@ -24,18 +24,18 @@ flowchart TB
     end
 
     subgraph Vercel["Vercel"]
-        Frontend["Frontend\n(Static Files)"]
+        Frontend["Frontend<br/>(Static Files)"]
     end
 
     subgraph Railway["Railway"]
-        Backend["Django 6.0\n+ DRF 3.16"]
+        Backend["Django 6.0<br/>+ DRF 3.16"]
         DB[(PostgreSQL)]
     end
 
     subgraph External["External Services"]
-        Cloudinary["Cloudinary\n(Images)"]
-        KakaoMap["Kakao Maps\n(JS SDK)"]
-        KakaoLocal["Kakao Local\n(REST API)"]
+        Cloudinary["Cloudinary<br/>(Images)"]
+        KakaoMap["Kakao Maps<br/>(JS SDK)"]
+        KakaoLocal["Kakao Local<br/>(REST API)"]
     end
 
     React -->|HTTPS| Frontend
