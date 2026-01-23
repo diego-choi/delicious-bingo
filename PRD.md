@@ -62,8 +62,34 @@
 ### 3.1. 빙고 게임플레이
 
 #### 게임 흐름
+
+```mermaid
+flowchart LR
+    A[템플릿 목록] --> B[템플릿 선택]
+    B --> C{목표 라인 설정}
+    C -->|1줄| D[빙고판 생성]
+    C -->|3줄| D
+    C -->|5줄| D
+    D --> E[맛집 방문]
+    E --> F[리뷰 작성]
+    F --> G[셀 활성화]
+    G --> H{목표 달성?}
+    H -->|No| E
+    H -->|Yes| I[빙고 완료!]
+    I --> J[리더보드 등록]
 ```
-템플릿 선택 → 목표 라인 설정(1/3/5줄) → 빙고판 생성 → 맛집 방문 → 리뷰 작성 → 셀 활성화 → 빙고 완료
+
+```mermaid
+stateDiagram-v2
+    [*] --> 비활성: 빙고판 생성
+    비활성 --> 활성: 리뷰 작성
+    활성 --> 빙고라인: 5개 연속 완성
+    빙고라인 --> [*]: 목표 달성
+
+    state 활성 {
+        [*] --> 이미지없음
+        이미지없음 --> 이미지있음: 이미지 포함 리뷰
+    }
 ```
 
 #### 빙고 규칙
@@ -135,11 +161,81 @@
 ## 5. 데이터 모델
 
 ### ERD
-```
-Category (1) ──< Restaurant (N) ──< BingoTemplateItem (N) >── BingoTemplate (1)
-                                                                    │
-                                                                    v
-User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
+
+```mermaid
+erDiagram
+    Category ||--o{ Restaurant : contains
+    Category ||--o{ BingoTemplate : categorizes
+    Restaurant ||--o{ BingoTemplateItem : "placed in"
+    BingoTemplate ||--o{ BingoTemplateItem : contains
+    BingoTemplate ||--o{ BingoBoard : "used by"
+    User ||--o{ BingoBoard : owns
+    BingoBoard ||--o{ Review : contains
+    Restaurant ||--o{ Review : "reviewed in"
+
+    Category {
+        int id PK
+        string name
+        string description
+    }
+
+    Restaurant {
+        int id PK
+        int category_id FK
+        string name
+        string address
+        decimal latitude
+        decimal longitude
+        string kakao_place_id
+        string place_url
+        boolean is_approved
+    }
+
+    BingoTemplate {
+        int id PK
+        int category_id FK
+        string title
+        string description
+        boolean is_active
+        datetime created_at
+    }
+
+    BingoTemplateItem {
+        int id PK
+        int template_id FK
+        int restaurant_id FK
+        int position
+    }
+
+    User {
+        int id PK
+        string username
+        string email
+        boolean is_staff
+        boolean is_active
+    }
+
+    BingoBoard {
+        int id PK
+        int user_id FK
+        int template_id FK
+        int target_line_count
+        boolean is_completed
+        datetime completed_at
+        datetime created_at
+    }
+
+    Review {
+        int id PK
+        int user_id FK
+        int bingo_board_id FK
+        int restaurant_id FK
+        string image
+        string content
+        int rating
+        date visited_date
+        datetime created_at
+    }
 ```
 
 ### 모델 상세

@@ -15,6 +15,38 @@
 
 ---
 
+## 시스템 아키텍처
+
+```mermaid
+flowchart TB
+    subgraph Client["Client (Browser)"]
+        React["React 19 + Vite 7"]
+    end
+
+    subgraph Vercel["Vercel"]
+        Frontend["Frontend\n(Static Files)"]
+    end
+
+    subgraph Railway["Railway"]
+        Backend["Django 6.0\n+ DRF 3.16"]
+        DB[(PostgreSQL)]
+    end
+
+    subgraph External["External Services"]
+        Cloudinary["Cloudinary\n(Images)"]
+        KakaoMap["Kakao Maps\n(JS SDK)"]
+        KakaoLocal["Kakao Local\n(REST API)"]
+    end
+
+    React -->|HTTPS| Frontend
+    Frontend -->|API Calls| Backend
+    Backend -->|SQL| DB
+    Backend -->|Upload| Cloudinary
+    Backend -->|Search| KakaoLocal
+    React -->|Map Display| KakaoMap
+    Cloudinary -->|CDN| React
+```
+
 ## 기술 스택
 
 | 영역 | 기술 |
