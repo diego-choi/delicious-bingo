@@ -98,6 +98,7 @@ delicious_bingo/
 ├── HISTORY.md                     # 개발 히스토리
 ├── PRD.md                         # 제품 요구사항
 ├── DEPLOY.md                      # 배포 가이드
+├── TROUBLESHOOTING.md             # 배포 트러블슈팅
 └── README.md                      # 프로젝트 문서
 ```
 
