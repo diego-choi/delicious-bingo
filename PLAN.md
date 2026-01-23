@@ -1,527 +1,438 @@
-# Delicious Bingo 구현 계획
+# Delicious Bingo 개발 히스토리
 
-## 현재 상태: 모든 Phase 완료 + 프로덕션 배포 완료 + UI 개편 완료
+> 맛집 탐방을 게임화한 5x5 빙고 웹 애플리케이션
 
-- [x] Django 프로젝트 초기화
-- [x] Django 모델 정의 (Category, Restaurant, BingoTemplate, BingoTemplateItem, BingoBoard, Review)
-- [x] Django Admin 설정
-- [x] Django 설정 구성 (CORS, DRF)
-- [x] React + Vite 프로젝트 초기화
-- [x] Tailwind CSS 설정
-- [x] 모바일 반응형 디자인 적용
-- [x] 프로덕션 배포 (Railway + Vercel)
-- [x] E2E 테스트 구현
-- [x] 커스텀 관리자 페이지 (식당/템플릿/카테고리 관리)
+## 프로젝트 상태
 
----
-
-## Phase 1: 백엔드 API 기초 (Serializers, 기본 Views) ✅ 완료
-
-### TODO
-- [x] `backend/api/serializers.py` 생성
-  - [x] CategorySerializer
-  - [x] RestaurantSerializer
-  - [x] BingoTemplateListSerializer
-  - [x] BingoTemplateItemSerializer
-  - [x] BingoTemplateDetailSerializer
-- [x] `backend/api/urls.py` 생성
-  - [x] DefaultRouter 설정
-  - [x] templates, categories 라우트 등록
-- [x] `backend/api/views.py` 수정
-  - [x] CategoryViewSet (ReadOnly)
-  - [x] BingoTemplateViewSet (ReadOnly, list/detail 분리)
-- [x] `backend/config/urls.py` 수정
-  - [x] `/api/` 경로 연결
-  - [x] 미디어 파일 서빙 설정
-
-### 검증
-- [x] `GET /api/templates/` 테스트
-- [x] `GET /api/templates/:id/` 테스트
-- [x] `GET /api/categories/` 테스트
-
----
-
-## Phase 2: 백엔드 API 완성 (빙고 보드, 리뷰, 게임 로직) ✅ 완료
-
-### TODO
-- [x] `backend/api/services.py` 생성
-  - [x] BingoService 클래스
-  - [x] WINNING_LINES 상수 (12개 라인)
-  - [x] get_activated_positions() 메서드
-  - [x] count_completed_lines() 메서드
-  - [x] check_board_completion() 메서드
-- [x] `backend/api/serializers.py` 추가
-  - [x] ReviewSerializer
-  - [x] ReviewCreateSerializer
-  - [x] BingoBoardSerializer (cells, completed_lines, progress 포함)
-  - [x] BingoBoardCreateSerializer
-- [x] `backend/api/views.py` 추가
-  - [x] BingoBoardViewSet
-  - [x] ReviewViewSet (생성 시 빙고 완료 체크)
-- [x] `backend/api/urls.py` 수정
-  - [x] boards, reviews 라우트 등록
-
-### 검증
-- [x] `POST /api/boards/` 테스트 (인증 필요)
-- [x] `GET /api/boards/:id/` 테스트 (5x5 그리드 데이터)
-- [x] `POST /api/reviews/` 테스트 (셀 활성화 확인)
-- [x] 빙고 완료 로직 테스트
-
----
-
-## Phase 3: 프론트엔드 인프라 (라우팅, API 클라이언트, 상태 관리) ✅ 완료
-
-### TODO
-- [x] 패키지 설치 (react-router-dom, axios, @tanstack/react-query)
-- [x] `frontend/src/api/client.js` 생성
-  - [x] Axios 인스턴스 설정
-  - [x] 인증 토큰 인터셉터
-- [x] `frontend/src/api/endpoints.js` 생성
-  - [x] templatesApi (getAll, getById)
-  - [x] boardsApi (getAll, getById, create)
-  - [x] reviewsApi (create)
-- [x] `frontend/src/hooks/useTemplates.js` 생성
-- [x] `frontend/src/hooks/useBoards.js` 생성
-- [x] `frontend/src/router.jsx` 생성
-- [x] `frontend/src/components/Layout.jsx` 생성 (모바일 햄버거 메뉴 포함)
-- [x] `frontend/src/main.jsx` 수정
-- [x] 모든 페이지 플레이스홀더 생성
-
-### 검증
-- [x] 모든 라우트 접근 확인
-- [x] API 클라이언트 연결 확인
-- [x] React Query 캐싱 동작 확인
-
----
-
-## Phase 4: 핵심 게임 컴포넌트 (BingoGrid, BingoCell) ✅ 완료
-
-### TODO
-- [x] `frontend/src/components/bingo/BingoGrid.jsx` 생성
-  - [x] 5x5 그리드 레이아웃 (grid-cols-5)
-  - [x] 완료 라인 하이라이트 로직
-  - [x] onCellClick 핸들러
-- [x] `frontend/src/components/bingo/BingoCell.jsx` 생성
-  - [x] 비활성화/활성화 상태 UI
-  - [x] 하이라이트 상태 (빙고 라인)
-  - [x] 호버 효과
-- [x] `frontend/src/components/bingo/BingoHeader.jsx` 생성
-- [x] `frontend/src/pages/BoardPage.jsx` 구현
-
-### 검증
-- [x] 5x5 그리드 정상 렌더링
-- [x] 활성화된 셀 녹색 표시
-- [x] 진행률 바 업데이트
-- [x] 셀 클릭 이벤트 동작
-
----
-
-## Phase 5: 리뷰 및 인터랙션 (ReviewModal, 폼 처리) ✅ 완료
-
-### TODO
-- [x] `frontend/src/components/modals/CellDetailModal.jsx` 생성
-  - [x] 맛집 정보 표시
-  - [x] 기존 리뷰 표시
-  - [x] 리뷰 작성 폼 토글
-  - [x] 모바일 바텀시트 UI
-- [x] `frontend/src/components/forms/ReviewForm.jsx` 생성
-  - [x] 이미지 업로드 (필수, 미리보기)
-  - [x] 별점 선택 (1-5)
-  - [x] 리뷰 내용 (최소 10자 검증)
-  - [x] 방문일 선택
-- [x] `frontend/src/pages/TemplateDetailPage.jsx` 구현
-- [x] `frontend/src/pages/TemplateListPage.jsx` 구현
-
-### 검증
-- [x] 리뷰 폼 검증 동작
-- [x] 리뷰 제출 후 셀 활성화
-- [x] 도전 시작 → 보드 생성 → 리다이렉트
-
----
-
-## Phase 6: 카카오맵 연동 ✅ 완료
-
-### TODO
-- [x] `frontend/src/components/map/KakaoMap.jsx` 생성
-- [x] `frontend/src/hooks/useKakaoMap.js` 생성
-- [x] CellDetailModal에 KakaoMap 통합
-
-### 검증
-- [x] 지도 정상 렌더링
-- [x] 마커 위치 정확성
-- [x] 인포윈도우 표시
-
----
-
-## Phase 7: 리더보드 및 완료 기능 ✅ 완료
-
-### TODO
-- [x] `backend/api/views.py` - leaderboard() 함수 뷰 추가
-- [x] `backend/api/urls.py` - `/api/leaderboard/` 경로 추가
-- [x] `frontend/src/hooks/useLeaderboard.js` 생성
-- [x] `frontend/src/pages/LeaderboardPage.jsx` 구현
-- [x] `frontend/src/components/bingo/CompletionCelebration.jsx` 생성
-
-### 검증
-- [x] 리더보드 데이터 정상 로드
-- [x] 빙고 완료 시 축하 모달 표시
-
----
-
-## Phase 8: 테스트 및 마무리 ✅ 완료
-
-### TODO
-- [x] 백엔드 테스트 (87개 테스트)
-  - [x] BingoService 라인 감지 테스트
-  - [x] API 인증 테스트
-  - [x] 리뷰 생성 → 빙고 완료 통합 테스트
-- [x] 프론트엔드 테스트 (25개 테스트)
-  - [x] Vitest + Testing Library 설정
-  - [x] 컴포넌트 테스트
-- [x] 공통 컴포넌트 생성
-  - [x] ErrorBoundary
-  - [x] LoadingSpinner
-- [x] 커스텀 애니메이션 (bounce-in, pulse-line)
-
-### 검증
-- [x] `python manage.py test` 통과 (87 tests)
-- [x] `npm run test:run` 통과 (59 tests)
-- [x] `npm run build` 성공
-
----
-
-## 추가 구현: 인증 시스템 ✅ 완료
-
-- [x] Token Authentication 설정
-- [x] 회원가입 API (`POST /api/auth/register/`)
-- [x] 로그인 API (`POST /api/auth/login/`)
-- [x] 로그아웃 API (`POST /api/auth/logout/`)
-- [x] 현재 사용자 API (`GET /api/auth/me/`)
-- [x] AuthContext + AuthProvider
-- [x] LoginPage, RegisterPage
-- [x] 테스트 계정 Production 숨김 (`import.meta.env.DEV`)
-
----
-
-## 추가 구현: 모바일 반응형 ✅ 완료
-
-- [x] 모바일 우선 디자인 (기본 모바일, sm: 데스크탑)
-- [x] 햄버거 메뉴 네비게이션
-- [x] 바텀시트 모달 (CellDetailModal)
-- [x] 반응형 그리드/텍스트/간격
-- [x] 터치 친화적 UI
-
----
-
-## 추가 구현: 프로덕션 배포 ✅ 완료
-
-### Backend (Railway)
-- [x] Dockerfile + start.sh
-- [x] PostgreSQL 연결
-- [x] 환경변수 설정 (SECRET_KEY, ALLOWED_HOSTS, CORS_ALLOWED_ORIGINS)
-- [x] 초기 데이터 fixture (loaddata initial_data)
-
-### Frontend (Vercel)
-- [x] vercel.json (SPA 라우팅 + 캐시 헤더)
-- [x] 환경변수 설정 (VITE_API_URL)
-- [x] stale-while-revalidate 캐시 전략
+| 항목 | 상태 |
+|------|------|
+| **개발 완료** | ✅ 모든 기능 구현 완료 |
+| **프로덕션 배포** | ✅ Railway + Vercel |
+| **테스트** | ✅ Backend 87개 / Frontend 59개 / E2E 32개 |
 
 ### 배포 URL
-- Backend: https://delicious-bingo-production.up.railway.app
-- Frontend: https://delicious-bingo.vercel.app
+- **Frontend**: https://delicious-bingo.vercel.app
+- **Backend API**: https://delicious-bingo-production.up.railway.app
 
 ---
 
-## 추가 구현: E2E 테스트 ✅ 완료
+## 구현 완료 기능 요약
 
-### 개발 환경 E2E 테스트 (17개)
-- [x] `frontend/e2e-dev-test.cjs`
-- [x] 서버 실행 상태 자동 확인
-- [x] `--headed`, `--slow` 옵션 지원
-- [x] npm 스크립트: `e2e`, `e2e:headed`, `e2e:slow`
-- [x] 테스트 항목: 로그인, 빙고 플로우, 관리자 페이지 등
-
-### 프로덕션 E2E 테스트 (15개)
-- [x] `frontend/e2e-prod-test.cjs`
-- [x] npm 스크립트: `e2e:prod`
-- [x] 테스트 항목: 회원가입/로그인 플로우, 프로필 페이지 등
-
----
-
-## 추가 구현: Cloudinary 클라우드 스토리지 ✅ 완료
-
-### 문제
-- 프로덕션에서 리뷰 이미지 404 오류
-- Railway 컨테이너 휘발성 파일시스템
-- WhiteNoise는 static 파일만 서빙 (media 미지원)
-
-### 해결
-- [x] cloudinary, django-cloudinary-storage 패키지 추가
-- [x] Django 6.0 `STORAGES` 설정 구성
-- [x] CLOUDINARY_URL 환경변수 기반 조건부 설정
-- [x] TDD 방식으로 이미지 URL 테스트 추가
-
-### 검증
-- [x] 로컬 환경: 로컬 파일시스템 사용
-- [x] 프로덕션 환경: Cloudinary 사용 (res.cloudinary.com 도메인)
-- [x] 컨테이너 재시작 후 이미지 유지 확인
+| 기능 | 설명 | 완료일 |
+|------|------|--------|
+| REST API 기초 | 카테고리, 템플릿 API | 2026-01-09 |
+| 빙고 게임 로직 | 보드 생성, 리뷰, 라인 감지 | 2026-01-09 |
+| React 프론트엔드 | 라우팅, 상태 관리, API 연동 | 2026-01-09 |
+| 빙고 UI 컴포넌트 | 5x5 그리드, 셀, 진행률 | 2026-01-09 |
+| 리뷰 시스템 | 이미지 업로드, 별점, 모달 | 2026-01-09 |
+| 카카오맵 연동 | 맛집 위치 지도 표시 | 2026-01-09 |
+| 리더보드 | 최단 시간/최다 완료 순위 | 2026-01-09 |
+| 인증 시스템 | 회원가입, 로그인, 토큰 | 2026-01-09 |
+| 모바일 반응형 | 햄버거 메뉴, 바텀시트 | 2026-01-09 |
+| 프로덕션 배포 | Railway + Vercel | 2026-01-10 |
+| E2E 테스트 | 개발/프로덕션 환경 | 2026-01-10 |
+| Cloudinary 연동 | 클라우드 이미지 저장소 | 2026-01-10 |
+| 관리자 페이지 | 식당/템플릿/카테고리 관리 | 2026-01-10 |
+| UI 전면 개편 | 캐치테이블 스타일 + Vibrant Orange | 2026-01-23 |
 
 ---
 
-## 추가 구현: 커스텀 관리자 페이지 ✅ 완료
+## 1. REST API 기초 ✅
 
-### 기능
-- [x] 식당 관리 (CRUD + 카카오 Places 검색 연동)
-- [x] 템플릿 관리 (5x5 그리드 빌더)
-- [x] 카테고리 관리 (CRUD)
-- [x] Staff 권한 체크 (is_staff)
+카테고리와 빙고 템플릿 조회를 위한 기본 API 구축.
 
-### Backend
-- [x] `permissions.py` - IsAdminUser 권한 클래스
-- [x] `views_admin.py` - Restaurant/Template/Category Admin ViewSets
-- [x] `serializers_admin.py` - Admin Serializers
-- [x] `urls.py` - `/api/admin/` 라우트 추가
-- [x] Kakao REST API 프록시 (`/api/admin/kakao/search/`)
+### 구현 내용
+- `CategorySerializer`, `RestaurantSerializer` 생성
+- `BingoTemplateListSerializer`, `BingoTemplateDetailSerializer` 생성
+- `CategoryViewSet`, `BingoTemplateViewSet` (ReadOnly)
+- DefaultRouter 설정 및 `/api/` 경로 연결
 
-### Frontend
-- [x] `frontend/src/admin/` 모듈 전체 구현
-- [x] AdminLayout, AdminGuard 컴포넌트
-- [x] KakaoPlaceSearch, KakaoMapPicker 컴포넌트
-- [x] RestaurantForm, TemplateBuilder 컴포넌트
-- [x] useAdminRestaurants, useAdminTemplates, useKakaoSearch 훅
-- [x] 6개 관리자 페이지 (Dashboard, Restaurants, Templates, Categories)
+### API 엔드포인트
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| GET | `/api/categories/` | 카테고리 목록 |
+| GET | `/api/templates/` | 템플릿 목록 |
+| GET | `/api/templates/:id/` | 템플릿 상세 (25개 셀 포함) |
+
+---
+
+## 2. 빙고 게임 로직 ✅
+
+빙고 보드 생성, 리뷰 작성, 라인 감지 등 핵심 게임 로직 구현.
+
+### 구현 내용
+- `BingoService` 클래스: 라인 감지 알고리즘
+- `WINNING_LINES` 상수: 12개 빙고 라인 (가로 5, 세로 5, 대각선 2)
+- `ReviewSerializer`, `BingoBoardSerializer` 생성
+- 리뷰 생성 시 자동 셀 활성화 및 빙고 완료 체크
+
+### 빙고 라인 규칙
+```
+가로: [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24]
+세로: [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24]
+대각선: [0,6,12,18,24], [4,8,12,16,20]
+```
+
+### API 엔드포인트
+| Method | Endpoint | 설명 | 인증 |
+|--------|----------|------|------|
+| GET | `/api/boards/` | 내 빙고판 목록 | 필요 |
+| POST | `/api/boards/` | 빙고판 생성 | 필요 |
+| GET | `/api/boards/:id/` | 빙고판 상세 | 필요 |
+| POST | `/api/reviews/` | 리뷰 생성 → 셀 활성화 | 필요 |
+
+---
+
+## 3. React 프론트엔드 인프라 ✅
+
+React Router, TanStack Query, Axios 기반 프론트엔드 아키텍처 구축.
+
+### 기술 스택
+- **라우팅**: React Router 7
+- **상태 관리**: TanStack Query 5 (서버 상태)
+- **HTTP 클라이언트**: Axios (토큰 인터셉터)
+
+### 구현 내용
+- `api/client.js`: Axios 인스턴스 + 인증 토큰 인터셉터
+- `api/endpoints.js`: templatesApi, boardsApi, reviewsApi
+- `hooks/useTemplates.js`, `hooks/useBoards.js`: React Query 훅
+- `router.jsx`: 전체 라우트 설정
+- `components/Layout.jsx`: 공통 레이아웃 (햄버거 메뉴 포함)
+
+---
+
+## 4. 빙고 UI 컴포넌트 ✅
+
+5x5 빙고 그리드와 셀 컴포넌트 구현.
+
+### 컴포넌트 구조
+```
+components/bingo/
+├── BingoGrid.jsx      # 5x5 그리드 레이아웃
+├── BingoCell.jsx      # 개별 셀 (활성/비활성/하이라이트)
+├── BingoHeader.jsx    # 진행률 바, 통계
+└── CompletionCelebration.jsx  # 빙고 완료 축하 모달
+```
+
+### 셀 상태
+| 상태 | 스타일 |
+|------|--------|
+| 비활성 | `bg-cell-inactive` 베이지-그레이 |
+| 활성 (이미지 없음) | `bg-brand-orange` 오렌지 + 체크 |
+| 활성 (이미지 있음) | 리뷰 이미지 + 오렌지 오버레이 |
+| 빙고 라인 | `ring-2 ring-brand-orange` 하이라이트 |
+
+---
+
+## 5. 리뷰 시스템 ✅
+
+맛집 리뷰 작성 폼과 상세 모달 구현.
+
+### 구현 내용
+- `CellDetailModal.jsx`: 맛집 정보 + 리뷰 표시 + 모바일 바텀시트
+- `ReviewForm.jsx`: 이미지 업로드, 별점(1-5), 리뷰 내용, 방문일
+
+### 리뷰 폼 검증
+| 필드 | 검증 규칙 |
+|------|----------|
+| 이미지 | 필수, 미리보기 제공 |
+| 별점 | 1-5점 필수 선택 |
+| 리뷰 내용 | 최소 10자 |
+| 방문일 | 필수 선택 |
+
+---
+
+## 6. 카카오맵 연동 ✅
+
+맛집 위치를 카카오맵에 표시.
+
+### 구현 내용
+- `components/map/KakaoMap.jsx`: 지도 컴포넌트
+- `hooks/useKakaoMap.js`: 카카오 SDK 로딩 훅
+- CellDetailModal에 지도 통합
 
 ### 환경변수
-- `KAKAO_REST_API_KEY` (Backend) - 카카오 REST API 키
-- `VITE_KAKAO_JS_KEY` (Frontend) - 카카오 JavaScript 키
-
-### 검증
-- [x] Staff 계정으로 /admin 접근 확인
-- [x] 카카오 검색으로 식당 등록
-- [x] 템플릿 빌더로 25개 식당 배치
-- [x] 일반 사용자 /admin 접근 차단 확인
+```bash
+VITE_KAKAO_JS_KEY=<JavaScript 키>  # Frontend
+KAKAO_REST_API_KEY=<REST API 키>   # Backend (관리자 검색용)
+```
 
 ---
 
-## E2E 테스트 체크리스트 ✅ 모두 완료
+## 7. 리더보드 ✅
 
-- [x] 템플릿 목록 조회
-- [x] 템플릿 상세 보기
-- [x] 목표 라인 설정 후 도전 시작
-- [x] 빙고 보드 5x5 그리드 표시
-- [x] 셀 클릭 → 맛집 상세 모달
-- [x] 카카오맵 맛집 위치 표시
-- [x] 리뷰 작성 (이미지, 내용, 평점)
-- [x] 리뷰 제출 → 셀 활성화
-- [x] 빙고 라인 완성 감지
-- [x] 목표 달성 → 축하 모달
-- [x] 리더보드 순위 확인
+빙고 완료 기록 순위 시스템.
+
+### 구현 내용
+- `GET /api/leaderboard/`: 리더보드 API
+- `LeaderboardPage.jsx`: 탭 UI (최단 시간 / 최다 완료)
+- `CompletionCelebration.jsx`: CSS 컨페티 애니메이션
+
+### 리더보드 카테고리
+| 카테고리 | 정렬 기준 |
+|----------|----------|
+| 최단 시간 클리어 | 빙고 완료 소요 시간 |
+| 최다 완료 | 완료한 빙고 수 |
 
 ---
 
-## 파일 구조 (최종)
+## 8. 인증 시스템 ✅
+
+Token 기반 회원가입/로그인 시스템.
+
+### 구현 내용
+- DRF TokenAuthentication 설정
+- `AuthContext` + `AuthProvider`: 인증 상태 관리
+- `LoginPage.jsx`, `RegisterPage.jsx`: 인증 UI
+
+### API 엔드포인트
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| POST | `/api/auth/register/` | 회원가입 (토큰 발급) |
+| POST | `/api/auth/login/` | 로그인 (토큰 발급, is_staff 포함) |
+| POST | `/api/auth/logout/` | 로그아웃 |
+| GET | `/api/auth/me/` | 현재 사용자 정보 |
+
+### 테스트 계정
+| 역할 | Username | Password |
+|------|----------|----------|
+| 일반 사용자 | testuser | testpass123 |
+| 관리자 | admin | admin1234 |
+
+---
+
+## 9. 모바일 반응형 ✅
+
+모바일 우선(Mobile-First) 반응형 디자인 적용.
+
+### 적용 패턴
+- 기본: 모바일 스타일 → `sm:` 브레이크포인트로 데스크탑 확장
+- 햄버거 메뉴 네비게이션 (`md:hidden`)
+- 바텀시트 모달 (`items-end sm:items-center`)
+- 반응형 그리드/텍스트/간격
+
+### 변경된 컴포넌트
+| 컴포넌트 | 모바일 대응 |
+|----------|------------|
+| Layout | 햄버거 메뉴, 드롭다운 네비게이션 |
+| CellDetailModal | 바텀시트 UI |
+| BingoGrid | `gap-1 sm:gap-2` |
+| BingoCell | `text-[10px] sm:text-xs` |
+
+---
+
+## 10. 프로덕션 배포 ✅
+
+Railway(Backend) + Vercel(Frontend) 배포 구성.
+
+### Backend (Railway)
+- Docker 컨테이너 배포 (`Dockerfile` + `start.sh`)
+- PostgreSQL 데이터베이스
+- WhiteNoise 정적 파일 서빙
+- 환경변수: `SECRET_KEY`, `DATABASE_URL`, `CORS_ALLOWED_ORIGINS`
+
+### Frontend (Vercel)
+- Vite 빌드 자동 배포
+- SPA 라우팅 설정 (`vercel.json`)
+- stale-while-revalidate 캐시 전략
+- 환경변수: `VITE_API_URL`, `VITE_KAKAO_JS_KEY`
+
+---
+
+## 11. E2E 테스트 ✅
+
+Playwright 기반 End-to-End 테스트.
+
+### 개발 환경 테스트 (17개)
+```bash
+npm run e2e          # headless 모드
+npm run e2e:headed   # 브라우저 표시
+npm run e2e:slow     # 디버깅용 느린 모드
+```
+
+### 프로덕션 테스트 (15개)
+```bash
+npm run e2e:prod
+```
+
+### 테스트 항목
+- 홈페이지, 템플릿 목록/상세
+- 로그인/회원가입 플로우
+- 빙고 도전 시작, 셀 클릭 모달
+- 관리자 페이지 접근
+- 모바일 반응형
+
+---
+
+## 12. Cloudinary 이미지 저장소 ✅
+
+프로덕션 환경 클라우드 이미지 스토리지.
+
+### 문제
+- Railway 컨테이너 휘발성 파일시스템
+- 컨테이너 재시작 시 업로드 이미지 삭제됨
+
+### 해결
+- `cloudinary`, `django-cloudinary-storage` 패키지
+- Django 6.0 `STORAGES` 설정
+- `CLOUDINARY_URL` 환경변수 기반 조건부 설정
+
+### 환경별 동작
+| 환경 | 이미지 저장소 |
+|------|--------------|
+| 로컬 개발 | `/media/` 로컬 파일시스템 |
+| 프로덕션 | Cloudinary CDN |
+
+---
+
+## 13. 커스텀 관리자 페이지 ✅
+
+식당/템플릿/카테고리/사용자 관리 페이지.
+
+### 접근 방법
+1. `is_staff=True` 계정으로 로그인
+2. `/admin` 경로 접근
+
+### 페이지 구성
+| 페이지 | 경로 | 기능 |
+|--------|------|------|
+| 대시보드 | `/admin` | 통계 카드 |
+| 식당 관리 | `/admin/restaurants` | CRUD + 카카오 검색 |
+| 템플릿 관리 | `/admin/templates` | 5x5 그리드 빌더 |
+| 카테고리 관리 | `/admin/categories` | 인라인 CRUD |
+| 사용자 관리 | `/admin/users` | is_staff/is_active 토글 |
+
+### Admin API
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| GET/POST | `/api/admin/restaurants/` | 식당 관리 |
+| GET/POST | `/api/admin/templates/` | 템플릿 관리 |
+| GET/POST | `/api/admin/categories/` | 카테고리 관리 |
+| GET/PATCH | `/api/admin/users/` | 사용자 관리 |
+| GET | `/api/admin/kakao/search/` | 카카오 장소 검색 |
+
+---
+
+## 14. UI 전면 개편 ✅
+
+캐치테이블 스타일 + Vibrant Orange 테마 적용.
+
+### 디자인 컨셉
+**톤앤매너**: 캐치테이블의 정갈한 레이아웃 + 식욕을 자극하는 활기찬 컬러
+
+### 브랜드 컬러
+| 컬러명 | HEX | 용도 |
+|--------|-----|------|
+| `brand-orange` | #FF8A00 | 버튼, 프로그레스 바, 활성 셀 |
+| `brand-beige` | #FFF9F0 | 서브 배경, 강조 박스 |
+| `brand-charcoal` | #1A1A1A | 텍스트 |
+| `brand-gold` | #FFD700 | 별점, 컨페티 |
+| `cell-inactive` | #F5F3F0 | 비활성 셀 배경 |
+
+### 기술적 구현
+- **Tailwind CSS 4 @theme**: CSS 파일에서 직접 커스텀 컬러 정의
+- **CSS 전용 애니메이션**: Framer Motion 미사용 (번들 크기 절감)
+- **원형 컨페티**: 이모지 대신 CSS `border-radius: 50%` 도형
+
+### 변경 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `styles/design-tokens.css` | 신규 - 커스텀 컬러, 컨페티 애니메이션 |
+| `utils/cn.js` | 신규 - 클래스네임 유틸리티 |
+| `constants/confetti.js` | 신규 - 컨페티 설정 |
+| `BingoCell.jsx` | 3가지 렌더링 경로 (이미지+오버레이, 활성, 비활성) |
+| 모든 페이지/컴포넌트 | amber → brand-orange 일괄 변경 |
+
+---
+
+## 파일 구조
 
 ```
 delicious_bingo/
-├── PLAN.md                     ✅ 완료
-├── PRD.md                      ✅ 완료
-├── README.md                   ✅ 완료
-├── DEPLOY.md                   ✅ 완료
-├── CLAUDE.md                   ✅ 완료
+├── PLAN.md                     # 개발 히스토리 (현재 문서)
+├── PRD.md                      # 제품 요구사항
+├── CLAUDE.md                   # Claude Code 컨텍스트
+├── DEPLOY.md                   # 배포 가이드
+├── README.md                   # 프로젝트 문서
+│
 ├── backend/
 │   ├── api/
-│   │   ├── fixtures/
-│   │   │   └── initial_data.json  ✅ 완료
-│   │   ├── models.py              ✅ 완료
-│   │   ├── admin.py               ✅ 완료
-│   │   ├── serializers.py         ✅ 완료
-│   │   ├── serializers_admin.py   ✅ 완료
-│   │   ├── services.py            ✅ 완료
-│   │   ├── views.py               ✅ 완료
-│   │   ├── views_admin.py         ✅ 완료
-│   │   ├── permissions.py         ✅ 완료
-│   │   ├── urls.py                ✅ 완료
-│   │   └── tests.py               ✅ 완료 (87 tests)
+│   │   ├── models.py           # 데이터 모델
+│   │   ├── serializers.py      # DRF Serializers
+│   │   ├── serializers_admin.py # Admin Serializers
+│   │   ├── views.py            # ViewSets + Auth APIs
+│   │   ├── views_admin.py      # Admin ViewSets
+│   │   ├── services.py         # BingoService (라인 감지)
+│   │   ├── permissions.py      # IsAdminUser
+│   │   ├── urls.py             # API 라우팅
+│   │   ├── tests.py            # 87개 테스트
+│   │   └── fixtures/initial_data.json
 │   ├── config/
-│   │   ├── settings.py            ✅ 완료
-│   │   └── urls.py                ✅ 완료
-│   ├── Dockerfile                 ✅ 완료
-│   ├── start.sh                   ✅ 완료
-│   └── requirements.txt           ✅ 완료
+│   │   ├── settings.py
+│   │   └── urls.py
+│   ├── Dockerfile
+│   ├── start.sh
+│   └── requirements.txt
+│
 └── frontend/
     ├── src/
-    │   ├── admin/                 ✅ 완료 (관리자 모듈)
-    │   │   ├── api/               ✅ 완료
-    │   │   ├── components/        ✅ 완료
-    │   │   ├── hooks/             ✅ 완료
-    │   │   └── pages/             ✅ 완료
-    │   ├── api/
-    │   │   ├── client.js          ✅ 완료
-    │   │   └── endpoints.js       ✅ 완료
-    │   ├── contexts/
-    │   │   ├── authContext.js     ✅ 완료
-    │   │   └── AuthProvider.jsx   ✅ 완료
-    │   ├── hooks/
-    │   │   ├── useAuth.js         ✅ 완료
-    │   │   ├── useTemplates.js    ✅ 완료
-    │   │   ├── useBoards.js       ✅ 완료
-    │   │   ├── useLeaderboard.js  ✅ 완료
-    │   │   └── useKakaoMap.js     ✅ 완료
+    │   ├── admin/              # 관리자 모듈
+    │   ├── api/                # Axios 클라이언트
     │   ├── components/
-    │   │   ├── Layout.jsx         ✅ 완료
-    │   │   ├── bingo/             ✅ 완료
-    │   │   ├── modals/            ✅ 완료
-    │   │   ├── forms/             ✅ 완료
-    │   │   ├── map/               ✅ 완료
-    │   │   └── common/            ✅ 완료
-    │   ├── pages/                 ✅ 완료 (8 pages)
-    │   ├── styles/
-    │   │   └── design-tokens.css  ✅ 완료 (UI 개편)
-    │   ├── utils/
-    │   │   └── cn.js              ✅ 완료 (UI 개편)
-    │   ├── constants/
-    │   │   └── confetti.js        ✅ 완료 (UI 개편)
-    │   ├── router.jsx             ✅ 완료
-    │   ├── main.jsx               ✅ 완료
-    │   └── index.css              ✅ 완료
-    ├── e2e-dev-test.cjs           ✅ 완료 (17 tests)
-    ├── e2e-prod-test.cjs          ✅ 완료 (15 tests)
-    ├── vercel.json                ✅ 완료
-    └── package.json               ✅ 완료
+    │   │   ├── bingo/          # 빙고 컴포넌트
+    │   │   ├── modals/         # 모달
+    │   │   ├── forms/          # 폼
+    │   │   ├── map/            # 카카오맵
+    │   │   └── common/         # 공통 컴포넌트
+    │   ├── contexts/           # AuthContext
+    │   ├── hooks/              # React Query 훅
+    │   ├── pages/              # 8개 페이지
+    │   ├── styles/             # design-tokens.css
+    │   ├── utils/              # cn.js
+    │   ├── constants/          # confetti.js
+    │   ├── router.jsx
+    │   └── index.css
+    ├── e2e-dev-test.cjs        # 17개 개발 E2E 테스트
+    ├── e2e-prod-test.cjs       # 15개 프로덕션 E2E 테스트
+    ├── vercel.json
+    └── package.json
 ```
 
 ---
 
-## UI 전면 개편: 캐치테이블 스타일 + Vibrant Orange 🍊 ✅ 완료
+## 테스트 실행 방법
 
-### 디자인 컨셉
+```bash
+# Backend 테스트 (87개)
+cd backend && source venv/bin/activate && python manage.py test
 
-**톤앤매너:** 캐치테이블의 정갈한 레이아웃 + 식욕을 자극하는 활기찬 컬러
+# Frontend 테스트 (59개)
+cd frontend && npm run test:run
 
-| 컬러명 | HEX 코드 | 용도 |
-|--------|----------|------|
-| `brand-orange` | `#FF8A00` | 포인트 (버튼, 프로그레스 바, 활성 셀) |
-| `brand-beige` | `#FFF9F0` | 서브 배경 (강조 박스) |
-| `brand-charcoal` | `#1A1A1A` | 텍스트 |
-| `brand-gold` | `#FFD700` | 컨페티, 축하 효과 |
-| `cell-inactive` | `#F5F3F0` | 비활성 셀 배경 |
-| White | `#FFFFFF` | 기본 배경 |
+# E2E 개발 테스트 (17개) - 로컬 서버 필요
+cd frontend && npm run e2e
 
-### Phase 1: 디자인 시스템 구축 ✅ 완료
+# E2E 프로덕션 테스트 (15개)
+cd frontend && npm run e2e:prod
 
-- [x] Tailwind CSS 4 `@theme` 디렉티브로 커스텀 컬러 정의 (tailwind.config.js 불필요)
-- [x] `design-tokens.css` 생성 (컬러, 컨페티 애니메이션)
-- [x] `index.css` 업데이트 (design-tokens 임포트, 포커스 스타일)
-- [x] `cn.js` 유틸리티 생성 (클래스네임 결합)
-- [x] `confetti.js` 상수 생성 (원형 컨페티 설정)
-
-### Phase 2: 핵심 빙고 컴포넌트 ✅ 완료
-
-#### BingoCell.jsx
-- [x] 방문 전: `bg-cell-inactive` 연한 베이지 그레이, `rounded-xl`
-- [x] 방문 완료 (이미지 있음): 리뷰 이미지 배경 + `bg-brand-orange/60` 오버레이 + 흰색 체크
-- [x] 방문 완료 (이미지 없음): `bg-brand-orange` 배경 + 체크
-- [x] 하이라이트: `ring-2 ring-brand-orange` (빙고 라인)
-
-#### BingoHeader.jsx
-- [x] 프로그레스 바: `bg-brand-orange`, `h-3` (굵게)
-- [x] 통계 숫자: `text-brand-orange`
-- [x] 서브 배경: `bg-brand-beige`
-
-#### BingoGrid.jsx
-- [x] 배경: `bg-white rounded-2xl shadow-lg`
-- [x] 그리드 간격: `gap-1 sm:gap-2`
-- [x] 완료 라인 하이라이트: `bg-brand-orange/5`
-
-### Phase 3: 모달 & 애니메이션 ✅ 완료
-
-#### CellDetailModal.jsx → CSS 바텀 시트 (Framer Motion 미사용)
-- [x] 드래그 핸들 (상단 회색 바): `w-10 h-1 bg-gray-300 rounded-full`
-- [x] 버튼: `bg-brand-orange text-white`
-- [x] 별점: `text-brand-gold`
-
-#### CompletionCelebration.jsx
-- [x] 오렌지/골드 원형 컨페티 (CSS `animate-confetti-fall` 애니메이션)
-- [x] 버튼: `bg-brand-orange`
-- [x] 이모지 컨페티 → 원형 도형으로 변경
-
-### Phase 4: 레이아웃 & 페이지 ✅ 완료
-
-#### Layout.jsx
-- [x] 배경: `bg-white`
-- [x] 로고: `text-brand-orange font-bold`
-- [x] 활성 네비: `bg-brand-beige text-brand-orange`
-
-#### 페이지별 변경
-- [x] HomePage: 히어로 `bg-brand-beige`, CTA `bg-brand-orange`
-- [x] TemplateListPage: 카드 hover `border-brand-orange`
-- [x] TemplateDetailPage: 도전 버튼 `bg-brand-orange`
-- [x] LoginPage/RegisterPage: 버튼 `bg-brand-orange`
-- [x] LeaderboardPage: 1위 강조 `text-brand-orange`
-- [x] MyBoardsPage: 진행률 바 `bg-brand-orange`
-- [x] ProfilePage: 통계 카드 `text-brand-orange`
-
-#### Admin 페이지
-- [x] AdminGuard: 링크 `text-brand-orange`
-- [x] AdminDashboard: 카테고리 카드 `bg-brand-orange`
-- [x] AdminRestaurants: 카테고리 뱃지 `bg-brand-beige text-brand-orange`
-- [x] AdminTemplates: 카테고리 뱃지 `bg-brand-beige text-brand-orange`
-- [x] AdminCategories: 버튼/뱃지 `bg-brand-orange`, `bg-brand-beige`
-- [x] KakaoPlaceSearch: 카테고리 텍스트 `text-brand-orange`
-- [x] KakaoMap: 로딩 스피너 `border-brand-orange`
-
-### Phase 5: 테스트 & 마무리 ✅ 완료
-
-- [x] 유닛 테스트 실행: 59개 테스트 모두 통과
-- [x] BingoCell 이미지 오버레이 테스트 추가 (2개)
-- [x] 빌드 성공 (842ms)
-
-### 파일 변경 목록 (실제 구현)
-
-| 우선순위 | 파일 | 작업 |
-|:--------:|------|------|
-| 1 | `src/styles/design-tokens.css` | **신규** - Tailwind CSS 4 @theme 커스텀 컬러 |
-| 2 | `src/utils/cn.js` | **신규** - 클래스네임 유틸리티 |
-| 3 | `src/constants/confetti.js` | **신규** - 컨페티 설정 상수 |
-| 4 | `src/index.css` | design-tokens 임포트, 애니메이션 색상 변경 |
-| 5 | `src/components/bingo/BingoCell.jsx` | 3가지 렌더링 경로 (이미지+오버레이, 활성, 비활성) |
-| 6 | `src/components/bingo/BingoHeader.jsx` | 오렌지 프로그레스 바, 베이지 통계 배경 |
-| 7 | `src/components/bingo/BingoGrid.jsx` | 그리드 스타일 |
-| 8 | `src/components/modals/CellDetailModal.jsx` | 드래그 핸들, 브랜드 컬러 |
-| 9 | `src/components/bingo/CompletionCelebration.jsx` | CSS 원형 컨페티 |
-| 10 | `src/components/forms/ReviewForm.jsx` | 골드 별점 |
-| 11 | `src/components/Layout.jsx` | 로고/네비 컬러 |
-| 12 | `src/components/map/KakaoMap.jsx` | 로딩 스피너 컬러 |
-| 13 | 페이지 컴포넌트 (8개) | 버튼/강조색 통일 |
-| 14 | Admin 컴포넌트 (7개) | amber → brand-orange 변경 |
-| 15 | `src/components/bingo/BingoCell.test.jsx` | 이미지 오버레이 테스트 추가 |
-
-### 기술적 결정
-
-1. **Framer Motion 미사용**: CSS만으로 구현 (번들 크기 절감)
-2. **Tailwind CSS 4 @theme**: tailwind.config.js 대신 CSS 파일에서 직접 정의
-3. **원형 컨페티**: 이모지 대신 CSS `border-radius: 50%` 원형 도형 사용
-4. **클린 아키텍처**: design-tokens.css, cn.js, confetti.js로 관심사 분리
+# 빌드
+cd frontend && npm run build
+```
 
 ---
 
-## 진행 상황
+## 개발 환경 실행
 
-| Phase | 상태 | 완료일 |
-|-------|------|--------|
-| Phase 1 | ✅ 완료 | 2026-01-09 |
-| Phase 2 | ✅ 완료 | 2026-01-09 |
-| Phase 3 | ✅ 완료 | 2026-01-09 |
-| Phase 4 | ✅ 완료 | 2026-01-09 |
-| Phase 5 | ✅ 완료 | 2026-01-09 |
-| Phase 6 | ✅ 완료 | 2026-01-09 |
-| Phase 7 | ✅ 완료 | 2026-01-09 |
-| Phase 8 | ✅ 완료 | 2026-01-09 |
-| 인증 시스템 | ✅ 완료 | 2026-01-09 |
-| 모바일 반응형 | ✅ 완료 | 2026-01-09 |
-| 프로덕션 배포 | ✅ 완료 | 2026-01-10 |
-| E2E 프로덕션 테스트 | ✅ 완료 | 2026-01-10 |
-| Cloudinary 연동 | ✅ 완료 | 2026-01-10 |
-| 관리자 페이지 | ✅ 완료 | 2026-01-10 |
-| E2E 개발 테스트 | ✅ 완료 | 2026-01-10 |
-| UI 전면 개편 | ✅ 완료 | 2026-01-23 |
+```bash
+# Backend
+cd backend
+source venv/bin/activate
+python manage.py runserver
+
+# Frontend
+cd frontend
+npm run dev
+
+# 샘플 데이터 생성 (최초 1회)
+cd backend && python manage.py seed_data
+```
