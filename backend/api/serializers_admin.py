@@ -1,5 +1,8 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Category, Restaurant, BingoTemplate, BingoTemplateItem
+
+User = get_user_model()
 
 
 class AdminCategorySerializer(serializers.ModelSerializer):
@@ -116,3 +119,19 @@ class AdminTemplateCreateUpdateSerializer(serializers.ModelSerializer):
                 )
 
         return instance
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    """Admin 사용자 관리 Serializer"""
+    board_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'username', 'email', 'is_staff', 'is_active',
+            'date_joined', 'board_count'
+        ]
+        read_only_fields = ['id', 'username', 'email', 'date_joined', 'board_count']
+
+    def get_board_count(self, obj):
+        return obj.bingo_boards.count()

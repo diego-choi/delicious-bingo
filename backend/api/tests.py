@@ -1425,3 +1425,212 @@ class AdminCategoryAPITest(APITestCase):
         response = self.client.delete(f'/api/admin/categories/{self.category.id}/')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Category.objects.count(), 0)
+
+
+class AdminUserAPITest(APITestCase):
+    """Admin 사용자 관리 API 테스트"""
+
+    def setUp(self):
+        self.staff_user = User.objects.create_user(
+            'staffuser', email='staff@example.com', password='testpass', is_staff=True
+        )
+        self.normal_user = User.objects.create_user(
+            'normaluser', email='normal@example.com', password='testpass'
+        )
+        self.inactive_user = User.objects.create_user(
+            'inactiveuser', email='inactive@example.com', password='testpass', is_active=False
+        )
+
+    def test_list_users_requires_staff(self):
+        """일반 사용자는 사용자 목록에 접근 불가"""
+        self.client.force_authenticate(user=self.normal_user)
+        response = self.client.get('/api/admin/users/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_list_users(self):
+        """GET /api/admin/users/ - 사용자 목록 조회"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/users/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('results', response.data)
+        self.assertEqual(len(response.data['results']), 3)
+
+    def test_list_users_with_search(self):
+        """사용자명으로 검색"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/users/?search=normal')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['username'], 'normaluser')
+
+    def test_list_users_filter_by_is_staff(self):
+        """is_staff로 필터링"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/users/?is_staff=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['username'], 'staffuser')
+
+    def test_list_users_filter_by_is_active(self):
+        """is_active로 필터링"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get('/api/admin/users/?is_active=false')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['username'], 'inactiveuser')
+
+    def test_get_user_detail(self):
+        """GET /api/admin/users/:id/ - 사용자 상세 조회"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get(f'/api/admin/users/{self.normal_user.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], 'normaluser')
+        self.assertEqual(response.data['email'], 'normal@example.com')
+        self.assertIn('date_joined', response.data)
+
+    def test_update_user_is_staff(self):
+        """PATCH /api/admin/users/:id/ - is_staff 토글"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.patch(f'/api/admin/users/{self.normal_user.id}/', {
+            'is_staff': True
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.normal_user.refresh_from_db()
+        self.assertTrue(self.normal_user.is_staff)
+
+    def test_update_user_is_active(self):
+        """PATCH /api/admin/users/:id/ - is_active 토글"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.patch(f'/api/admin/users/{self.normal_user.id}/', {
+            'is_active': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.normal_user.refresh_from_db()
+        self.assertFalse(self.normal_user.is_active)
+
+    def test_cannot_deactivate_self(self):
+        """자기 자신은 비활성화할 수 없다"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.patch(f'/api/admin/users/{self.staff_user.id}/', {
+            'is_active': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.staff_user.refresh_from_db()
+        self.assertTrue(self.staff_user.is_active)
+
+    def test_cannot_remove_own_staff(self):
+        """자기 자신의 staff 권한은 해제할 수 없다"""
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.patch(f'/api/admin/users/{self.staff_user.id}/', {
+            'is_staff': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.staff_user.refresh_from_db()
+        self.assertTrue(self.staff_user.is_staff)
+
+    def test_user_includes_statistics(self):
+        """사용자 상세 조회에 통계 정보 포함"""
+        # 빙고판 생성
+        category = Category.objects.create(name="테스트")
+        template = BingoTemplate.objects.create(
+            category=category, title="테스트 템플릿", is_active=True
+        )
+        BingoBoard.objects.create(
+            user=self.normal_user, template=template, target_line_count=1
+        )
+
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.get(f'/api/admin/users/{self.normal_user.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['board_count'], 1)
+
+    def test_cannot_remove_last_admin(self):
+        """마지막 관리자의 권한은 해제할 수 없다"""
+        # staff_user가 유일한 관리자일 때
+        self.client.force_authenticate(user=self.staff_user)
+
+        # 다른 사용자를 staff로 만든 후 해제 시도
+        self.normal_user.is_staff = True
+        self.normal_user.save()
+
+        # normal_user의 staff 해제 가능 (staff_user가 남아있으므로)
+        response = self.client.patch(f'/api/admin/users/{self.normal_user.id}/', {
+            'is_staff': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.normal_user.refresh_from_db()
+        self.assertFalse(self.normal_user.is_staff)
+
+        # 이제 staff_user가 유일한 관리자
+        # normal_user를 다시 staff로 만들고 staff_user 제거 시도
+        self.normal_user.is_staff = True
+        self.normal_user.save()
+        self.client.force_authenticate(user=self.normal_user)
+
+        response = self.client.patch(f'/api/admin/users/{self.staff_user.id}/', {
+            'is_staff': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # 이제 normal_user가 유일한 관리자가 됨
+        # staff_user를 다시 인증하여 normal_user의 권한 해제 시도
+        self.staff_user.is_staff = True
+        self.staff_user.save()
+        self.client.force_authenticate(user=self.staff_user)
+
+        # 유일한 다른 관리자의 권한 해제 시도 (본인 제외)
+        # 먼저 staff_user를 비활성화하여 normal_user가 유일하게 만듦
+        self.staff_user.is_staff = False
+        self.staff_user.save()
+        self.client.force_authenticate(user=self.normal_user)
+
+        # 이제 normal_user가 유일한 관리자이므로 자기 권한 해제 불가
+        response = self.client.patch(f'/api/admin/users/{self.normal_user.id}/', {
+            'is_staff': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_cannot_remove_only_remaining_admin(self):
+        """다른 관리자가 마지막 관리자의 권한을 해제할 수 없다"""
+        # 두 명의 관리자 설정
+        another_staff = User.objects.create_user(
+            'anotherstaff', email='another@example.com', password='testpass', is_staff=True
+        )
+        self.client.force_authenticate(user=another_staff)
+
+        # staff_user의 권한 해제 시도 (another_staff가 남아있으므로 가능)
+        response = self.client.patch(f'/api/admin/users/{self.staff_user.id}/', {
+            'is_staff': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.staff_user.refresh_from_db()
+        self.assertFalse(self.staff_user.is_staff)
+
+        # 이제 another_staff가 유일한 관리자
+        # 자기 자신 권한 해제 시도
+        response = self.client.patch(f'/api/admin/users/{another_staff.id}/', {
+            'is_staff': False
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        another_staff.refresh_from_db()
+        self.assertTrue(another_staff.is_staff)
+
+    def test_cannot_remove_own_staff_with_various_falsy_values(self):
+        """다양한 falsy 값으로 자기 권한 해제 시도 차단"""
+        self.client.force_authenticate(user=self.staff_user)
+
+        # 다양한 falsy 값 테스트
+        falsy_values = [False, 'false', 'False', 0, '0', 'no', 'off']
+        for value in falsy_values:
+            response = self.client.patch(
+                f'/api/admin/users/{self.staff_user.id}/',
+                {'is_staff': value},
+                format='json'
+            )
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_400_BAD_REQUEST,
+                f'Failed for value: {value!r}'
+            )
+            self.staff_user.refresh_from_db()
+            self.assertTrue(self.staff_user.is_staff, f'is_staff changed for value: {value!r}')

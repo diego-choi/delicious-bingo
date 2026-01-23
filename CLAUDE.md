@@ -144,6 +144,8 @@ User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
 | GET/PATCH/DELETE | `/api/admin/templates/:id/` | 템플릿 조회/수정/삭제 |
 | GET/POST | `/api/admin/categories/` | 카테고리 목록/생성 |
 | GET/PATCH/DELETE | `/api/admin/categories/:id/` | 카테고리 조회/수정/삭제 |
+| GET | `/api/admin/users/` | 사용자 목록 (검색, 필터, 페이지네이션) |
+| GET/PATCH | `/api/admin/users/:id/` | 사용자 조회/수정 (is_staff, is_active) |
 | GET | `/api/admin/kakao/search/` | 카카오 장소 검색 프록시 |
 
 ## 빙고 라인 규칙
@@ -178,7 +180,7 @@ WINNING_LINES = [
 - **빙고 라인 하이라이트**: 완료된 라인 시각적 표시
 - **모바일 반응형**: 전체 컴포넌트 모바일 우선 디자인 적용
 - **Cloudinary 연동**: 프로덕션 이미지 저장소 (Django 6.0 STORAGES 설정)
-- **관리자 페이지**: 식당/템플릿/카테고리 관리, 카카오 검색 연동
+- **관리자 페이지**: 식당/템플릿/카테고리/사용자 관리, 카카오 검색 연동
 
 ## 관리자 페이지
 
@@ -195,6 +197,7 @@ WINNING_LINES = [
 | 템플릿 관리 | `/admin/templates` | 목록, 활성화 토글 |
 | 템플릿 등록/수정 | `/admin/templates/new`, `/admin/templates/:id` | 5x5 그리드 빌더 |
 | 카테고리 관리 | `/admin/categories` | 인라인 CRUD |
+| 사용자 관리 | `/admin/users` | 목록, 검색, 필터, is_staff/is_active 토글 |
 
 ### 카카오 검색 연동
 - 식당 등록 시 카카오 장소 검색으로 정보 자동 입력
@@ -242,13 +245,13 @@ print('Admin account ready')
 ## 테스트 실행
 
 ```bash
-# Backend (87 tests)
+# Backend (101 tests)
 cd backend && source venv/bin/activate && python manage.py test
 
 # Frontend (57 tests)
 cd frontend && npm run test:run
 
-# E2E 개발 환경 테스트 (17 tests)
+# E2E 개발 환경 테스트 (18 tests)
 cd frontend && npm run e2e
 
 # E2E 프로덕션 테스트 (15 tests)
@@ -269,7 +272,7 @@ npm install -D playwright
 npx playwright install chromium
 ```
 
-### 개발 환경 E2E 테스트 (17개)
+### 개발 환경 E2E 테스트 (18개)
 
 `frontend/e2e-dev-test.cjs` - 로컬 개발 서버 대상 테스트
 
@@ -299,8 +302,9 @@ npm run e2e:slow         # 디버깅용 느린 모드
 13. 빙고 그리드 표시
 14. 셀 클릭 모달
 15. 관리자 페이지 접근
-16. 모바일 반응형
-17. 로그아웃
+16. 사용자 관리 페이지
+17. 모바일 반응형
+18. 로그아웃
 
 **특징:**
 - 서버 실행 상태 자동 확인

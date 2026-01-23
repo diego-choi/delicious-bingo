@@ -2,6 +2,7 @@ import os
 import requests
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
@@ -16,7 +17,10 @@ from .serializers_admin import (
     AdminTemplateListSerializer,
     AdminTemplateDetailSerializer,
     AdminTemplateCreateUpdateSerializer,
+    AdminUserSerializer,
 )
+
+User = get_user_model()
 
 
 class AdminPagination(PageNumberPagination):
@@ -61,6 +65,52 @@ class AdminTemplateViewSet(viewsets.ModelViewSet):
         elif self.action == 'retrieve':
             return AdminTemplateDetailSerializer
         return AdminTemplateCreateUpdateSerializer
+
+
+class AdminUserViewSet(viewsets.ModelViewSet):
+    """Admin 사용자 관리 ViewSet"""
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminUser]
+    pagination_class = AdminPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['is_staff', 'is_active']
+    search_fields = ['username', 'email']
+    http_method_names = ['get', 'patch', 'head', 'options']  # 생성/삭제 불가
+
+    def _is_falsy(self, value):
+        """값이 falsy인지 확인 (다양한 표현 처리)"""
+        if value is None:
+            return False  # None은 변경 안함
+        if isinstance(value, bool):
+            return not value
+        if isinstance(value, str):
+            return value.lower() in ('false', '0', 'no', 'off', '')
+        if isinstance(value, (int, float)):
+            return value == 0
+        return not value
+
+    def update(self, request, *args, **kwargs):
+        """자기 자신의 권한/활성 상태는 변경 불가"""
+        instance = self.get_object()
+
+        # 자기 자신의 is_staff를 해제하려는 경우
+        if 'is_staff' in request.data and instance == request.user:
+            if instance.is_staff and self._is_falsy(request.data.get('is_staff')):
+                return Response(
+                    {'error': '자기 자신의 관리자 권한을 해제할 수 없습니다.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # 자기 자신을 비활성화하려는 경우
+        if 'is_active' in request.data and instance == request.user:
+            if instance.is_active and self._is_falsy(request.data.get('is_active')):
+                return Response(
+                    {'error': '자기 자신을 비활성화할 수 없습니다.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        return super().update(request, *args, **kwargs)
 
 
 @api_view(['GET'])

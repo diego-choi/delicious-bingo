@@ -36,3 +36,10 @@ export const kakaoSearchApi = {
     return apiClient.get('/admin/kakao/search/', { params });
   },
 };
+
+// Admin 사용자 API
+export const adminUsersApi = {
+  getAll: (params = {}) => apiClient.get('/admin/users/', { params }),
+  getById: (id) => apiClient.get(`/admin/users/${id}/`),
+  update: (id, data) => apiClient.patch(`/admin/users/${id}/`, data),
+};

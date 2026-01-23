@@ -20,6 +20,7 @@ import AdminRestaurantEdit from './admin/pages/AdminRestaurantEdit';
 import AdminTemplates from './admin/pages/AdminTemplates';
 import AdminTemplateEdit from './admin/pages/AdminTemplateEdit';
 import AdminCategories from './admin/pages/AdminCategories';
+import AdminUsers from './admin/pages/AdminUsers';
 
 export const router = createBrowserRouter([
   {
@@ -105,6 +106,10 @@ export const router = createBrowserRouter([
       {
         path: 'categories',
         element: <AdminCategories />,
+      },
+      {
+        path: 'users',
+        element: <AdminUsers />,
       },
     ],
   },

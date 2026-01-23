@@ -14,6 +14,7 @@ admin_router = DefaultRouter()
 admin_router.register('restaurants', views_admin.AdminRestaurantViewSet, basename='admin-restaurant')
 admin_router.register('templates', views_admin.AdminTemplateViewSet, basename='admin-template')
 admin_router.register('categories', views_admin.AdminCategoryViewSet, basename='admin-category')
+admin_router.register('users', views_admin.AdminUserViewSet, basename='admin-user')
 
 urlpatterns = [
     path('', include(router.urls)),
