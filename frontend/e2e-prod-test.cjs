@@ -152,95 +152,50 @@ async function runTests() {
       results.push({ test: '관리자 로그인 폼 (?mode=admin)', status: 'FAIL', error: 'Form not displayed' });
     }
 
-    // 실제 로그인은 테스트하지 않음 (프로덕션 계정 정보 없음)
+    // 보안상 프로덕션 환경에서는 실제 로그인 테스트하지 않음
   } catch (e) {
     results.push({ test: '관리자 로그인 모드', status: 'FAIL', error: e.message });
   }
 
-  // Test 10: Profile Page (Authenticated)
-  console.log('10. 프로필 페이지 테스트 (로그인 상태)...');
+  // Test 10: Profile Page - Auth Protection
+  console.log('10. 프로필 페이지 접근 제어 테스트...');
   try {
-    // 네비게이션의 프로필 링크 클릭 (세션 유지를 위해)
-    const profileLink = await page.$('a[href="/profile"]');
-    if (profileLink) {
-      await profileLink.click();
-      await page.waitForTimeout(3000);
-    } else {
-      await page.goto(BASE_URL + '/profile', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(3000);
-    }
+    await page.goto(BASE_URL + '/profile', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(2000);
 
     const currentUrl = page.url();
-    const content = await page.textContent('body');
 
-    // 로그인 페이지로 리다이렉트되었는지 확인
+    // 비인증 사용자는 로그인 페이지로 리다이렉트되어야 함
     if (currentUrl.includes('/login')) {
-      results.push({ test: '프로필 페이지', status: 'PASS', detail: '비인증시 로그인 리다이렉트' });
-    } else if (content.includes('프로필') || content.includes('내 프로필') || content.includes('사용자 정보')) {
-      results.push({ test: '프로필 페이지', status: 'PASS' });
+      results.push({ test: '프로필 페이지 접근 제어', status: 'PASS', detail: '비인증 사용자 리다이렉트' });
     } else {
-      results.push({ test: '프로필 페이지', status: 'FAIL', error: 'Profile not loaded. URL: ' + currentUrl });
+      results.push({ test: '프로필 페이지 접근 제어', status: 'FAIL', error: '인증 없이 접근 가능 (보안 문제)' });
     }
   } catch (e) {
-    results.push({ test: '프로필 페이지', status: 'FAIL', error: e.message });
+    results.push({ test: '프로필 페이지 접근 제어', status: 'FAIL', error: e.message });
   }
 
-  // Test 11: Profile Statistics Display
-  console.log('11. 프로필 통계 표시 테스트...');
-  try {
-    const currentUrl = page.url();
-    if (currentUrl.includes('/login')) {
-      results.push({ test: '프로필 통계 표시', status: 'PASS', detail: '로그인 필요 (정상)' });
-    } else {
-      const content = await page.textContent('body');
-      if (content.includes('활동 통계') || content.includes('시작한 빙고') || content.includes('완료한 빙고')) {
-        results.push({ test: '프로필 통계 표시', status: 'PASS' });
-      } else {
-        results.push({ test: '프로필 통계 표시', status: 'FAIL', error: 'Statistics not shown' });
-      }
-    }
-  } catch (e) {
-    results.push({ test: '프로필 통계 표시', status: 'FAIL', error: e.message });
-  }
-
-  // Test 12: Profile Edit Button
-  console.log('12. 프로필 수정 버튼 테스트...');
-  try {
-    const currentUrl = page.url();
-    if (currentUrl.includes('/login')) {
-      results.push({ test: '프로필 수정 버튼', status: 'PASS', detail: '로그인 필요 (정상)' });
-    } else {
-      const editButton = await page.$('button:has-text("수정"), a:has-text("수정")');
-      if (editButton) {
-        results.push({ test: '프로필 수정 버튼', status: 'PASS' });
-      } else {
-        results.push({ test: '프로필 수정 버튼', status: 'FAIL', error: 'Edit button not found' });
-      }
-    }
-  } catch (e) {
-    results.push({ test: '프로필 수정 버튼', status: 'FAIL', error: e.message });
-  }
-
-  // Test 13: Protected Route (My Boards)
-  console.log('13. 내 보드 페이지 테스트...');
+  // Test 11: Protected Route (My Boards)
+  console.log('11. 내 보드 페이지 접근 제어 테스트...');
   try {
     await page.goto(BASE_URL + '/boards', { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
     const content = await page.textContent('body');
     const currentUrl = page.url();
-    if (content.includes('보드') || content.includes('도전') || content.includes('빙고')) {
-      results.push({ test: '내 보드 페이지', status: 'PASS' });
-    } else if (currentUrl.includes('/login')) {
-      results.push({ test: '내 보드 페이지', status: 'PASS', detail: '로그인 리다이렉트 정상' });
+    if (currentUrl.includes('/login')) {
+      results.push({ test: '내 보드 페이지 접근 제어', status: 'PASS', detail: '비인증 사용자 리다이렉트' });
+    } else if (content.includes('보드') || content.includes('도전') || content.includes('빙고')) {
+      // 로그인 상태면 페이지가 표시될 수 있음
+      results.push({ test: '내 보드 페이지 접근 제어', status: 'PASS' });
     } else {
-      results.push({ test: '내 보드 페이지', status: 'FAIL', error: 'Unexpected state' });
+      results.push({ test: '내 보드 페이지 접근 제어', status: 'FAIL', error: 'Unexpected state' });
     }
   } catch (e) {
-    results.push({ test: '내 보드 페이지', status: 'FAIL', error: e.message });
+    results.push({ test: '내 보드 페이지 접근 제어', status: 'FAIL', error: e.message });
   }
 
-  // Test 14: Mobile Responsive
-  console.log('14. 모바일 반응형 테스트...');
+  // Test 12: Mobile Responsive
+  console.log('12. 모바일 반응형 테스트...');
   try {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });

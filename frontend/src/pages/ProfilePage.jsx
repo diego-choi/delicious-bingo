@@ -1,13 +1,28 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useProfile, useUpdateProfile } from '../hooks/useProfile';
+import { useAuth } from '../hooks/useAuth';
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { data, isLoading, error } = useProfile();
   const updateProfile = useUpdateProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ nickname: '' });
   const [formErrors, setFormErrors] = useState({});
+
+  // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // 인증되지 않은 경우 렌더링하지 않음 (리다이렉트 대기)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   // 날짜 포맷팅
   const formatDate = (dateString) => {

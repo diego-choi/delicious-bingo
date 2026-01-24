@@ -66,7 +66,7 @@
   - Waiting 120 seconds...
 
 [6/6] E2E Production Tests
-  - 15 tests passed
+  - 12 tests passed
 
 === Verification Complete ===
 All tests passed. Deployment verified successfully.
