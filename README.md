@@ -91,7 +91,7 @@ npm run dev
 ## 테스트
 
 ```bash
-# Backend (87 tests)
+# Backend (119 tests)
 cd backend && python manage.py test
 
 # Frontend (59 tests)

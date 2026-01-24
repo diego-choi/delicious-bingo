@@ -53,7 +53,7 @@
   - Working directory: clean
 
 [2/6] Unit Tests
-  - Backend: 87 tests passed
+  - Backend: 119 tests passed
   - Frontend: 59 tests passed
 
 [3/6] E2E Dev Tests
