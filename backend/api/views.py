@@ -465,12 +465,12 @@ def me_view(request):
 def profile_view(request):
     """
     사용자 프로필 조회 및 수정 API
-    GET: 프로필 정보, 통계, 최근 활동 조회
+    GET: 프로필 정보, 통계, 최근 활동 조회 (소셜 계정 포함)
     PATCH: 프로필 정보 수정 (닉네임)
     """
     from django.db import models
     from .serializers import UserProfileUpdateSerializer
-    from .models import UserProfile
+    from .models import UserProfile, SocialAccount
 
     user = request.user
 
@@ -489,6 +489,9 @@ def profile_view(request):
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     # GET method - 전체 프로필 데이터 반환
+    # 소셜 계정 조회
+    social_accounts = SocialAccount.objects.filter(user=user).order_by('-connected_at')
+
     # 통계 계산
     total_boards = BingoBoard.objects.filter(user=user).count()
     completed_boards = BingoBoard.objects.filter(user=user, is_completed=True).count()
@@ -521,6 +524,14 @@ def profile_view(request):
             'nickname': profile.nickname,
             'display_name': profile.nickname or user.username,
             'date_joined': user.date_joined.isoformat(),
+            'social_accounts': [
+                {
+                    'provider': account.provider,
+                    'provider_display': account.get_provider_display(),
+                    'connected_at': account.connected_at.isoformat(),
+                }
+                for account in social_accounts
+            ],
         },
         'statistics': {
             'total_boards': total_boards,

@@ -169,6 +169,23 @@ export default function ProfilePage() {
               <span className="text-gray-500 text-sm sm:w-24">가입일</span>
               <span className="font-medium">{formatDate(user.date_joined)}</span>
             </div>
+            {user.social_accounts && user.social_accounts.length > 0 && (
+              <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+                <span className="text-gray-500 text-sm sm:w-24">연동된 계정</span>
+                <div className="flex flex-col gap-2">
+                  {user.social_accounts.map((account, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                        {account.provider_display}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {formatDate(account.connected_at)} 연결
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

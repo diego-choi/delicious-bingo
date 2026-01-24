@@ -1085,6 +1085,64 @@ class ProfileAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('nickname', response.data['errors'])
 
+    def test_profile_includes_empty_social_accounts(self):
+        """소셜 계정이 없는 경우 빈 배열이 반환되어야 한다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/auth/profile/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('social_accounts', response.data['user'])
+        self.assertEqual(response.data['user']['social_accounts'], [])
+
+    def test_profile_includes_social_accounts(self):
+        """소셜 계정이 있는 경우 프로필에 포함되어야 한다"""
+        from .models import SocialAccount
+        # 카카오 소셜 계정 생성
+        social_account = SocialAccount.objects.create(
+            user=self.user,
+            provider='kakao',
+            provider_user_id='123456789'
+        )
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/auth/profile/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        social_accounts = response.data['user']['social_accounts']
+        self.assertEqual(len(social_accounts), 1)
+        self.assertEqual(social_accounts[0]['provider'], 'kakao')
+        self.assertEqual(social_accounts[0]['provider_display'], 'Kakao')
+        self.assertIn('connected_at', social_accounts[0])
+
+    def test_profile_includes_multiple_social_accounts(self):
+        """여러 소셜 계정이 있는 경우 모두 반환되어야 한다"""
+        from .models import SocialAccount
+        import time
+
+        # Kakao 계정 생성
+        SocialAccount.objects.create(
+            user=self.user,
+            provider='kakao',
+            provider_user_id='123456789'
+        )
+        time.sleep(0.01)  # 시간 차이를 위해 잠시 대기
+
+        # Google 계정 생성 (나중에 연결)
+        SocialAccount.objects.create(
+            user=self.user,
+            provider='google',
+            provider_user_id='987654321'
+        )
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/api/auth/profile/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        social_accounts = response.data['user']['social_accounts']
+        self.assertEqual(len(social_accounts), 2)
+        # 최신순 정렬 확인 (Google이 먼저)
+        self.assertEqual(social_accounts[0]['provider'], 'google')
+        self.assertEqual(social_accounts[1]['provider'], 'kakao')
+
 
 # =============================================================================
 # Admin API 테스트

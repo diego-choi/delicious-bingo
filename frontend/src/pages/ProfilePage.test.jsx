@@ -147,6 +147,77 @@ describe('ProfilePage', () => {
         expect(screen.getByText('아직 작성한 리뷰가 없습니다.')).toBeInTheDocument();
       });
     });
+
+    it('연동된 소셜 계정이 없으면 표시하지 않아야 한다', async () => {
+      const dataWithoutSocial = {
+        ...mockProfileData,
+        user: {
+          ...mockProfileData.user,
+          social_accounts: [],
+        },
+      };
+      authApi.getProfile.mockResolvedValue({ data: dataWithoutSocial });
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByText('테스트유저')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('연동된 계정')).not.toBeInTheDocument();
+    });
+
+    it('연동된 소셜 계정을 표시해야 한다', async () => {
+      const dataWithSocial = {
+        ...mockProfileData,
+        user: {
+          ...mockProfileData.user,
+          social_accounts: [
+            {
+              provider: 'kakao',
+              provider_display: 'Kakao',
+              connected_at: '2025-01-10T12:00:00Z',
+            },
+          ],
+        },
+      };
+      authApi.getProfile.mockResolvedValue({ data: dataWithSocial });
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByText('연동된 계정')).toBeInTheDocument();
+        expect(screen.getByText('Kakao')).toBeInTheDocument();
+        expect(screen.getByText(/2025.*연결/)).toBeInTheDocument();
+      });
+    });
+
+    it('여러 개의 연동된 소셜 계정을 표시해야 한다', async () => {
+      const dataWithMultipleSocial = {
+        ...mockProfileData,
+        user: {
+          ...mockProfileData.user,
+          social_accounts: [
+            {
+              provider: 'kakao',
+              provider_display: 'Kakao',
+              connected_at: '2025-01-10T12:00:00Z',
+            },
+            {
+              provider: 'google',
+              provider_display: 'Google',
+              connected_at: '2025-01-15T15:30:00Z',
+            },
+          ],
+        },
+      };
+      authApi.getProfile.mockResolvedValue({ data: dataWithMultipleSocial });
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByText('연동된 계정')).toBeInTheDocument();
+        expect(screen.getByText('Kakao')).toBeInTheDocument();
+        expect(screen.getByText('Google')).toBeInTheDocument();
+      });
+    });
   });
 
   describe('프로필 수정', () => {
