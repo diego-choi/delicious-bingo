@@ -135,41 +135,39 @@ async function runTests() {
     results.push({ test: '템플릿 상세', status: 'FAIL', error: e.message });
   }
 
-  // Test 4: Login Page with Test Account Visible
-  console.log('4. 로그인 페이지 테스트 (테스트 계정 표시)...');
+  // Test 4: Login Page - Kakao Login Default
+  console.log('4. 로그인 페이지 테스트 (카카오 로그인 기본)...');
   try {
     await page.goto(BASE_URL + '/login', { waitUntil: 'networkidle' });
-    const loginForm = await page.$('form');
-    const usernameInput = await page.$('input[type="text"], input[id="username"]');
-    const passwordInput = await page.$('input[type="password"]');
 
-    if (loginForm && usernameInput && passwordInput) {
-      results.push({ test: '로그인 폼', status: 'PASS' });
+    // 카카오 로그인 버튼이 보여야 함
+    const kakaoButton = await page.$('button:has-text("카카오")');
+    if (kakaoButton) {
+      results.push({ test: '카카오 로그인 버튼', status: 'PASS' });
     } else {
-      results.push({ test: '로그인 폼', status: 'FAIL', error: 'Form elements missing' });
+      results.push({ test: '카카오 로그인 버튼', status: 'FAIL', error: 'Kakao login button not found' });
     }
 
-    // 개발 환경에서는 테스트 계정이 보여야 함
-    const pageContent = await page.textContent('body');
-    if (pageContent.includes('testuser') || pageContent.includes('테스트')) {
-      results.push({ test: '테스트 계정 표시 (Dev)', status: 'PASS' });
+    // 일반 로그인 폼은 숨겨져 있어야 함
+    const usernameInput = await page.$('input[id="username"]');
+    if (!usernameInput) {
+      results.push({ test: '일반 로그인 폼 숨김', status: 'PASS' });
     } else {
-      results.push({ test: '테스트 계정 표시 (Dev)', status: 'WARN', error: 'Test account not visible (might be hidden)' });
+      results.push({ test: '일반 로그인 폼 숨김', status: 'FAIL', error: 'Login form should be hidden' });
     }
   } catch (e) {
     results.push({ test: '로그인 페이지', status: 'FAIL', error: e.message });
   }
 
-  // Test 5: Register Page
-  console.log('5. 회원가입 페이지 테스트...');
+  // Test 5: Register Page - Should Redirect to Login
+  console.log('5. 회원가입 페이지 테스트 (로그인으로 리다이렉트)...');
   try {
     await page.goto(BASE_URL + '/register', { waitUntil: 'networkidle' });
-    const registerForm = await page.$('form');
-    const emailInput = await page.$('input[type="email"]');
-    if (registerForm && emailInput) {
-      results.push({ test: '회원가입 페이지', status: 'PASS' });
+    const currentUrl = page.url();
+    if (currentUrl.includes('/login')) {
+      results.push({ test: '회원가입 리다이렉트', status: 'PASS' });
     } else {
-      results.push({ test: '회원가입 페이지', status: 'FAIL', error: 'Form elements missing' });
+      results.push({ test: '회원가입 리다이렉트', status: 'FAIL', error: 'Did not redirect to login' });
     }
   } catch (e) {
     results.push({ test: '회원가입 페이지', status: 'FAIL', error: e.message });
@@ -204,10 +202,12 @@ async function runTests() {
     results.push({ test: 'API 연결', status: 'FAIL', error: e.message });
   }
 
-  // Test 8: Login with Test Account
+  // Test 8: Login with Test Account (via ?mode=admin URL)
   console.log('8. 테스트 계정 로그인...');
   try {
-    await page.goto(BASE_URL + '/login', { waitUntil: 'networkidle' });
+    // ?mode=admin으로 접속하여 일반 로그인 폼 표시
+    await page.goto(BASE_URL + '/login?mode=admin', { waitUntil: 'networkidle' });
+
     await page.fill('input[id="username"]', 'testuser');
     await page.fill('input[type="password"]', 'testpass123');
     await page.click('button[type="submit"]');

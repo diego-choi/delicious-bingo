@@ -26,4 +26,6 @@ urlpatterns = [
     path('auth/logout/', views.logout_view, name='logout'),
     path('auth/me/', views.me_view, name='me'),
     path('auth/profile/', views.profile_view, name='profile'),
+    path('auth/kakao/authorize/', views.kakao_authorize_view, name='kakao-authorize'),
+    path('auth/kakao/login/', views.kakao_login_view, name='kakao-login'),
 ]

@@ -172,6 +172,8 @@ erDiagram
     BingoTemplate ||--o{ BingoTemplateItem : contains
     BingoTemplate ||--o{ BingoBoard : "used by"
     User ||--o{ BingoBoard : owns
+    User ||--|| UserProfile : has
+    User ||--o{ SocialAccount : "logged in via"
     BingoBoard ||--o{ Review : contains
     Restaurant ||--o{ Review : "reviewed in"
 
@@ -215,6 +217,22 @@ erDiagram
         string email
         boolean is_staff
         boolean is_active
+    }
+
+    UserProfile {
+        int id PK
+        int user_id FK
+        string nickname
+        datetime created_at
+        datetime updated_at
+    }
+
+    SocialAccount {
+        int id PK
+        int user_id FK
+        string provider
+        string provider_user_id
+        datetime connected_at
     }
 
     BingoBoard {
@@ -295,6 +313,24 @@ erDiagram
 | rating | IntegerField | 평점 (1-5) |
 | visited_date | DateField | 방문일 |
 
+#### UserProfile
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| user | OneToOne | 사용자 (1:1) |
+| nickname | CharField | 닉네임 (편집 가능) |
+| created_at | DateTimeField | 생성일 |
+| updated_at | DateTimeField | 수정일 |
+
+#### SocialAccount
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| user | FK | 사용자 |
+| provider | CharField | 소셜 제공자 (kakao, google) |
+| provider_user_id | CharField | 소셜 서비스 사용자 ID |
+| connected_at | DateTimeField | 연동일 |
+
+**제약조건**: `(provider, provider_user_id)` unique
+
 ---
 
 ## 6. API 명세
@@ -316,6 +352,8 @@ erDiagram
 | GET | `/api/auth/me/` | 현재 사용자 정보 |
 | GET | `/api/auth/profile/` | 프로필 조회 |
 | PATCH | `/api/auth/profile/` | 프로필 수정 |
+| GET | `/api/auth/kakao/login/` | 카카오 로그인 URL 생성 |
+| POST | `/api/auth/kakao/callback/` | 카카오 OAuth 콜백 |
 
 ### Protected API (인증 필요)
 | Method | Endpoint | 설명 |
@@ -367,7 +405,7 @@ erDiagram
 ### 테스트 커버리지
 | 영역 | 테스트 수 | 도구 |
 |------|----------|------|
-| Backend 유닛 | 87개 | Django TestCase |
+| Backend 유닛 | 119개 | Django TestCase |
 | Frontend 유닛 | 59개 | Vitest + Testing Library |
 | E2E 개발 | 17개 | Playwright |
 | E2E 프로덕션 | 15개 | Playwright |
@@ -398,6 +436,7 @@ DATABASE_URL=<PostgreSQL URL>
 CORS_ALLOWED_ORIGINS=<frontend URL>
 CLOUDINARY_URL=<Cloudinary URL>
 KAKAO_REST_API_KEY=<카카오 REST API 키>
+KAKAO_CLIENT_SECRET=<카카오 Client Secret>
 ```
 
 ### Frontend (Vercel)
@@ -411,7 +450,8 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>
 ## 10. 향후 개선 계획
 
 ### 단기 (Next Release)
-- [ ] 소셜 로그인 연동 (카카오, 구글)
+- [x] 카카오 소셜 로그인 연동
+- [ ] 구글 소셜 로그인 연동
 - [ ] 리뷰 좋아요/댓글 기능
 
 ### 중기

@@ -51,9 +51,10 @@ delicious_bingo/
 │   │   ├── views.py               # ViewSets + Auth APIs
 │   │   ├── views_admin.py         # Admin ViewSets
 │   │   ├── services.py            # BingoService (라인 감지)
+│   │   ├── services_oauth.py      # KakaoOAuthService (소셜 로그인)
 │   │   ├── permissions.py         # IsAdminUser
 │   │   ├── urls.py                # API 라우팅
-│   │   ├── tests.py               # 87개 테스트
+│   │   ├── tests.py               # 119개 테스트
 │   │   └── fixtures/initial_data.json
 │   ├── config/
 │   │   ├── settings.py
@@ -111,6 +112,9 @@ Category (1) ──< Restaurant (N) ──< BingoTemplateItem (N) >── BingoT
                                                                     │
                                                                     v
 User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
+  │
+  ├── UserProfile (1:1)     # 사용자 프로필 (닉네임)
+  └──< SocialAccount (N)    # 소셜 로그인 연동 정보
 ```
 
 | 모델 | 설명 |
@@ -121,6 +125,8 @@ User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
 | BingoTemplateItem | 템플릿-맛집 연결 (position 0-24) |
 | BingoBoard | 사용자의 빙고판 (target_line_count: 1/3/5) |
 | Review | 맛집 리뷰 (이미지, 평점, 내용) → 셀 활성화 |
+| UserProfile | 사용자 프로필 (닉네임 등 편집 가능 정보) |
+| SocialAccount | 소셜 로그인 연동 (provider, provider_user_id) |
 
 ---
 
@@ -142,6 +148,8 @@ User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
 | POST | `/api/auth/logout/` | 로그아웃 |
 | GET | `/api/auth/me/` | 현재 사용자 |
 | GET/PATCH | `/api/auth/profile/` | 프로필 조회/수정 |
+| GET | `/api/auth/kakao/login/` | 카카오 로그인 URL 생성 |
+| POST | `/api/auth/kakao/callback/` | 카카오 OAuth 콜백 |
 
 ### Protected API (인증 필요)
 | Method | Endpoint | 설명 |
@@ -232,7 +240,7 @@ print('Admin account ready')
 ## 테스트 실행
 
 ```bash
-# Backend (87개)
+# Backend (119개)
 cd backend && python manage.py test
 
 # Frontend (59개)
@@ -258,6 +266,7 @@ DATABASE_URL=<PostgreSQL URL>
 CORS_ALLOWED_ORIGINS=<frontend URL>
 CLOUDINARY_URL=<Cloudinary URL>
 KAKAO_REST_API_KEY=<카카오 REST API 키>
+KAKAO_CLIENT_SECRET=<카카오 Client Secret>
 ```
 
 ### Frontend (Vercel)
@@ -339,6 +348,30 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>
 
 ---
 
+## 소셜 로그인 (카카오)
+
+### 인증 흐름
+1. 프론트엔드: `/api/auth/kakao/login/` 호출 → 카카오 로그인 URL 반환
+2. 사용자: 카카오 로그인 페이지에서 인증
+3. 카카오: redirect_uri로 인가 코드 전달
+4. 프론트엔드: `/api/auth/kakao/callback/`에 인가 코드 전송
+5. 백엔드: 토큰 발급 및 사용자 정보 조회 → DRF Token 반환
+
+### Username 생성 규칙
+소셜 로그인 사용자의 username은 `{provider}_{provider_user_id}` 형식으로 자동 생성됩니다.
+- 예시: `kakao_1234567890`
+- 장점: 고유성 보장, 소셜 계정 식별 용이
+
+### 모델 구조
+- **UserProfile**: 사용자 편집 가능 정보 (닉네임)
+- **SocialAccount**: 소셜 로그인 연동 정보 (provider, provider_user_id)
+
+### 로그인 페이지
+- 일반 사용자: 카카오 로그인만 표시
+- 관리자 로그인: `/login?mode=admin` URL로 접근
+
+---
+
 ## 모바일 반응형
 
 - **모바일 우선**: 기본 모바일 → `sm:` 데스크탑 확장
@@ -359,7 +392,8 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>
 
 ## 향후 개선 계획
 
-- [ ] 소셜 로그인 연동 (카카오, 구글)
+- [x] 카카오 소셜 로그인 연동
+- [ ] 구글 소셜 로그인 연동
 - [ ] 리뷰 좋아요/댓글 기능
 - [ ] 맛집 검색 기능
 - [ ] 템플릿 공유 기능

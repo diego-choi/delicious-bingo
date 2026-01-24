@@ -78,7 +78,7 @@ export default function Layout() {
                       to="/profile"
                       className="text-sm text-gray-600 hover:text-brand-orange hidden lg:inline"
                     >
-                      {user.username}
+                      {user.display_name || user.username}
                     </Link>
                     <button
                       onClick={handleLogout}
@@ -168,7 +168,7 @@ export default function Layout() {
                     onClick={handleNavClick}
                     className="block px-3 py-2 text-base text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                   >
-                    {user.username}님의 프로필
+                    {user.display_name || user.username}님의 프로필
                   </Link>
                   <button
                     onClick={handleLogout}

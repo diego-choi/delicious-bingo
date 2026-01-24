@@ -139,7 +139,7 @@ export default function AdminLayout() {
             <div className="flex-1 lg:flex-none" />
 
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">{user?.username}</span>
+              <span className="text-sm text-gray-600">{user?.display_name || user?.username}</span>
               <button
                 onClick={handleLogout}
                 className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"

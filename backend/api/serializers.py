@@ -153,32 +153,22 @@ class BingoBoardCreateSerializer(serializers.ModelSerializer):
 # =============================================================================
 
 class UserProfileUpdateSerializer(serializers.Serializer):
-    """사용자 프로필 수정 Serializer"""
-    username = serializers.CharField(required=False)
-    email = serializers.EmailField(required=False)
+    """사용자 프로필 수정 Serializer (닉네임만 수정 가능)"""
+    nickname = serializers.CharField(required=True, max_length=50)
 
-    def validate_username(self, value):
-        from django.contrib.auth.models import User
+    def validate_nickname(self, value):
         value = value.strip()
-        if len(value) < 3:
-            raise serializers.ValidationError('사용자명은 3자 이상이어야 합니다.')
-        if len(value) > 20:
-            raise serializers.ValidationError('사용자명은 20자 이하여야 합니다.')
-        if User.objects.exclude(pk=self.instance.pk).filter(username=value).exists():
-            raise serializers.ValidationError('이미 사용 중인 사용자명입니다.')
-        return value
-
-    def validate_email(self, value):
-        from django.contrib.auth.models import User
-        value = value.strip()
-        if User.objects.exclude(pk=self.instance.pk).filter(email=value).exists():
-            raise serializers.ValidationError('이미 사용 중인 이메일입니다.')
+        if len(value) < 1:
+            raise serializers.ValidationError('닉네임을 입력해주세요.')
+        if len(value) > 50:
+            raise serializers.ValidationError('닉네임은 50자 이하여야 합니다.')
         return value
 
     def update(self, instance, validated_data):
-        if 'username' in validated_data:
-            instance.username = validated_data['username']
-        if 'email' in validated_data:
-            instance.email = validated_data['email']
-        instance.save()
+        from .models import UserProfile
+        # UserProfile 가져오거나 생성
+        profile, _ = UserProfile.objects.get_or_create(user=instance)
+        if 'nickname' in validated_data:
+            profile.nickname = validated_data['nickname']
+            profile.save()
         return instance

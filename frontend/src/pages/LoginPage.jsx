@@ -1,12 +1,17 @@
 import { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { KakaoLoginButton } from '../components/auth/KakaoLoginButton';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // URL에 ?mode=admin이 있으면 관리자 로그인 폼 표시
+  const isAdminMode = searchParams.get('mode') === 'admin';
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -45,65 +50,69 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              사용자명
-            </label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
-              placeholder="사용자명을 입력하세요"
-              required
-            />
-          </div>
+        {isAdminMode ? (
+          /* 관리자 로그인 모드 (?mode=admin) */
+          <>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  사용자명
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
+                  placeholder="사용자명을 입력하세요"
+                  required
+                />
+              </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              비밀번호
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
-              placeholder="비밀번호를 입력하세요"
-              required
-            />
-          </div>
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  비밀번호
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
+                  placeholder="비밀번호를 입력하세요"
+                  required
+                />
+              </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 bg-brand-orange text-white rounded-lg font-semibold hover:bg-brand-orange/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? '로그인 중...' : '로그인'}
-          </button>
-        </form>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? '로그인 중...' : '로그인'}
+              </button>
+            </form>
 
-        <div className="mt-4 sm:mt-6 text-center text-sm text-gray-600">
-          계정이 없으신가요?{' '}
-          <Link to="/register" className="text-brand-orange hover:text-brand-orange/80 font-medium">
-            회원가입
-          </Link>
-        </div>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">또는</span>
+              </div>
+            </div>
 
-        {import.meta.env.DEV && (
-          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs sm:text-sm text-gray-600 text-center">
-              테스트 계정: <code className="bg-gray-200 px-1 rounded">testuser</code> / <code className="bg-gray-200 px-1 rounded">testpass123</code>
-            </p>
-          </div>
+            <KakaoLoginButton disabled={isLoading} />
+          </>
+        ) : (
+          /* 일반 모드: 카카오 로그인만 표시 */
+          <KakaoLoginButton disabled={isLoading} />
         )}
 
         <div className="mt-4 text-center">

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ProfilePage from './ProfilePage';
+import { AuthContext } from '../contexts/authContext';
 
 // Mock the API
 vi.mock('../api/endpoints', () => ({
@@ -17,12 +18,21 @@ import { authApi } from '../api/endpoints';
 
 describe('ProfilePage', () => {
   let queryClient;
+  const mockUpdateUser = vi.fn();
+
+  const mockAuthContextValue = {
+    user: { id: 1, username: 'testuser', display_name: 'testuser' },
+    isLoading: false,
+    isAuthenticated: true,
+    updateUser: mockUpdateUser,
+  };
 
   const mockProfileData = {
     user: {
       id: 1,
       username: 'testuser',
-      email: 'test@test.com',
+      display_name: '테스트유저',
+      nickname: '테스트유저',
       date_joined: '2025-01-01T00:00:00Z',
     },
     statistics: {
@@ -61,15 +71,18 @@ describe('ProfilePage', () => {
 
     return render(
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <ProfilePage />
-        </BrowserRouter>
+        <AuthContext.Provider value={mockAuthContextValue}>
+          <BrowserRouter>
+            <ProfilePage />
+          </BrowserRouter>
+        </AuthContext.Provider>
       </QueryClientProvider>
     );
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUpdateUser.mockClear();
   });
 
   describe('렌더링', () => {
@@ -84,8 +97,7 @@ describe('ProfilePage', () => {
       renderPage();
 
       await waitFor(() => {
-        expect(screen.getByText('testuser')).toBeInTheDocument();
-        expect(screen.getByText('test@test.com')).toBeInTheDocument();
+        expect(screen.getByText('테스트유저')).toBeInTheDocument();
       });
     });
 
@@ -149,8 +161,7 @@ describe('ProfilePage', () => {
 
       await user.click(screen.getByText('수정'));
 
-      expect(screen.getByLabelText('사용자명')).toBeInTheDocument();
-      expect(screen.getByLabelText('이메일')).toBeInTheDocument();
+      expect(screen.getByLabelText('닉네임')).toBeInTheDocument();
     });
 
     it('취소 버튼 클릭 시 폼이 닫혀야 한다', async () => {
@@ -165,14 +176,14 @@ describe('ProfilePage', () => {
       await user.click(screen.getByText('수정'));
       await user.click(screen.getByText('취소'));
 
-      expect(screen.queryByLabelText('사용자명')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('닉네임')).not.toBeInTheDocument();
     });
 
     it('수정 후 저장이 성공해야 한다', async () => {
       const user = userEvent.setup();
       authApi.getProfile.mockResolvedValue({ data: mockProfileData });
       authApi.updateProfile.mockResolvedValue({
-        data: { id: 1, username: 'newuser', email: 'test@test.com' },
+        data: { display_name: '새닉네임' },
       });
       renderPage();
 
@@ -181,14 +192,13 @@ describe('ProfilePage', () => {
       });
 
       await user.click(screen.getByText('수정'));
-      await user.clear(screen.getByLabelText('사용자명'));
-      await user.type(screen.getByLabelText('사용자명'), 'newuser');
+      await user.clear(screen.getByLabelText('닉네임'));
+      await user.type(screen.getByLabelText('닉네임'), '새닉네임');
       await user.click(screen.getByText('저장'));
 
       await waitFor(() => {
         expect(authApi.updateProfile).toHaveBeenCalledWith({
-          username: 'newuser',
-          email: 'test@test.com',
+          nickname: '새닉네임',
         });
       });
     });

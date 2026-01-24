@@ -43,4 +43,8 @@ export const authApi = {
   me: () => apiClient.get('/auth/me/'),
   getProfile: () => apiClient.get('/auth/profile/'),
   updateProfile: (data) => apiClient.patch('/auth/profile/', data),
+  kakaoAuthorize: (redirectUri) =>
+    apiClient.get('/auth/kakao/authorize/', { params: { redirect_uri: redirectUri } }),
+  kakaoLogin: (code, state) =>
+    apiClient.post('/auth/kakao/login/', { code, state }),
 };

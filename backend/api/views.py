@@ -1,9 +1,12 @@
+import logging
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 from django.db import models
 from django.db.models import Count, F, ExpressionWrapper, DurationField
 from django.contrib.auth import get_user_model, authenticate
@@ -20,6 +23,7 @@ from .serializers import (
     ReviewCreateSerializer,
 )
 from .services import BingoService
+from .services_oauth import KakaoOAuthService
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -237,6 +241,7 @@ def register_view(request):
             'id': user.id,
             'username': user.username,
             'email': user.email,
+            'display_name': user.username,  # 일반 회원가입은 username이 display_name
         }
     }, status=status.HTTP_201_CREATED)
 
@@ -264,6 +269,16 @@ def login_view(request):
 
     token, _ = Token.objects.get_or_create(user=user)
 
+    # UserProfile에서 닉네임 확인
+    from .models import UserProfile
+    display_name = user.username
+    try:
+        profile = user.profile
+        if profile.nickname:
+            display_name = profile.nickname
+    except UserProfile.DoesNotExist:
+        pass
+
     return Response({
         'token': token.key,
         'user': {
@@ -271,6 +286,7 @@ def login_view(request):
             'username': user.username,
             'email': user.email,
             'is_staff': user.is_staff,
+            'display_name': display_name,
         }
     })
 
@@ -284,15 +300,163 @@ def logout_view(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
+def kakao_authorize_view(request):
+    """카카오 OAuth 인증 URL 생성 API"""
+    from django.core import signing
+    import os
+
+    client_id = os.environ.get('KAKAO_REST_API_KEY', '')
+    if not client_id:
+        return Response(
+            {'error': '카카오 API 키가 설정되지 않았습니다.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    # redirect_uri는 Frontend에서 전달받음
+    redirect_uri = request.query_params.get('redirect_uri')
+    if not redirect_uri:
+        return Response(
+            {'error': 'redirect_uri가 필요합니다.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # CSRF 보호를 위한 state 생성 (서명된 토큰)
+    state_data = {
+        'redirect_uri': redirect_uri,
+    }
+    state = signing.dumps(state_data, salt='kakao-oauth')
+
+    # 카카오 OAuth URL 생성 (파라미터 URL 인코딩 필수)
+    from urllib.parse import urlencode
+    params = {
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'response_type': 'code',
+        'state': state,
+    }
+    kakao_auth_url = f'https://kauth.kakao.com/oauth/authorize?{urlencode(params)}'
+
+    return Response({'url': kakao_auth_url})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def kakao_login_view(request):
+    """카카오 OAuth 로그인/회원가입 API"""
+    from django.core import signing
+
+    code = request.data.get('code')
+    state = request.data.get('state')
+
+    if not code:
+        return Response(
+            {'error': '인증 코드가 필요합니다.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if not state:
+        return Response(
+            {'error': 'state가 필요합니다.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # state 검증 및 redirect_uri 추출 (5분 유효)
+        state_data = signing.loads(state, salt='kakao-oauth', max_age=300)
+        redirect_uri = state_data.get('redirect_uri')
+    except signing.BadSignature:
+        return Response(
+            {'error': '유효하지 않은 인증 상태입니다.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except signing.SignatureExpired:
+        return Response(
+            {'error': '인증 시간이 만료되었습니다. 다시 시도해주세요.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # 1. 카카오 액세스 토큰 발급
+        kakao_token = KakaoOAuthService.get_kakao_token(code, redirect_uri)
+        access_token = kakao_token.get('access_token')
+
+        if not access_token:
+            return Response(
+                {'error': '카카오 토큰 발급에 실패했습니다.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 2. 카카오 사용자 정보 조회
+        kakao_user = KakaoOAuthService.get_kakao_user_info(access_token)
+
+        # 3. 사용자 생성 또는 조회
+        user, is_new_user, social_account = KakaoOAuthService.get_or_create_user(kakao_user)
+
+        # 4. 계정 활성화 상태 확인
+        if not user.is_active:
+            return Response(
+                {'error': '비활성화된 계정입니다. 관리자에게 문의하세요.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # 5. DRF 토큰 발급
+        token, _ = Token.objects.get_or_create(user=user)
+
+        # display_name: UserProfile.nickname 우선, 없으면 username
+        # (UserProfile은 services_oauth.get_or_create_user에서 이미 생성됨)
+        from .models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        display_name = profile.nickname or user.username
+
+        return Response({
+            'token': token.key,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'is_staff': user.is_staff,
+                'display_name': display_name,
+            },
+            'is_new_user': is_new_user,
+        })
+
+    except ValueError as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        logger.error(f'Kakao login unexpected error: {e}')
+        return Response(
+            {'error': '카카오 로그인 처리 중 오류가 발생했습니다.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def me_view(request):
     """현재 사용자 정보 조회"""
+    from .models import UserProfile
+
     user = request.user
+
+    # UserProfile에서 닉네임 가져오기
+    display_name = user.username
+    try:
+        profile = user.profile
+        if profile.nickname:
+            display_name = profile.nickname
+    except UserProfile.DoesNotExist:
+        pass
+
     return Response({
         'id': user.id,
         'username': user.username,
         'email': user.email,
         'is_staff': user.is_staff,
+        'display_name': display_name,
     })
 
 
@@ -302,21 +466,25 @@ def profile_view(request):
     """
     사용자 프로필 조회 및 수정 API
     GET: 프로필 정보, 통계, 최근 활동 조회
-    PATCH: 프로필 정보 수정 (username, email)
+    PATCH: 프로필 정보 수정 (닉네임)
     """
     from django.db import models
     from .serializers import UserProfileUpdateSerializer
+    from .models import UserProfile
 
     user = request.user
+
+    # 프로필 가져오거나 생성
+    profile, _ = UserProfile.objects.get_or_create(user=user)
 
     if request.method == 'PATCH':
         serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            profile.refresh_from_db()
             return Response({
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
+                'nickname': profile.nickname,
+                'display_name': profile.nickname or user.username,
             })
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -350,8 +518,8 @@ def profile_view(request):
     return Response({
         'user': {
             'id': user.id,
-            'username': user.username,
-            'email': user.email,
+            'nickname': profile.nickname,
+            'display_name': profile.nickname or user.username,
             'date_joined': user.date_joined.isoformat(),
         },
         'statistics': {

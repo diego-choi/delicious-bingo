@@ -54,6 +54,19 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const loginWithKakao = useCallback(async (code, state) => {
+    const response = await authApi.kakaoLogin(code, state);
+    const { token, user: userData } = response.data;
+    localStorage.setItem('authToken', token);
+    setUser(userData);
+    return userData;
+  }, []);
+
+  // 사용자 정보 부분 업데이트 (프로필 수정 후 사용)
+  const updateUser = useCallback((updates) => {
+    setUser((prev) => (prev ? { ...prev, ...updates } : null));
+  }, []);
+
   const value = {
     user,
     isLoading,
@@ -61,7 +74,9 @@ export function AuthProvider({ children }) {
     isStaff: user?.is_staff || false,
     register,
     login,
+    loginWithKakao,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

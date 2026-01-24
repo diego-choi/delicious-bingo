@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import TemplateListPage from './pages/TemplateListPage';
@@ -7,8 +7,8 @@ import MyBoardsPage from './pages/MyBoardsPage';
 import BoardPage from './pages/BoardPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
+import KakaoCallbackPage from './pages/KakaoCallbackPage';
 import ErrorPage from './pages/ErrorPage';
 
 // Admin imports
@@ -58,11 +58,15 @@ export const router = createBrowserRouter([
       },
       {
         path: 'register',
-        element: <RegisterPage />,
+        element: <Navigate to="/login" replace />,
       },
       {
         path: 'profile',
         element: <ProfilePage />,
+      },
+      {
+        path: 'auth/kakao/callback',
+        element: <KakaoCallbackPage />,
       },
     ],
   },

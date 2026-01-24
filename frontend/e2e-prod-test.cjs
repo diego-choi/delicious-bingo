@@ -56,40 +56,39 @@ async function runTests() {
     results.push({ test: '템플릿 상세', status: 'FAIL', error: e.message });
   }
 
-  // Test 4: Login Page
+  // Test 4: Login Page - Kakao Login Default
   console.log('4. 로그인 페이지 테스트...');
   try {
     await page.goto(BASE_URL + '/login', { waitUntil: 'networkidle' });
-    const loginForm = await page.$('form');
-    const usernameInput = await page.$('input[type="text"], input[id="username"]');
-    const passwordInput = await page.$('input[type="password"]');
-    if (loginForm && usernameInput && passwordInput) {
-      results.push({ test: '로그인 페이지', status: 'PASS' });
+
+    // 카카오 로그인 버튼이 보여야 함
+    const kakaoButton = await page.$('button:has-text("카카오")');
+    if (kakaoButton) {
+      results.push({ test: '카카오 로그인 버튼', status: 'PASS' });
     } else {
-      results.push({ test: '로그인 페이지', status: 'FAIL', error: 'Form elements missing' });
+      results.push({ test: '카카오 로그인 버튼', status: 'FAIL', error: 'Kakao login button not found' });
     }
 
-    // Check test account is hidden in production
-    const pageContent = await page.textContent('body');
-    if (!pageContent.includes('testuser') && !pageContent.includes('testpass')) {
-      results.push({ test: '테스트 계정 숨김 (Production)', status: 'PASS' });
+    // 일반 로그인 폼은 숨겨져 있어야 함 (?mode=admin 없이)
+    const usernameInput = await page.$('input[id="username"]');
+    if (!usernameInput) {
+      results.push({ test: '일반 로그인 폼 숨김', status: 'PASS' });
     } else {
-      results.push({ test: '테스트 계정 숨김 (Production)', status: 'FAIL', error: 'Test account visible' });
+      results.push({ test: '일반 로그인 폼 숨김', status: 'FAIL', error: 'Login form should be hidden' });
     }
   } catch (e) {
     results.push({ test: '로그인 페이지', status: 'FAIL', error: e.message });
   }
 
-  // Test 5: Register Page
-  console.log('5. 회원가입 페이지 테스트...');
+  // Test 5: Register Page - Should Redirect to Login
+  console.log('5. 회원가입 페이지 테스트 (로그인으로 리다이렉트)...');
   try {
     await page.goto(BASE_URL + '/register', { waitUntil: 'networkidle' });
-    const registerForm = await page.$('form');
-    const emailInput = await page.$('input[type="email"]');
-    if (registerForm && emailInput) {
-      results.push({ test: '회원가입 페이지', status: 'PASS' });
+    const currentUrl = page.url();
+    if (currentUrl.includes('/login')) {
+      results.push({ test: '회원가입 리다이렉트', status: 'PASS' });
     } else {
-      results.push({ test: '회원가입 페이지', status: 'FAIL', error: 'Form elements missing' });
+      results.push({ test: '회원가입 리다이렉트', status: 'FAIL', error: 'Did not redirect to login' });
     }
   } catch (e) {
     results.push({ test: '회원가입 페이지', status: 'FAIL', error: e.message });
@@ -124,56 +123,38 @@ async function runTests() {
     results.push({ test: 'API 연결', status: 'FAIL', error: e.message });
   }
 
-  // Test 8: Registration Flow
-  console.log('8. 회원가입 플로우 테스트...');
-  // 사용자명 20자 제한으로 짧게 생성
-  const testUsername = 'tu' + Date.now().toString().slice(-8);
+  // Test 8: Registration Disabled - Redirects to Login
+  console.log('8. 회원가입 비활성화 테스트...');
   try {
     await page.goto(BASE_URL + '/register', { waitUntil: 'networkidle' });
-    await page.fill('input[id="username"]', testUsername);
-    await page.fill('input[type="email"]', testUsername + '@test.com');
-    await page.fill('input[id="password"]', 'testpass123');
-
-    const confirmInput = await page.$('input[id="passwordConfirm"], input[id="password_confirm"]');
-    if (confirmInput) {
-      await confirmInput.fill('testpass123');
-    }
-
-    await page.click('button[type="submit"]');
-    await page.waitForTimeout(3000);
-
     const currentUrl = page.url();
-    if (!currentUrl.includes('/register')) {
-      results.push({ test: '회원가입 플로우', status: 'PASS', detail: testUsername });
+    if (currentUrl.includes('/login')) {
+      results.push({ test: '회원가입 비활성화', status: 'PASS', detail: '로그인으로 리다이렉트' });
     } else {
-      const errorVisible = await page.$('.text-red-600, .bg-red-50');
-      if (errorVisible) {
-        results.push({ test: '회원가입 플로우', status: 'FAIL', error: 'Validation error shown' });
-      } else {
-        results.push({ test: '회원가입 플로우', status: 'PASS', detail: 'Form submitted' });
-      }
+      results.push({ test: '회원가입 비활성화', status: 'FAIL', error: 'Did not redirect to login' });
     }
   } catch (e) {
-    results.push({ test: '회원가입 플로우', status: 'FAIL', error: e.message });
+    results.push({ test: '회원가입 비활성화', status: 'FAIL', error: e.message });
   }
 
-  // Test 9: Login Flow (with new user)
-  console.log('9. 로그인 플로우 테스트...');
+  // Test 9: Admin Login Mode (via ?mode=admin URL)
+  console.log('9. 관리자 로그인 모드 테스트...');
   try {
-    await page.goto(BASE_URL + '/login', { waitUntil: 'networkidle' });
-    await page.fill('input[id="username"]', testUsername);
-    await page.fill('input[type="password"]', 'testpass123');
-    await page.click('button[type="submit"]');
-    await page.waitForTimeout(3000);
+    // ?mode=admin으로 접속하면 일반 로그인 폼이 표시되어야 함
+    await page.goto(BASE_URL + '/login?mode=admin', { waitUntil: 'networkidle' });
 
-    const currentUrl = page.url();
-    if (!currentUrl.includes('/login')) {
-      results.push({ test: '로그인 플로우', status: 'PASS' });
+    // 폼이 나타났는지 확인
+    const usernameInput = await page.$('input[id="username"]');
+    const passwordInput = await page.$('input[type="password"]');
+    if (usernameInput && passwordInput) {
+      results.push({ test: '관리자 로그인 폼 (?mode=admin)', status: 'PASS' });
     } else {
-      results.push({ test: '로그인 플로우', status: 'FAIL', error: 'Still on login page' });
+      results.push({ test: '관리자 로그인 폼 (?mode=admin)', status: 'FAIL', error: 'Form not displayed' });
     }
+
+    // 실제 로그인은 테스트하지 않음 (프로덕션 계정 정보 없음)
   } catch (e) {
-    results.push({ test: '로그인 플로우', status: 'FAIL', error: e.message });
+    results.push({ test: '관리자 로그인 모드', status: 'FAIL', error: e.message });
   }
 
   // Test 10: Profile Page (Authenticated)
@@ -195,7 +176,7 @@ async function runTests() {
     // 로그인 페이지로 리다이렉트되었는지 확인
     if (currentUrl.includes('/login')) {
       results.push({ test: '프로필 페이지', status: 'PASS', detail: '비인증시 로그인 리다이렉트' });
-    } else if (content.includes('프로필') || content.includes(testUsername) || content.includes('내 프로필') || content.includes('사용자 정보')) {
+    } else if (content.includes('프로필') || content.includes('내 프로필') || content.includes('사용자 정보')) {
       results.push({ test: '프로필 페이지', status: 'PASS' });
     } else {
       results.push({ test: '프로필 페이지', status: 'FAIL', error: 'Profile not loaded. URL: ' + currentUrl });

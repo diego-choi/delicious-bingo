@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useProfile, useUpdateProfile } from './useProfile';
+import { AuthContext } from '../contexts/authContext';
 
 // Mock the API endpoints
 vi.mock('../api/endpoints', () => ({
@@ -15,10 +16,22 @@ import { authApi } from '../api/endpoints';
 
 describe('useProfile hooks', () => {
   let queryClient;
+  const mockUpdateUser = vi.fn();
+
+  const mockAuthContextValue = {
+    user: { id: 1, username: 'testuser' },
+    isLoading: false,
+    isAuthenticated: true,
+    updateUser: mockUpdateUser,
+  };
 
   const createWrapper = () => {
     return ({ children }) => (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthContext.Provider value={mockAuthContextValue}>
+          {children}
+        </AuthContext.Provider>
+      </QueryClientProvider>
     );
   };
 
@@ -50,6 +63,7 @@ describe('useProfile hooks', () => {
       },
     });
     vi.clearAllMocks();
+    mockUpdateUser.mockClear();
   });
 
   describe('useProfile', () => {

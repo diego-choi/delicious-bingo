@@ -995,8 +995,7 @@ class ProfileAPITest(APITestCase):
         response = self.client.get('/api/auth/profile/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('user', response.data)
-        self.assertEqual(response.data['user']['username'], 'testuser')
-        self.assertEqual(response.data['user']['email'], 'test@test.com')
+        self.assertIn('display_name', response.data['user'])
         self.assertIn('date_joined', response.data['user'])
 
     def test_profile_returns_statistics(self):
@@ -1059,36 +1058,32 @@ class ProfileAPITest(APITestCase):
         self.assertIn('recent_reviews', activity)
 
     def test_profile_update_success(self):
-        """프로필 수정이 성공해야 한다"""
+        """프로필 닉네임 수정이 성공해야 한다"""
         self.client.force_authenticate(user=self.user)
         response = self.client.patch('/api/auth/profile/', {
-            'username': 'newusername',
-            'email': 'newemail@test.com'
+            'nickname': '새닉네임'
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['username'], 'newusername')
-        self.assertEqual(response.data['email'], 'newemail@test.com')
-        self.user.refresh_from_db()
-        self.assertEqual(self.user.username, 'newusername')
+        self.assertEqual(response.data['nickname'], '새닉네임')
+        self.assertEqual(response.data['display_name'], '새닉네임')
 
-    def test_profile_update_username_validation(self):
-        """사용자명 유효성 검사가 작동해야 한다"""
+    def test_profile_update_nickname_validation(self):
+        """닉네임 유효성 검사가 작동해야 한다"""
         self.client.force_authenticate(user=self.user)
         response = self.client.patch('/api/auth/profile/', {
-            'username': 'ab'  # Too short
+            'nickname': ''  # Empty
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('username', response.data['errors'])
+        self.assertIn('nickname', response.data['errors'])
 
-    def test_profile_update_username_unique(self):
-        """다른 사용자의 사용자명으로 변경 불가"""
-        User.objects.create_user('existinguser', password='testpass')
+    def test_profile_update_nickname_max_length(self):
+        """닉네임 최대 길이 검사가 작동해야 한다"""
         self.client.force_authenticate(user=self.user)
         response = self.client.patch('/api/auth/profile/', {
-            'username': 'existinguser'
+            'nickname': 'a' * 51  # Too long
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('username', response.data['errors'])
+        self.assertIn('nickname', response.data['errors'])
 
 
 # =============================================================================
@@ -1634,3 +1629,303 @@ class AdminUserAPITest(APITestCase):
             )
             self.staff_user.refresh_from_db()
             self.assertTrue(self.staff_user.is_staff, f'is_staff changed for value: {value!r}')
+
+
+# =============================================================================
+# OAuth Service Tests
+# =============================================================================
+
+class KakaoOAuthServiceTest(TestCase):
+    """KakaoOAuthService 유닛 테스트"""
+
+    def test_generate_unique_username_format(self):
+        """username이 {provider}_{provider_user_id} 형식으로 생성되어야 한다"""
+        from .services_oauth import KakaoOAuthService
+
+        username = KakaoOAuthService._generate_unique_username('kakao', '1234567890')
+        self.assertEqual(username, 'kakao_1234567890')
+
+    def test_generate_unique_username_with_different_providers(self):
+        """다양한 provider로 username 생성"""
+        from .services_oauth import KakaoOAuthService
+
+        kakao_username = KakaoOAuthService._generate_unique_username('kakao', '111')
+        google_username = KakaoOAuthService._generate_unique_username('google', '222')
+
+        self.assertEqual(kakao_username, 'kakao_111')
+        self.assertEqual(google_username, 'google_222')
+
+    def test_generate_unique_username_handles_duplicate(self):
+        """중복 username 발생 시 카운터 추가"""
+        from .services_oauth import KakaoOAuthService
+
+        # 먼저 동일한 username을 가진 사용자 생성
+        User.objects.create_user(username='kakao_123', password='test')
+
+        username = KakaoOAuthService._generate_unique_username('kakao', '123')
+        self.assertEqual(username, 'kakao_123_1')
+
+    def test_generate_unique_username_handles_multiple_duplicates(self):
+        """여러 중복 시 순차적 카운터"""
+        from .services_oauth import KakaoOAuthService
+
+        User.objects.create_user(username='kakao_456', password='test')
+        User.objects.create_user(username='kakao_456_1', password='test')
+        User.objects.create_user(username='kakao_456_2', password='test')
+
+        username = KakaoOAuthService._generate_unique_username('kakao', '456')
+        self.assertEqual(username, 'kakao_456_3')
+
+    def test_get_or_create_user_creates_new_user(self):
+        """신규 카카오 사용자 생성"""
+        from .services_oauth import KakaoOAuthService
+        from .models import SocialAccount, UserProfile
+
+        kakao_user_info = {
+            'id': 9999999999,
+            'kakao_account': {
+                'profile': {'nickname': '테스트유저'},
+                'email': 'test@kakao.com',
+                'is_email_verified': True,
+            },
+            'properties': {},
+        }
+
+        user, is_new, social_account = KakaoOAuthService.get_or_create_user(kakao_user_info)
+
+        self.assertTrue(is_new)
+        self.assertEqual(user.username, 'kakao_9999999999')
+        self.assertEqual(user.email, 'test@kakao.com')
+
+        # SocialAccount 생성 확인
+        self.assertEqual(social_account.provider, 'kakao')
+        self.assertEqual(social_account.provider_user_id, '9999999999')
+        self.assertEqual(social_account.user, user)
+
+        # UserProfile 생성 확인
+        profile = UserProfile.objects.get(user=user)
+        self.assertEqual(profile.nickname, '테스트유저')
+
+    def test_get_or_create_user_returns_existing_user(self):
+        """기존 소셜 계정 사용자 반환"""
+        from .services_oauth import KakaoOAuthService
+        from .models import SocialAccount, UserProfile
+
+        # 기존 사용자 생성
+        existing_user = User.objects.create_user(
+            username='kakao_8888888888',
+            email='existing@kakao.com'
+        )
+        UserProfile.objects.create(user=existing_user, nickname='기존유저')
+        SocialAccount.objects.create(
+            user=existing_user,
+            provider='kakao',
+            provider_user_id='8888888888'
+        )
+
+        kakao_user_info = {
+            'id': 8888888888,
+            'kakao_account': {
+                'profile': {'nickname': '기존유저'},
+            },
+            'properties': {},
+        }
+
+        user, is_new, social_account = KakaoOAuthService.get_or_create_user(kakao_user_info)
+
+        self.assertFalse(is_new)
+        self.assertEqual(user, existing_user)
+        self.assertEqual(user.username, 'kakao_8888888888')
+
+    def test_get_or_create_user_links_by_verified_email(self):
+        """검증된 이메일로 기존 계정 연결"""
+        from .services_oauth import KakaoOAuthService
+        from .models import SocialAccount
+
+        # 이메일 기반 기존 사용자
+        existing_user = User.objects.create_user(
+            username='existinguser',
+            email='verified@example.com',
+            password='testpass'
+        )
+
+        kakao_user_info = {
+            'id': 7777777777,
+            'kakao_account': {
+                'profile': {'nickname': '연결유저'},
+                'email': 'verified@example.com',
+                'is_email_verified': True,
+            },
+            'properties': {},
+        }
+
+        user, is_new, social_account = KakaoOAuthService.get_or_create_user(kakao_user_info)
+
+        self.assertFalse(is_new)  # 기존 계정 연결이므로 is_new는 False
+        self.assertEqual(user, existing_user)
+        self.assertEqual(social_account.provider, 'kakao')
+        self.assertEqual(social_account.user, existing_user)
+
+    def test_get_or_create_user_does_not_link_unverified_email(self):
+        """미검증 이메일은 기존 계정과 연결하지 않음"""
+        from .services_oauth import KakaoOAuthService
+
+        existing_user = User.objects.create_user(
+            username='existinguser2',
+            email='unverified@example.com',
+            password='testpass'
+        )
+
+        kakao_user_info = {
+            'id': 6666666666,
+            'kakao_account': {
+                'profile': {'nickname': '신규유저'},
+                'email': 'unverified@example.com',
+                'is_email_verified': False,  # 미검증
+            },
+            'properties': {},
+        }
+
+        user, is_new, social_account = KakaoOAuthService.get_or_create_user(kakao_user_info)
+
+        self.assertTrue(is_new)  # 새 계정 생성됨
+        self.assertNotEqual(user, existing_user)
+        self.assertEqual(user.username, 'kakao_6666666666')
+
+    def test_get_or_create_user_uses_properties_nickname_fallback(self):
+        """kakao_account.profile.nickname이 없으면 properties.nickname 사용"""
+        from .services_oauth import KakaoOAuthService
+        from .models import UserProfile
+
+        kakao_user_info = {
+            'id': 5555555555,
+            'kakao_account': {},
+            'properties': {'nickname': '프로퍼티닉네임'},
+        }
+
+        user, is_new, social_account = KakaoOAuthService.get_or_create_user(kakao_user_info)
+
+        profile = UserProfile.objects.get(user=user)
+        self.assertEqual(profile.nickname, '프로퍼티닉네임')
+
+    def test_get_or_create_user_missing_kakao_id_raises_error(self):
+        """카카오 ID가 없으면 에러"""
+        from .services_oauth import KakaoOAuthService
+
+        kakao_user_info = {
+            'kakao_account': {},
+            'properties': {},
+        }
+
+        with self.assertRaises(ValueError) as context:
+            KakaoOAuthService.get_or_create_user(kakao_user_info)
+
+        self.assertIn('카카오 사용자 ID', str(context.exception))
+
+
+class SocialAccountModelTest(TestCase):
+    """SocialAccount 모델 테스트"""
+
+    def test_social_account_creation(self):
+        """SocialAccount 생성"""
+        from .models import SocialAccount
+
+        user = User.objects.create_user(username='testuser', password='test')
+        social = SocialAccount.objects.create(
+            user=user,
+            provider='kakao',
+            provider_user_id='123456789'
+        )
+
+        self.assertEqual(social.provider, 'kakao')
+        self.assertEqual(social.provider_user_id, '123456789')
+        self.assertEqual(social.user, user)
+        self.assertIsNotNone(social.connected_at)
+
+    def test_social_account_unique_constraint(self):
+        """provider + provider_user_id 중복 불가"""
+        from .models import SocialAccount
+        from django.db import IntegrityError
+
+        user1 = User.objects.create_user(username='user1', password='test')
+        user2 = User.objects.create_user(username='user2', password='test')
+
+        SocialAccount.objects.create(
+            user=user1,
+            provider='kakao',
+            provider_user_id='same_id'
+        )
+
+        with self.assertRaises(IntegrityError):
+            SocialAccount.objects.create(
+                user=user2,
+                provider='kakao',
+                provider_user_id='same_id'  # 동일한 provider + id
+            )
+
+    def test_social_account_str(self):
+        """SocialAccount __str__ 메서드"""
+        from .models import SocialAccount
+
+        user = User.objects.create_user(username='strtest', password='test')
+        social = SocialAccount.objects.create(
+            user=user,
+            provider='kakao',
+            provider_user_id='111'
+        )
+
+        self.assertEqual(str(social), 'strtest - kakao')
+
+
+class UserProfileModelTest(TestCase):
+    """UserProfile 모델 테스트"""
+
+    def test_user_profile_creation(self):
+        """UserProfile 생성"""
+        from .models import UserProfile
+
+        user = User.objects.create_user(username='profileuser', password='test')
+        profile = UserProfile.objects.create(user=user, nickname='닉네임테스트')
+
+        self.assertEqual(profile.nickname, '닉네임테스트')
+        self.assertEqual(profile.user, user)
+        self.assertIsNotNone(profile.created_at)
+        self.assertIsNotNone(profile.updated_at)
+
+    def test_user_profile_one_to_one(self):
+        """User와 UserProfile은 1:1 관계"""
+        from .models import UserProfile
+        from django.db import IntegrityError
+
+        user = User.objects.create_user(username='onetoone', password='test')
+        UserProfile.objects.create(user=user, nickname='첫번째')
+
+        with self.assertRaises(IntegrityError):
+            UserProfile.objects.create(user=user, nickname='두번째')
+
+    def test_user_profile_str(self):
+        """UserProfile __str__ 메서드"""
+        from .models import UserProfile
+
+        user = User.objects.create_user(username='profilestr', password='test')
+        profile = UserProfile.objects.create(user=user, nickname='테스트')
+
+        self.assertEqual(str(profile), "profilestr's profile")
+
+    def test_user_profile_blank_nickname_allowed(self):
+        """빈 닉네임 허용"""
+        from .models import UserProfile
+
+        user = User.objects.create_user(username='blanknick', password='test')
+        profile = UserProfile.objects.create(user=user, nickname='')
+
+        self.assertEqual(profile.nickname, '')
+
+    def test_user_can_access_profile_via_related_name(self):
+        """User에서 profile로 접근 가능"""
+        from .models import UserProfile
+
+        user = User.objects.create_user(username='relatedtest', password='test')
+        UserProfile.objects.create(user=user, nickname='관련테스트')
+
+        self.assertEqual(user.profile.nickname, '관련테스트')

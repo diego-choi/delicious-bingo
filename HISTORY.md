@@ -8,7 +8,7 @@
 |------|------|
 | **개발 완료** | ✅ 모든 기능 구현 완료 |
 | **프로덕션 배포** | ✅ Railway + Vercel |
-| **테스트** | ✅ Backend 87개 / Frontend 59개 / E2E 32개 |
+| **테스트** | ✅ Backend 119개 / Frontend 59개 / E2E 32개 |
 
 ### 배포 URL
 - **Frontend**: https://delicious-bingo.vercel.app
@@ -34,6 +34,7 @@
 | Cloudinary 연동 | 클라우드 이미지 저장소 | 2026-01-10 |
 | 관리자 페이지 | 식당/템플릿/카테고리 관리 | 2026-01-10 |
 | UI 전면 개편 | 캐치테이블 스타일 + Vibrant Orange | 2026-01-23 |
+| 카카오 소셜 로그인 | OAuth 2.0 연동, 프로필 관리 | 2026-01-24 |
 
 ---
 
@@ -345,6 +346,56 @@ npm run e2e:prod
 
 ---
 
+## 15. 카카오 소셜 로그인 ✅
+
+카카오 OAuth 2.0 기반 소셜 로그인 구현.
+
+### 인증 흐름
+1. 프론트엔드: `/api/auth/kakao/login/` 호출 → 카카오 로그인 URL 반환
+2. 사용자: 카카오 로그인 페이지에서 인증
+3. 카카오: redirect_uri로 인가 코드 전달
+4. 프론트엔드: `/api/auth/kakao/callback/`에 인가 코드 전송
+5. 백엔드: 토큰 발급 및 사용자 정보 조회 → DRF Token 반환
+
+### 새로운 모델
+| 모델 | 설명 |
+|------|------|
+| `UserProfile` | 사용자 프로필 (닉네임 등 편집 가능 정보) |
+| `SocialAccount` | 소셜 로그인 연동 (provider, provider_user_id) |
+
+### Username 생성 규칙
+소셜 로그인 사용자의 username은 `{provider}_{provider_user_id}` 형식으로 자동 생성.
+- 예시: `kakao_1234567890`
+- 장점: 고유성 보장, 소셜 계정 식별 용이
+
+### API 엔드포인트
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| GET | `/api/auth/kakao/login/` | 카카오 로그인 URL 생성 |
+| POST | `/api/auth/kakao/callback/` | 카카오 OAuth 콜백 |
+
+### 로그인 페이지 변경
+- 일반 사용자: 카카오 로그인만 표시
+- 관리자 로그인: `/login?mode=admin` URL로 접근
+
+### 프로필 관리
+- `UserProfile.nickname`: 사용자가 편집 가능한 닉네임
+- 프로필 페이지에서 닉네임 수정 가능
+- 네비게이션 바에 display_name 실시간 반영
+
+### 테스트 추가 (18개)
+- `KakaoOAuthServiceTest`: username 생성, 사용자 생성/조회
+- `SocialAccountModelTest`: 모델 제약조건
+- `UserProfileModelTest`: 1:1 관계, 닉네임 관리
+
+### 환경변수
+```bash
+KAKAO_REST_API_KEY=<카카오 REST API 키>
+KAKAO_CLIENT_SECRET=<카카오 Client Secret>
+```
+
+---
+
 ## 파일 구조
 
 ```
@@ -363,9 +414,10 @@ delicious_bingo/
 │   │   ├── views.py            # ViewSets + Auth APIs
 │   │   ├── views_admin.py      # Admin ViewSets
 │   │   ├── services.py         # BingoService (라인 감지)
+│   │   ├── services_oauth.py   # KakaoOAuthService (소셜 로그인)
 │   │   ├── permissions.py      # IsAdminUser
 │   │   ├── urls.py             # API 라우팅
-│   │   ├── tests.py            # 87개 테스트
+│   │   ├── tests.py            # 119개 테스트
 │   │   └── fixtures/initial_data.json
 │   ├── config/
 │   │   ├── settings.py
@@ -403,7 +455,7 @@ delicious_bingo/
 ## 테스트 실행 방법
 
 ```bash
-# Backend 테스트 (87개)
+# Backend 테스트 (119개)
 cd backend && source venv/bin/activate && python manage.py test
 
 # Frontend 테스트 (59개)

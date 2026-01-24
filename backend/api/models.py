@@ -108,3 +108,40 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s review for {self.restaurant.name}"
+
+
+class UserProfile(models.Model):
+    """사용자 프로필 (닉네임 등 사용자 설정 정보)"""
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='profile'
+    )
+    nickname = models.CharField(max_length=50, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s profile"
+
+
+class SocialAccount(models.Model):
+    """소셜 로그인 연동 정보"""
+    PROVIDER_CHOICES = [
+        ('kakao', 'Kakao'),
+        ('google', 'Google'),
+    ]
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='social_accounts'
+    )
+    provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
+    provider_user_id = models.CharField(max_length=100)
+    connected_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [['provider', 'provider_user_id']]
+        indexes = [
+            models.Index(fields=['provider', 'provider_user_id']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.provider}"

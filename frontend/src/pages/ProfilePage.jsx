@@ -6,7 +6,7 @@ export default function ProfilePage() {
   const { data, isLoading, error } = useProfile();
   const updateProfile = useUpdateProfile();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ username: '', email: '' });
+  const [formData, setFormData] = useState({ nickname: '' });
   const [formErrors, setFormErrors] = useState({});
 
   // 날짜 포맷팅
@@ -21,8 +21,7 @@ export default function ProfilePage() {
   // 수정 모드 시작
   const handleEditClick = () => {
     setFormData({
-      username: data.user.username,
-      email: data.user.email,
+      nickname: data.user.nickname || data.user.display_name || '',
     });
     setFormErrors({});
     setIsEditing(true);
@@ -110,39 +109,22 @@ export default function ProfilePage() {
               </div>
             )}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                사용자명
+              <label htmlFor="nickname" className="block text-sm font-medium text-gray-700 mb-1">
+                닉네임
               </label>
               <input
-                id="username"
-                name="username"
+                id="nickname"
+                name="nickname"
                 type="text"
-                value={formData.username}
+                value={formData.nickname}
                 onChange={handleChange}
+                maxLength={50}
                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent ${
-                  formErrors.username ? 'border-red-500' : 'border-gray-300'
+                  formErrors.nickname ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
-              {formErrors.username && (
-                <p className="mt-1 text-sm text-red-500">{formErrors.username}</p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                이메일
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent ${
-                  formErrors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
-              {formErrors.email && (
-                <p className="mt-1 text-sm text-red-500">{formErrors.email}</p>
+              {formErrors.nickname && (
+                <p className="mt-1 text-sm text-red-500">{formErrors.nickname}</p>
               )}
             </div>
             <div className="flex gap-2">
@@ -165,12 +147,8 @@ export default function ProfilePage() {
         ) : (
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-              <span className="text-gray-500 text-sm sm:w-24">사용자명</span>
-              <span className="font-medium">{user.username}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-              <span className="text-gray-500 text-sm sm:w-24">이메일</span>
-              <span className="font-medium">{user.email}</span>
+              <span className="text-gray-500 text-sm sm:w-24">닉네임</span>
+              <span className="font-medium">{user.display_name}</span>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
               <span className="text-gray-500 text-sm sm:w-24">가입일</span>
