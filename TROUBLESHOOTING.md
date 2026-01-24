@@ -32,6 +32,47 @@ Django==6.0.1 Requires-Python >=3.12
 **원인**: Root Directory 미설정으로 Dockerfile을 찾지 못함
 **해결**: Settings → General → Root Directory: `backend`
 
+#### Could not find root directory: /backend
+**증상**: 배포 로그에 `Could not find root directory: /backend` 오류
+
+**원인**: Root Directory를 `/backend`로 설정 (절대 경로로 인식)
+
+**해결**:
+1. **방법 1 (권장)**: 프로젝트 루트에 `railway.json` 생성 후 Root Directory 비우기
+   ```json
+   {
+     "$schema": "https://railway.app/railway.schema.json",
+     "build": {
+       "builder": "DOCKERFILE",
+       "dockerfilePath": "backend/Dockerfile"
+     },
+     "deploy": {
+       "startCommand": "sh backend/start.sh",
+       "restartPolicyType": "ON_FAILURE",
+       "restartPolicyMaxRetries": 10
+     }
+   }
+   ```
+2. **방법 2**: Root Directory를 `backend`로 변경 (슬래시 제거)
+
+#### ModuleNotFoundError: No module named 'dotenv'
+**증상**: 배포 시 `from dotenv import load_dotenv` 에서 오류
+
+**원인**: `python-dotenv`가 `requirements.txt`에 없거나 프로덕션에서 불필요
+
+**해결**: `config/settings.py`에서 선택적 import 처리
+```python
+# .env 파일 로드 (로컬 개발용, 프로덕션에서는 선택적)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    # 프로덕션 환경에서는 python-dotenv가 없을 수 있음
+    pass
+```
+
+**참고**: Railway는 환경변수를 직접 설정하므로 dotenv 불필요
+
 ### 1.2 런타임 오류
 
 #### ALLOWED_HOSTS 오류
@@ -144,7 +185,98 @@ cloudinary://API_KEY:API_SECRET@CLOUD_NAME
 
 ---
 
-## 6. 디버깅 명령어
+## 6. 카카오 소셜 로그인 문제
+
+### 6.1 카카오 로그인 404 오류
+
+**증상**: `/api/auth/kakao/login/` 또는 `/api/auth/kakao/authorize/` 접근 시 404
+
+**원인**:
+1. 마이그레이션 미적용 (SocialAccount, UserProfile 모델)
+2. 배포 실패로 새로운 코드가 적용되지 않음
+
+**확인**:
+```bash
+# Railway 로그 확인
+railway logs
+
+# 다음 로그가 있어야 함:
+# Applying api.0002_add_social_account... OK
+# Applying api.0003_add_user_profile... OK
+# Applying api.0004_remove_socialaccount_email_and_more... OK
+```
+
+**해결**:
+1. Railway 재배포: `railway up --detach`
+2. 마이그레이션 수동 실행:
+   ```bash
+   railway ssh
+   python manage.py migrate
+   ```
+
+### 6.2 Redirect URI 불일치 오류
+
+**증상**: 카카오 로그인 시 "redirect_uri mismatch" 에러
+
+**원인**: 카카오 개발자 콘솔에 Redirect URI 미등록
+
+**해결**:
+1. [카카오 개발자](https://developers.kakao.com) 접속
+2. 내 애플리케이션 → 제품 설정 → 카카오 로그인
+3. **Redirect URI 등록**:
+   - 개발: `http://localhost:5173/auth/kakao/callback`
+   - 프로덕션: `https://delicious-bingo.vercel.app/auth/kakao/callback`
+
+**주의**:
+- URL 끝에 슬래시(`/`) 없음
+- 프로토콜(`http://`, `https://`) 정확히 일치해야 함
+
+### 6.3 카카오 인증 실패: 토큰 발급 실패
+
+**증상**: 로그에 "카카오 인증 실패: 토큰 발급 실패" 또는 401 에러
+
+**원인**: `KAKAO_CLIENT_SECRET` 미설정 또는 잘못된 값
+
+**확인**:
+```bash
+railway variables | grep KAKAO
+```
+
+**해결**:
+1. 카카오 개발자 콘솔 → 보안 → Client Secret 확인
+2. Railway 환경변수 설정:
+   ```bash
+   railway variables --set "KAKAO_CLIENT_SECRET=<실제값>"
+   ```
+
+### 6.4 사용자명이 "user"로만 표시
+
+**증상**: 카카오 로그인 후 사용자명이 제대로 표시되지 않음
+
+**원인**: 카카오 동의항목에서 닉네임 수집 미동의
+
+**해결**:
+1. 카카오 개발자 콘솔 → 제품 설정 → 카카오 로그인 → 동의항목
+2. **닉네임**: 필수 동의로 설정
+3. **프로필 이미지**: 선택 동의
+4. **카카오계정(이메일)**: 선택 동의
+
+### 6.5 비활성 계정 로그인 차단 안됨
+
+**증상**: `is_active=False` 계정이 카카오 로그인 가능
+
+**확인**: `views.py`의 `kakao_login_view`에 `is_active` 체크 있는지 확인
+```python
+if not user.is_active:
+    return Response(
+        {'error': '비활성화된 계정입니다.'},
+        status=status.HTTP_403_FORBIDDEN
+    )
+```
+
+---
+
+## 7. 디버깅 명령어
 
 ### Railway SSH 접속
 ```bash

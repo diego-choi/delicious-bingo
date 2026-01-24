@@ -251,56 +251,13 @@ cd frontend && vercel --prod
 
 ---
 
-## 9. 알려진 문제 및 해결 방법
+## 9. 문제 해결
 
-### Railway Root Directory 오류
-**증상**: `Could not find root directory: /backend`
+배포 중 문제가 발생하면 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)를 참조하세요.
 
-**원인**: Root Directory를 `/backend`로 설정 (절대 경로로 인식)
-
-**해결**:
-1. Root Directory를 `backend`로 변경 (슬래시 제거)
-2. 또는 Root Directory를 비우고 `railway.json` 사용 (권장)
-
----
-
-### ModuleNotFoundError: No module named 'dotenv'
-**증상**: 배포 시 `dotenv` import 오류
-
-**원인**: `python-dotenv`가 `requirements.txt`에 없거나 프로덕션에서 불필요
-
-**해결**: `settings.py`에서 선택적 import 처리
-```python
-try:
-    from dotenv import load_dotenv
-    load_dotenv(BASE_DIR / '.env')
-except ImportError:
-    pass
-```
-
----
-
-### 카카오 로그인 404 오류
-**증상**: `/api/auth/kakao/login/` 접근 시 404
-
-**원인**: 마이그레이션 미적용 또는 배포 실패
-
-**해결**:
-1. Railway 로그 확인: `railway logs`
-2. 마이그레이션 확인: "Applying api.0002_add_social_account... OK"
-3. 재배포: `railway up --detach`
-
----
-
-### 카카오 Redirect URI 불일치
-**증상**: 카카오 로그인 시 "redirect_uri mismatch" 오류
-
-**해결**: 카카오 개발자 콘솔에서 정확한 Redirect URI 등록
-- 프로덕션: `https://delicious-bingo.vercel.app/auth/kakao/callback`
-- 개발: `http://localhost:5173/auth/kakao/callback`
-
----
-
-## 문제 해결
-
-배포 중 문제가 발생하면 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) 참조.
+**주요 트러블슈팅:**
+- Railway Root Directory 오류
+- dotenv import 오류
+- 카카오 소셜 로그인 문제
+- CORS 에러
+- Cloudinary 이미지 업로드 실패
