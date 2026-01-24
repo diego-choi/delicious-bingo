@@ -8,7 +8,7 @@
 |------|------|
 | **개발 완료** | ✅ 모든 기능 구현 완료 |
 | **프로덕션 배포** | ✅ Railway + Vercel |
-| **테스트** | ✅ Backend 119개 / Frontend 59개 / E2E 32개 |
+| **테스트** | ✅ Backend 122개 / Frontend 62개 / E2E 29개 |
 
 ### 배포 URL
 - **Frontend**: https://delicious-bingo.vercel.app
@@ -455,10 +455,10 @@ delicious_bingo/
 ## 테스트 실행 방법
 
 ```bash
-# Backend 테스트 (119개)
+# Backend 테스트 (122개)
 cd backend && source venv/bin/activate && python manage.py test
 
-# Frontend 테스트 (59개)
+# Frontend 테스트 (62개)
 cd frontend && npm run test:run
 
 # E2E 개발 테스트 (17개) - 로컬 서버 필요

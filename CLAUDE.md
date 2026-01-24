@@ -240,16 +240,16 @@ print('Admin account ready')
 ## 테스트 실행
 
 ```bash
-# Backend (119개)
+# Backend (122개)
 cd backend && python manage.py test
 
-# Frontend (59개)
+# Frontend (62개)
 cd frontend && npm run test:run
 
 # E2E 개발 (17개) - 로컬 서버 실행 필요
 cd frontend && npm run e2e
 
-# E2E 프로덕션 (15개)
+# E2E 프로덕션 (12개)
 cd frontend && npm run e2e:prod
 ```
 
