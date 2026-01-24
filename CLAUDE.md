@@ -390,6 +390,67 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>
 
 ---
 
+## 문서 관리 가이드
+
+### 문서별 용도 및 업데이트 원칙
+
+| 문서 | 용도 | 업데이트 시점 |
+|------|------|--------------|
+| **CLAUDE.md** | Claude Code가 프로젝트를 이해하기 위한 컨텍스트 | 기술 스택, 모델, API 변경 시 |
+| **PRD.md** | 제품 요구사항 명세 (Product Requirements Document) | 기능 추가, 아키텍처 변경 시 |
+| **HISTORY.md** | 개발 히스토리 및 구현 완료 기능 | 주요 기능 완료 시 |
+| **DEPLOY.md** | 배포 가이드 (환경 설정, 배포 절차) | 배포 프로세스 변경 시 |
+| **TROUBLESHOOTING.md** | 배포 및 개발 중 발생하는 문제 해결 | 새로운 문제 해결 시 |
+| **README.md** | 프로젝트 소개 및 시작 가이드 | 프로젝트 개요 변경 시 |
+
+### 기능 추가/변경 시 문서 업데이트 체크리스트
+
+**예시: 카카오 소셜 로그인 구현 시**
+
+- [x] **CLAUDE.md**
+  - 데이터 모델 다이어그램 (UserProfile, SocialAccount)
+  - API 엔드포인트 (카카오 로그인/콜백)
+  - 환경 변수 (KAKAO_CLIENT_SECRET)
+  - 소셜 로그인 섹션 추가
+  - 테스트 개수 업데이트 (87→119)
+
+- [x] **PRD.md**
+  - ERD 다이어그램 (UserProfile, SocialAccount 관계)
+  - 데이터 모델 상세 (UserProfile, SocialAccount 필드)
+  - API 명세 (카카오 엔드포인트)
+  - 환경 변수 목록
+  - 향후 계획 업데이트
+
+- [x] **HISTORY.md**
+  - 구현 완료 기능 요약 (카카오 소셜 로그인)
+  - 새로운 섹션 추가 (15. 카카오 소셜 로그인)
+  - 테스트 개수 업데이트
+  - 파일 구조 변경 (services_oauth.py)
+
+- [x] **DEPLOY.md**
+  - Railway 설정 (railway.json 사용법)
+  - 환경 변수 추가 (KAKAO_CLIENT_SECRET)
+  - 카카오 개발자 설정 상세 (Redirect URI, 동의항목)
+  - 배포 확인 방법 (카카오 로그인 테스트)
+  - 체크리스트 업데이트
+
+- [x] **TROUBLESHOOTING.md**
+  - Railway 배포 문제 (Root Directory, dotenv)
+  - 카카오 소셜 로그인 문제 (404, Redirect URI, 토큰 발급)
+
+### 문서 업데이트 원칙
+
+1. **일관성 유지**: 모든 문서에서 동일한 정보는 일관되게 업데이트
+2. **역할 분리**: 각 문서의 역할에 맞는 내용만 포함
+   - 설정 → DEPLOY.md
+   - 문제 해결 → TROUBLESHOOTING.md
+   - 기능 소개 → CLAUDE.md, PRD.md
+   - 완료 기록 → HISTORY.md
+3. **중복 최소화**: 상세 내용은 한 곳에만, 다른 곳에서는 참조
+4. **테스트 개수**: Backend/Frontend 테스트 개수는 실제 값과 일치해야 함
+
+---
+
 ## 향후 개선 계획
 
 - [x] 카카오 소셜 로그인 연동
