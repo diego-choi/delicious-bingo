@@ -11,7 +11,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5분
-      retry: 1,
+      retry: 0, // axios-retry에서 재시도 처리
     },
   },
 });

@@ -1,11 +1,22 @@
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
+  },
+});
+
+axiosRetry(apiClient, {
+  retries: 2,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    const isIdempotent = !error.config || error.config.method !== 'post';
+    return isIdempotent && axiosRetry.isNetworkOrIdempotentRequestError(error);
   },
 });
 
