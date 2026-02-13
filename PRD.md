@@ -117,21 +117,42 @@ stateDiagram-v2
 | 평점 | ✅ | 1-5점 |
 | 리뷰 내용 | ✅ | 최소 10자 |
 | 방문일 | ✅ | 날짜 선택 |
+| 공개 여부 | ✅ | 기본값 true |
 
-### 3.3. 리더보드
+#### 좋아요
+- 로그인 사용자가 공개 리뷰에 좋아요 토글 (생성/삭제)
+- 사용자당 리뷰당 1개 (unique 제약)
+
+#### 댓글
+- 로그인 사용자가 공개 리뷰에 댓글 작성
+- 댓글 목록 조회는 비로그인도 가능
+- 본인 댓글만 삭제 가능
+
+### 3.3. 리뷰 피드
+
+- 공개 리뷰를 최신순으로 나열하는 피드 페이지 (`/feed`)
+- 비로그인 사용자도 조회 가능
+- 리뷰 카드: 작성자(display_name), 맛집명, 별점, 이미지, 내용, 방문일
+- 각 리뷰에 좋아요/댓글 인터랙션
+- "더 보기" 버튼으로 페이지네이션 (PAGE_SIZE=20)
+
+### 3.4. 리더보드
 
 | 카테고리 | 정렬 기준 |
 |----------|----------|
 | 최단 시간 클리어 | 빙고 완료까지 소요 시간 |
 | 최다 완료 | 완료한 빙고 총 횟수 |
 
-### 3.4. 사용자 프로필
+### 3.5. 사용자 프로필
 
 #### 통계 정보
 - 시작한 빙고 수
 - 완료한 빙고 수
 - 작성한 리뷰 수
 - 평균 평점
+
+#### 연동된 소셜 계정
+- 카카오 연동 계정 표시
 
 #### 최근 활동
 - 최근 완료한 빙고
@@ -176,6 +197,10 @@ erDiagram
     User ||--o{ SocialAccount : "logged in via"
     BingoBoard ||--o{ Review : contains
     Restaurant ||--o{ Review : "reviewed in"
+    User ||--o{ ReviewLike : likes
+    Review ||--o{ ReviewLike : "liked by"
+    User ||--o{ ReviewComment : comments
+    Review ||--o{ ReviewComment : "commented on"
 
     Category {
         int id PK
@@ -254,6 +279,22 @@ erDiagram
         string content
         int rating
         date visited_date
+        boolean is_public
+        datetime created_at
+    }
+
+    ReviewLike {
+        int id PK
+        int user_id FK
+        int review_id FK
+        datetime created_at
+    }
+
+    ReviewComment {
+        int id PK
+        int user_id FK
+        int review_id FK
+        string content
         datetime created_at
     }
 ```
@@ -312,6 +353,26 @@ erDiagram
 | content | TextField | 리뷰 내용 |
 | rating | IntegerField | 평점 (1-5) |
 | visited_date | DateField | 방문일 |
+| is_public | BooleanField | 공개 여부 (기본 true) |
+
+**제약조건**: `(bingo_board, restaurant)` unique
+
+#### ReviewLike
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| user | FK | 좋아요한 사용자 |
+| review | FK | 대상 리뷰 |
+| created_at | DateTimeField | 생성일 |
+
+**제약조건**: `(user, review)` unique
+
+#### ReviewComment
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| user | FK | 작성자 |
+| review | FK | 대상 리뷰 |
+| content | TextField | 댓글 내용 |
+| created_at | DateTimeField | 생성일 |
 
 #### UserProfile
 | 필드 | 타입 | 설명 |
@@ -342,6 +403,8 @@ erDiagram
 | GET | `/api/templates/` | 템플릿 목록 |
 | GET | `/api/templates/:id/` | 템플릿 상세 |
 | GET | `/api/leaderboard/` | 리더보드 |
+| GET | `/api/reviews/feed/` | 공개 리뷰 피드 (페이지네이션) |
+| GET | `/api/reviews/:id/comments/` | 리뷰 댓글 목록 |
 
 ### Auth API
 | Method | Endpoint | 설명 |
@@ -363,6 +426,9 @@ erDiagram
 | GET | `/api/boards/:id/` | 빙고판 상세 |
 | DELETE | `/api/boards/:id/` | 빙고판 삭제 |
 | POST | `/api/reviews/` | 리뷰 생성 |
+| POST | `/api/reviews/:id/like/` | 좋아요 토글 |
+| POST | `/api/reviews/:id/comments/` | 댓글 작성 |
+| DELETE | `/api/reviews/:id/comments/:commentId/` | 댓글 삭제 (본인만) |
 
 ### Admin API (Staff 권한 필요)
 | Method | Endpoint | 설명 |
@@ -405,8 +471,8 @@ erDiagram
 ### 테스트 커버리지
 | 영역 | 테스트 수 | 도구 |
 |------|----------|------|
-| Backend 유닛 | 119개 | Django TestCase |
-| Frontend 유닛 | 59개 | Vitest + Testing Library |
+| Backend 유닛 | 154개 | Django TestCase |
+| Frontend 유닛 | 87개 | Vitest + Testing Library |
 | E2E 개발 | 17개 | Playwright |
 | E2E 프로덕션 | 15개 | Playwright |
 
@@ -448,11 +514,6 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>
 ---
 
 ## 10. 향후 개선 계획
-
-### 단기 (Next Release)
-- [x] 카카오 소셜 로그인 연동
-- [x] 프로필 페이지 소셜 계정 표시
-- [ ] 리뷰 좋아요/댓글 기능
 
 ### 중기
 - [ ] 맛집 검색 기능
