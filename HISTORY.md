@@ -494,3 +494,39 @@ Frontend(Vercel)와 Backend(Fly.io) 분리 배포를 Fly.io 단일 배포로 통
 | `frontend/src/components/common/LoadingSpinner.jsx` | 스켈레톤으로 대체, 참조 0건 |
 | `frontend/src/components/common/LoadingSpinner.test.jsx` | 위 파일의 테스트 |
 
+---
+
+## 19. P2 ConfirmDialog 접근성 개선 ✅
+
+WCAG 2.1 dialog 패턴에 맞게 ConfirmDialog에 키보드/스크린리더 접근성 추가.
+
+### 구현 내용
+| 기능 | 설명 |
+|------|------|
+| ARIA 속성 | `role="dialog"`, `aria-modal="true"`, `aria-labelledby`/`aria-describedby` ID 연결 |
+| ESC 키 닫기 | `document` keydown 리스너로 ESC → `onCancel()` 호출 |
+| 포커스 관리 | 열릴 때 취소 버튼 자동 포커스, 닫힐 때 이전 포커스 복원 |
+| 포커스 트랩 | Tab/Shift+Tab으로 다이얼로그 내 버튼 간 순환 |
+| 스크롤 잠금 | `body.style.overflow = 'hidden'`, unmount 시 cleanup 보장 |
+| 백드롭 | `aria-hidden="true"` 추가 |
+
+### 테스트 추가 (12개)
+| 테스트 | 검증 내용 |
+|--------|----------|
+| ARIA 속성 3개 | role, aria-modal, aria-labelledby, aria-describedby |
+| ESC 키 1개 | ESC 입력 시 onCancel 호출 |
+| 포커스 관리 2개 | 자동 포커스, 닫힐 때 복원 |
+| 포커스 트랩 2개 | Tab 순환, Shift+Tab 역순환 |
+| 스크롤 잠금 2개 | 열림 시 hidden, 닫힐 때 복원 |
+| unmount cleanup 2개 | 열린 채 unmount 시 스크롤/포커스 복원 |
+
+### 변경 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `frontend/src/components/common/ConfirmDialog.jsx` | useEffect/useRef 추가, ARIA 속성, 키보드/포커스/스크롤 로직 |
+| `frontend/src/components/common/ConfirmDialog.test.jsx` | 접근성 테스트 12개 추가 (기존 7 + 신규 12 = 19개) |
+| `PRD.md` | P2 ConfirmDialog 완료 처리, useModalA11y 훅 추출 항목 추가 |
+
+### 향후 계획
+- `useModalA11y` 훅 추출 → CellDetailModal, CompletionCelebration에 공통 적용
+
