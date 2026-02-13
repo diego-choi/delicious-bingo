@@ -135,5 +135,18 @@ describe('ConfirmDialog', () => {
       await user.tab({ shift: true });
       expect(document.activeElement).toBe(confirmBtn);
     });
+
+    it('should lock body scroll when open', () => {
+      render(<ConfirmDialog {...defaultProps} />);
+      expect(document.body.style.overflow).toBe('hidden');
+    });
+
+    it('should restore body scroll when closed', () => {
+      const { rerender } = render(<ConfirmDialog {...defaultProps} />);
+      expect(document.body.style.overflow).toBe('hidden');
+
+      rerender(<ConfirmDialog {...defaultProps} isOpen={false} />);
+      expect(document.body.style.overflow).toBe('');
+    });
   });
 });
