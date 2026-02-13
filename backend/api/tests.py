@@ -2360,3 +2360,105 @@ class ReviewCommentAPITest(APITestCase):
             f'/api/reviews/{self.review.id}/comments/{comment.id}/'
         )
         self.assertEqual(response.status_code, 403)
+
+
+# =============================================================================
+# 리뷰 피드 API 테스트
+# =============================================================================
+
+class ReviewFeedAPITest(APITestCase):
+    """리뷰 피드 API 테스트"""
+
+    def setUp(self):
+        from .models import UserProfile
+        self.user = User.objects.create_user('testuser', password='testpass')
+        self.user2 = User.objects.create_user('testuser2', password='testpass')
+        UserProfile.objects.create(user=self.user2, nickname='닉네임유저')
+        self.category = Category.objects.create(name="테스트")
+        self.template = BingoTemplate.objects.create(
+            category=self.category, title="테스트 빙고"
+        )
+        self.restaurants = []
+        for i in range(25):
+            restaurant = Restaurant.objects.create(
+                category=self.category, name=f"맛집{i}", address=f"주소{i}",
+                latitude=37.0, longitude=127.0, is_approved=True, created_by=self.user
+            )
+            self.restaurants.append(restaurant)
+            BingoTemplateItem.objects.create(
+                template=self.template, restaurant=restaurant, position=i
+            )
+        self.board = BingoBoard.objects.create(
+            user=self.user, template=self.template, target_line_count=1
+        )
+        self.board2 = BingoBoard.objects.create(
+            user=self.user2, template=self.template, target_line_count=1
+        )
+
+    def test_feed_returns_public_reviews_only(self):
+        """공개 리뷰만 반환해야 한다"""
+        Review.objects.create(
+            user=self.user, bingo_board=self.board, restaurant=self.restaurants[0],
+            content='공개 리뷰입니다 10자 이상', rating=5, visited_date='2025-01-01',
+            is_public=True
+        )
+        Review.objects.create(
+            user=self.user, bingo_board=self.board, restaurant=self.restaurants[1],
+            content='비공개 리뷰입니다 10자 이상', rating=3, visited_date='2025-01-02',
+            is_public=False
+        )
+        response = self.client.get('/api/reviews/feed/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(len(response.data['results']), 1)
+
+    def test_feed_ordered_by_latest(self):
+        """최신순으로 정렬되어야 한다"""
+        import time
+        r1 = Review.objects.create(
+            user=self.user, bingo_board=self.board, restaurant=self.restaurants[0],
+            content='첫 번째 리뷰입니다 10자 이상', rating=4, visited_date='2025-01-01',
+            is_public=True
+        )
+        time.sleep(0.01)
+        r2 = Review.objects.create(
+            user=self.user2, bingo_board=self.board2, restaurant=self.restaurants[1],
+            content='두 번째 리뷰입니다 10자 이상', rating=5, visited_date='2025-01-02',
+            is_public=True
+        )
+        response = self.client.get('/api/reviews/feed/')
+        self.assertEqual(response.status_code, 200)
+        results = response.data['results']
+        self.assertEqual(results[0]['id'], r2.id)
+        self.assertEqual(results[1]['id'], r1.id)
+
+    def test_feed_includes_required_fields(self):
+        """필수 필드가 포함되어야 한다 (restaurant_name, display_name, like_count, comment_count, is_liked)"""
+        Review.objects.create(
+            user=self.user2, bingo_board=self.board2, restaurant=self.restaurants[0],
+            content='필드 테스트 리뷰입니다 10자 이상', rating=5, visited_date='2025-01-01',
+            is_public=True
+        )
+        response = self.client.get('/api/reviews/feed/')
+        self.assertEqual(response.status_code, 200)
+        result = response.data['results'][0]
+        self.assertIn('restaurant_name', result)
+        self.assertEqual(result['restaurant_name'], '맛집0')
+        self.assertIn('display_name', result)
+        self.assertEqual(result['display_name'], '닉네임유저')
+        self.assertIn('like_count', result)
+        self.assertIn('comment_count', result)
+        self.assertIn('is_liked', result)
+
+    def test_feed_accessible_without_auth(self):
+        """비로그인 사용자도 접근 가능해야 한다"""
+        response = self.client.get('/api/reviews/feed/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_feed_paginated(self):
+        """페이지네이션 응답 구조를 가져야 한다 (count, next, results)"""
+        response = self.client.get('/api/reviews/feed/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('count', response.data)
+        self.assertIn('next', response.data)
+        self.assertIn('results', response.data)
