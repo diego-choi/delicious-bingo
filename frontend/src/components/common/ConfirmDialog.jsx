@@ -17,9 +17,15 @@ export default function ConfirmDialog({
         className="absolute inset-0 bg-black/50"
         onClick={onCancel}
       />
-      <div className="relative bg-white rounded-xl shadow-xl max-w-sm w-full p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        <p className="text-sm text-gray-600 mb-6 whitespace-pre-line">{message}</p>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-message"
+        className="relative bg-white rounded-xl shadow-xl max-w-sm w-full p-6"
+      >
+        <h3 id="confirm-dialog-title" className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+        <p id="confirm-dialog-message" className="text-sm text-gray-600 mb-6 whitespace-pre-line">{message}</p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
