@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function ConfirmDialog({
   isOpen,
@@ -10,6 +10,9 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }) {
+  const cancelButtonRef = useRef(null);
+  const previousFocusRef = useRef(null);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -18,6 +21,16 @@ export default function ConfirmDialog({
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onCancel]);
+
+  useEffect(() => {
+    if (isOpen) {
+      previousFocusRef.current = document.activeElement;
+      cancelButtonRef.current?.focus();
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -39,6 +52,7 @@ export default function ConfirmDialog({
         <p id="confirm-dialog-message" className="text-sm text-gray-600 mb-6 whitespace-pre-line">{message}</p>
         <div className="flex justify-end gap-3">
           <button
+            ref={cancelButtonRef}
             onClick={onCancel}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
