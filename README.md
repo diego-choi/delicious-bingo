@@ -92,7 +92,7 @@ npm run dev
 # Backend (158 tests)
 cd backend && python manage.py test
 
-# Frontend (102 tests)
+# Frontend (114 tests)
 cd frontend && npm run test:run
 
 # E2E 개발 환경 (18 tests)

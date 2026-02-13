@@ -473,7 +473,7 @@ erDiagram
 | 영역 | 테스트 수 | 도구 |
 |------|----------|------|
 | Backend 유닛 | 158개 | Django TestCase |
-| Frontend 유닛 | 102개 | Vitest + Testing Library |
+| Frontend 유닛 | 114개 | Vitest + Testing Library |
 | E2E 개발 | 18개 | Playwright |
 | E2E 프로덕션 | 15개 | Playwright |
 

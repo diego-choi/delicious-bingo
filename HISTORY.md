@@ -8,7 +8,7 @@
 |------|------|
 | **개발 완료** | ✅ 모든 기능 구현 완료 |
 | **프로덕션 배포** | ✅ Fly.io (Django + SPA 단일 배포) |
-| **테스트** | ✅ Backend 158개 / Frontend 102개 / E2E 33개 |
+| **테스트** | ✅ Backend 158개 / Frontend 114개 / E2E 33개 |
 
 ### 배포 URL
 - https://delicious-bingo.fly.dev
@@ -471,7 +471,7 @@ Frontend(Vercel)와 Backend(Fly.io) 분리 배포를 Fly.io 단일 배포로 통
 | 파일 | 설명 |
 |------|------|
 | `frontend/src/components/common/ConfirmDialog.jsx` | 삭제 확인 모달 (danger/default variant) |
-| `frontend/src/components/common/ConfirmDialog.test.jsx` | ConfirmDialog 테스트 (7건) |
+| `frontend/src/components/common/ConfirmDialog.test.jsx` | ConfirmDialog 테스트 (19건) |
 | `frontend/src/components/common/Skeleton.jsx` | 스켈레톤 3종 (Card, BingoGrid, FeedItem) |
 | `frontend/src/components/common/Skeleton.test.jsx` | Skeleton 테스트 (3건) |
 | `frontend/src/hooks/useConfirmDialog.js` | Promise 기반 확인 다이얼로그 훅 |
