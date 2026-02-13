@@ -1,7 +1,7 @@
 const { chromium } = require('playwright');
 
-const BASE_URL = 'https://delicious-bingo.vercel.app';
-const API_URL = 'https://delicious-bingo-production.up.railway.app/api';
+const BASE_URL = 'https://delicious-bingo.fly.dev';
+const API_URL = 'https://delicious-bingo.fly.dev/api';
 
 async function runTests() {
   const browser = await chromium.launch({ headless: true });
