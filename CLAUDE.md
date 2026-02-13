@@ -1,200 +1,87 @@
-# CLAUDE.md - Delicious Bingo 프로젝트 컨텍스트
+# CLAUDE.md - Delicious Bingo
 
-> Claude Code가 이 프로젝트를 이해하고 작업하는 데 필요한 핵심 정보
+맛집 탐방을 게임화한 5x5 빙고 웹 애플리케이션. 사용자가 맛집 템플릿을 선택하고, 실제 방문 후 리뷰를 작성하면 빙고 셀이 활성화되어 목표 라인 수 달성 시 완료.
 
-## 프로젝트 개요
-
-맛집 탐방을 게임화한 5x5 빙고 웹 애플리케이션.
-- 사용자가 맛집 템플릿을 선택
-- 실제 맛집을 방문하여 리뷰 작성
-- 빙고 셀이 활성화되며, 목표 라인 수 달성 시 완료
-
-### 배포 URL
 - **Frontend**: https://delicious-bingo.vercel.app
 - **Backend API**: https://delicious-bingo-production.up.railway.app
 
 ---
 
-## 기술 스택
+## 개발 원칙
 
-### Backend
-| 기술 | 버전 | 용도 |
-|------|------|------|
-| Django | 6.0.1 | 웹 프레임워크 |
-| Django REST Framework | 3.16 | REST API |
-| Token Authentication | - | 인증 |
-| SQLite / PostgreSQL | - | DB (개발/프로덕션) |
-| Cloudinary | - | 이미지 저장소 (프로덕션) |
+### 기본 원칙
 
-### Frontend
-| 기술 | 버전 | 용도 |
-|------|------|------|
-| React | 19 | UI 라이브러리 |
-| Vite | 7 | 빌드 도구 |
-| Tailwind CSS | 4 | 스타일링 (@theme 디렉티브) |
-| React Router | 7 | 라우팅 |
-| TanStack Query | 5 | 서버 상태 관리 |
-| Axios | - | HTTP 클라이언트 |
-| Vitest | - | 유닛 테스트 |
+1. **읽기 우선**: 코드를 수정하기 전에 반드시 기존 코드를 읽고 이해한다
+2. **기존 파일 편집 우선**: 새 파일 생성보다 기존 파일 수정을 우선한다
+3. **과잉 설계 금지**: 요청된 변경만 수행한다. "개선"이나 "리팩토링"을 끼워넣지 않는다
+4. **최소 복잡성**: 현재 작업에 필요한 최소한의 코드만 작성한다. 유사한 코드 3줄이 성급한 추상화보다 낫다
 
----
+### TDD (Test-Driven Development)
 
-## 디렉토리 구조
+#### Red-Green-Refactor 사이클
 
-```
-delicious_bingo/
-├── backend/
-│   ├── api/
-│   │   ├── models.py              # 데이터 모델
-│   │   ├── serializers.py         # DRF Serializers
-│   │   ├── serializers_admin.py   # Admin Serializers
-│   │   ├── views.py               # ViewSets + Auth APIs
-│   │   ├── views_admin.py         # Admin ViewSets
-│   │   ├── services.py            # BingoService (라인 감지)
-│   │   ├── services_oauth.py      # KakaoOAuthService (소셜 로그인)
-│   │   ├── permissions.py         # IsAdminUser
-│   │   ├── urls.py                # API 라우팅
-│   │   ├── tests.py               # 119개 테스트
-│   │   └── fixtures/initial_data.json
-│   ├── config/
-│   │   ├── settings.py
-│   │   └── urls.py
-│   ├── Dockerfile
-│   ├── start.sh
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── src/
-│   │   ├── admin/                 # 관리자 모듈
-│   │   │   ├── api/               # Admin API 클라이언트
-│   │   │   ├── components/        # AdminLayout, AdminGuard, KakaoPlaceSearch
-│   │   │   ├── hooks/             # useKakaoSearch
-│   │   │   └── pages/             # Dashboard, Restaurants, Templates, Categories, Users
-│   │   ├── api/
-│   │   │   ├── client.js          # Axios 인스턴스 (Token 인터셉터)
-│   │   │   └── endpoints.js       # API 함수들
-│   │   ├── components/
-│   │   │   ├── bingo/             # BingoGrid, BingoCell, BingoHeader, CompletionCelebration
-│   │   │   ├── common/            # ErrorBoundary, LoadingSpinner
-│   │   │   ├── forms/             # ReviewForm
-│   │   │   ├── map/               # KakaoMap
-│   │   │   ├── modals/            # CellDetailModal
-│   │   │   └── Layout.jsx
-│   │   ├── contexts/              # AuthContext, AuthProvider
-│   │   ├── hooks/                 # useAuth, useTemplates, useBoards, useLeaderboard, useKakaoMap
-│   │   ├── pages/                 # 8개 페이지
-│   │   ├── styles/
-│   │   │   └── design-tokens.css  # 브랜드 컬러, 애니메이션
-│   │   ├── utils/
-│   │   │   └── cn.js              # 클래스네임 유틸리티
-│   │   ├── constants/
-│   │   │   └── confetti.js        # 컨페티 설정
-│   │   ├── router.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── e2e-dev-test.cjs           # 17개 개발 E2E 테스트
-│   ├── e2e-prod-test.cjs          # 15개 프로덕션 E2E 테스트
-│   └── package.json
-│
-├── HISTORY.md                     # 개발 히스토리
-├── PRD.md                         # 제품 요구사항
-├── DEPLOY.md                      # 배포 가이드
-├── TROUBLESHOOTING.md             # 배포 트러블슈팅
-└── README.md                      # 프로젝트 문서
-```
+모든 기능 추가와 버그 수정은 이 사이클을 따른다:
 
----
+1. **Red**: 실패하는 테스트를 먼저 작성한다
+   - 테스트가 실패하는 것을 확인한 후 다음 단계로 넘어간다
+   - 테스트 이름은 `test_<행위>_<조건>_<기대결과>` 형식을 따른다
+2. **Green**: 테스트를 통과하는 **최소한의** 코드를 작성한다
+   - 미래 요구사항을 예측하지 않는다
+   - 딱 테스트가 통과하는 만큼만 구현한다
+3. **Refactor**: 모든 테스트가 통과하는 상태에서 코드 품질을 개선한다
+   - 중복 제거, 네이밍 개선, 구조 정리
+   - 리팩토링 후 반드시 테스트를 다시 실행한다
 
-## 데이터 모델
+#### 테스트 계층
 
-```
-Category (1) ──< Restaurant (N) ──< BingoTemplateItem (N) >── BingoTemplate (1)
-                                                                    │
-                                                                    v
-User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
-  │
-  ├── UserProfile (1:1)     # 사용자 프로필 (닉네임)
-  └──< SocialAccount (N)    # 소셜 로그인 연동 정보
-```
+| 계층 | 위치 | 대상 | 예시 |
+|------|------|------|------|
+| **Backend 단위** | `backend/api/tests.py` | Service, Model, Serializer | `BingoService.check_lines()` |
+| **Backend API** | `backend/api/tests.py` | ViewSet 통합 | `POST /api/reviews/` 응답 검증 |
+| **Frontend 단위** | `frontend/src/**/*.test.{js,jsx}` | 컴포넌트, Hook | `BingoCell` 렌더링 |
+| **E2E 개발** | `frontend/e2e-dev-test.cjs` | 전체 흐름 (로컬) | 회원가입 → 빙고 생성 → 리뷰 |
+| **E2E 프로덕션** | `frontend/e2e-prod-test.cjs` | 전체 흐름 (프로덕션) | 배포 후 스모크 테스트 |
 
-| 모델 | 설명 |
-|------|------|
-| Category | 맛집 카테고리 |
-| Restaurant | 맛집 정보 (이름, 주소, 좌표) |
-| BingoTemplate | 5x5 빙고 템플릿 (25개 맛집) |
-| BingoTemplateItem | 템플릿-맛집 연결 (position 0-24) |
-| BingoBoard | 사용자의 빙고판 (target_line_count: 1/3/5) |
-| Review | 맛집 리뷰 (이미지, 평점, 내용) → 셀 활성화 |
-| UserProfile | 사용자 프로필 (닉네임 등 편집 가능 정보) |
-| SocialAccount | 소셜 로그인 연동 (provider, provider_user_id) |
+#### 버그 수정 필수 절차
 
----
+1. 버그를 재현하는 테스트를 먼저 작성한다 (Red)
+2. 테스트가 실패하는 것을 확인한다
+3. 버그를 수정한다 (Green)
+4. 회귀 방지를 위해 테스트를 유지한다
 
-## API 엔드포인트
+#### 테스트 작성 시점
 
-### Public API
-| Method | Endpoint | 설명 |
-|--------|----------|------|
-| GET | `/api/categories/` | 카테고리 목록 |
-| GET | `/api/templates/` | 템플릿 목록 |
-| GET | `/api/templates/:id/` | 템플릿 상세 |
-| GET | `/api/leaderboard/` | 리더보드 |
+| 상황 | 필요한 테스트 |
+|------|--------------|
+| API 응답 변경 | Serializer 필드 검증 테스트 |
+| 비즈니스 로직 변경 | Service 레이어 단위 테스트 |
+| API 엔드포인트 추가/변경 | API 통합 테스트 |
+| 프론트엔드 컴포넌트 추가/변경 | 렌더링/인터랙션 테스트 |
+| 버그 수정 | 버그 재현 테스트 (regression) |
 
-### Auth API
-| Method | Endpoint | 설명 |
-|--------|----------|------|
-| POST | `/api/auth/register/` | 회원가입 |
-| POST | `/api/auth/login/` | 로그인 |
-| POST | `/api/auth/logout/` | 로그아웃 |
-| GET | `/api/auth/me/` | 현재 사용자 |
-| GET/PATCH | `/api/auth/profile/` | 프로필 조회/수정 |
-| GET | `/api/auth/kakao/login/` | 카카오 로그인 URL 생성 |
-| POST | `/api/auth/kakao/callback/` | 카카오 OAuth 콜백 |
+### Tidy First (구조 변경과 동작 변경의 분리)
 
-### Protected API (인증 필요)
-| Method | Endpoint | 설명 |
-|--------|----------|------|
-| GET | `/api/boards/` | 내 빙고판 목록 |
-| POST | `/api/boards/` | 빙고판 생성 |
-| GET | `/api/boards/:id/` | 빙고판 상세 |
-| DELETE | `/api/boards/:id/` | 빙고판 삭제 |
-| POST | `/api/reviews/` | 리뷰 생성 |
+#### 핵심 원칙
 
-### Admin API (Staff 권한)
-| Method | Endpoint | 설명 |
-|--------|----------|------|
-| CRUD | `/api/admin/restaurants/` | 식당 관리 |
-| CRUD | `/api/admin/templates/` | 템플릿 관리 |
-| CRUD | `/api/admin/categories/` | 카테고리 관리 |
-| GET/PATCH | `/api/admin/users/` | 사용자 관리 |
-| GET | `/api/admin/kakao/search/` | 카카오 장소 검색 |
+**구조 변경(Tidying)과 동작 변경(Feature)은 반드시 별도 커밋으로 분리한다.**
 
----
+- Tidying 커밋: 동작을 바꾸지 않으면서 코드 구조만 개선 → `Refactor:` 접두사
+- Feature 커밋: 실제 기능 변경 → `Feat:`, `Fix:` 접두사
+- 하나의 커밋에 구조 변경과 동작 변경을 섞지 않는다
 
-## 빙고 라인 규칙
+#### Tidying 유형
 
-12개 라인 (가로 5, 세로 5, 대각선 2):
-```javascript
-WINNING_LINES = [
-  [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],  // 가로
-  [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24],  // 세로
-  [0,6,12,18,24], [4,8,12,16,20]  // 대각선
-]
-```
+1. **Guard Clauses**: 중첩 조건문을 early return으로 변환
+2. **Dead Code 제거**: 사용하지 않는 코드, import, 변수 삭제
+3. **변수/함수 이름 개선**: 의도를 더 명확하게 드러내는 이름으로 변경
+4. **Chunk Extraction**: 긴 함수에서 의미 단위를 별도 함수로 추출
+5. **순서 정리**: 관련 코드를 가까이 배치, 선언 순서 정리
 
----
+#### Tidying을 하지 말아야 할 때
 
-## 브랜드 컬러 (UI)
-
-| 컬러명 | HEX | 용도 |
-|--------|-----|------|
-| `brand-orange` | #FF8A00 | 메인 포인트 (버튼, 활성 셀) |
-| `brand-beige` | #FFF9F0 | 서브 배경 |
-| `brand-charcoal` | #1A1A1A | 텍스트 |
-| `brand-gold` | #FFD700 | 별점, 컨페티 |
-| `cell-inactive` | #F5F3F0 | 비활성 셀 |
-
-Tailwind CSS 4의 `@theme` 디렉티브로 `design-tokens.css`에서 정의.
+- 수정하지 않을 코드: 읽기만 할 파일의 스타일이 마음에 안 들어도 그대로 둔다
+- 급한 버그 수정 중: 먼저 버그를 수정하고, 이후 별도로 Tidying한다
+- 대규모 리팩토링: Tidying은 소규모(5분 이내)여야 한다. 대규모는 별도 작업으로 계획한다
 
 ---
 
@@ -214,99 +101,114 @@ npm run dev
 cd backend && python manage.py seed_data
 ```
 
----
-
-## 테스트 계정
+### 테스트 계정
 
 | 역할 | Username | Password |
 |------|----------|----------|
 | 일반 사용자 | testuser | testpass123 |
 | 관리자 | admin | admin1234 |
 
-관리자 계정 생성:
-```bash
-python manage.py shell -c "
-from django.contrib.auth.models import User
-user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@example.com'})
-user.set_password('admin1234')
-user.is_staff = True
-user.save()
-print('Admin account ready')
-"
+---
+
+## 디렉토리 구조
+
+```
+delicious_bingo/
+├── backend/
+│   ├── api/
+│   │   ├── models.py              # 데이터 모델
+│   │   ├── serializers.py         # DRF Serializers
+│   │   ├── serializers_admin.py   # Admin Serializers
+│   │   ├── views.py               # ViewSets + Auth APIs
+│   │   ├── views_admin.py         # Admin ViewSets
+│   │   ├── services.py            # BingoService (라인 감지)
+│   │   ├── services_oauth.py      # KakaoOAuthService (소셜 로그인)
+│   │   ├── permissions.py         # IsAdminUser
+│   │   ├── urls.py                # API 라우팅
+│   │   ├── tests.py               # Backend 테스트
+│   │   └── fixtures/initial_data.json
+│   ├── config/
+│   │   ├── settings.py
+│   │   └── urls.py
+│   ├── Dockerfile
+│   ├── start.sh
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── admin/                 # 관리자 모듈 (api/, components/, hooks/, pages/)
+│   │   ├── api/                   # Axios 인스턴스 + API 함수
+│   │   ├── components/            # bingo/, common/, forms/, map/, modals/, Layout
+│   │   ├── contexts/              # AuthContext, AuthProvider
+│   │   ├── hooks/                 # useAuth, useTemplates, useBoards 등
+│   │   ├── pages/                 # 페이지 컴포넌트
+│   │   ├── styles/design-tokens.css
+│   │   ├── utils/cn.js
+│   │   ├── constants/confetti.js
+│   │   ├── router.jsx
+│   │   └── main.jsx
+│   ├── e2e-dev-test.cjs           # 개발 E2E 테스트
+│   ├── e2e-prod-test.cjs          # 프로덕션 E2E 테스트
+│   └── package.json
+│
+├── PRD.md                         # 제품 요구사항
+├── DEPLOY.md                      # 배포 가이드 + 환경변수
+├── HISTORY.md                     # 개발 히스토리
+├── TROUBLESHOOTING.md             # 문제 해결
+└── README.md
 ```
 
 ---
 
-## 테스트 실행
+## 데이터 모델
+
+```
+Category (1) ──< Restaurant (N) ──< BingoTemplateItem (N) >── BingoTemplate (1)
+                                                                    │
+                                                                    v
+User (1) ──< BingoBoard (N) ──< Review (N) >── Restaurant
+  │
+  ├── UserProfile (1:1)     # 사용자 프로필 (닉네임)
+  └──< SocialAccount (N)    # 소셜 로그인 연동 정보
+```
+
+핵심 관계:
+- `BingoBoard`는 `BingoTemplate`을 복제하여 생성 (target_line_count: 1/3/5)
+- `Review` 생성 시 해당 `BingoBoard`의 셀이 활성화되고 라인 감지 실행
+- 소셜 로그인 사용자의 username은 `{provider}_{provider_user_id}` 형식
+
+---
+
+## 빙고 라인 규칙
+
+12개 라인 (가로 5, 세로 5, 대각선 2):
+```javascript
+WINNING_LINES = [
+  [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],  // 가로
+  [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24],  // 세로
+  [0,6,12,18,24], [4,8,12,16,20]  // 대각선
+]
+```
+
+라인 감지 로직: `backend/api/services.py` → `BingoService.check_lines()`
+
+---
+
+## 테스트
 
 ```bash
-# Backend (122개)
+# Backend
 cd backend && python manage.py test
 
-# Frontend (62개)
+# Frontend
 cd frontend && npm run test:run
 
-# E2E 개발 (17개) - 로컬 서버 실행 필요
+# E2E 개발 (로컬 서버 실행 필요)
 cd frontend && npm run e2e
 
-# E2E 프로덕션 (12개)
+# E2E 프로덕션
 cd frontend && npm run e2e:prod
 ```
-
----
-
-## 환경 변수
-
-### Backend (Railway)
-```bash
-SECRET_KEY=<Django secret key>
-DEBUG=False
-ALLOWED_HOSTS=<domain>
-DATABASE_URL=<PostgreSQL URL>
-CORS_ALLOWED_ORIGINS=<frontend URL>
-CLOUDINARY_URL=<Cloudinary URL>
-KAKAO_REST_API_KEY=<카카오 REST API 키>
-KAKAO_CLIENT_SECRET=<카카오 Client Secret>
-```
-
-### Frontend (Vercel)
-```bash
-VITE_API_URL=<backend URL>
-VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>
-```
-
----
-
-## 배포 아키텍처
-
-| 서비스 | 플랫폼 | 설정 파일 |
-|--------|--------|----------|
-| Backend | Railway (Docker) | `Dockerfile`, `start.sh` |
-| Frontend | Vercel | `vercel.json` |
-| Database | Railway PostgreSQL | - |
-| Images | Cloudinary | - |
-
-자세한 배포 가이드는 `DEPLOY.md` 참조.
-
----
-
-## TDD 개발 원칙
-
-### Red-Green-Refactor 사이클
-
-1. **Red**: 실패하는 테스트 먼저 작성
-2. **Green**: 테스트를 통과하는 최소한의 코드 작성
-3. **Refactor**: 테스트 통과 상태에서 코드 품질 개선
-
-### 테스트 작성 가이드
-
-| 상황 | 필요한 테스트 |
-|------|--------------|
-| API 응답 변경 | Serializer 필드 검증 테스트 |
-| 비즈니스 로직 | Service 레이어 단위 테스트 |
-| API 엔드포인트 | API 통합 테스트 |
-| 프론트엔드 컴포넌트 | 렌더링/인터랙션 테스트 |
-| 버그 수정 | 버그 재현 테스트 (regression) |
 
 ---
 
@@ -314,147 +216,49 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>
 
 ```
 1. 유닛 테스트 실행
-   ├── Backend:  python manage.py test
-   └── Frontend: npm run test:run
+   ├── Backend:  cd backend && python manage.py test
+   └── Frontend: cd frontend && npm run test:run
 
 2. E2E 개발 테스트 (로컬 서버 실행 상태)
-   └── npm run e2e
+   └── cd frontend && npm run e2e
 
 3. 커밋 & 푸시
-   └── git push origin master → 자동 배포
+   └── git push origin master → 자동 배포 (Railway + Vercel)
 
 4. E2E 프로덕션 테스트 (배포 후 1-2분 대기)
-   └── npm run e2e:prod
+   └── cd frontend && npm run e2e:prod
 ```
 
-**주의**: 테스트 실패 시 푸시 금지
-
----
-
-## 관리자 페이지
-
-### 접근 방법
-1. `is_staff=True` 계정으로 로그인
-2. `/admin` 경로 접근
-
-### 페이지 구성
-| 페이지 | 경로 | 기능 |
-|--------|------|------|
-| 대시보드 | `/admin` | 통계 카드 |
-| 식당 관리 | `/admin/restaurants` | CRUD + 카카오 검색 |
-| 템플릿 관리 | `/admin/templates` | 5x5 그리드 빌더 |
-| 카테고리 관리 | `/admin/categories` | 인라인 CRUD |
-| 사용자 관리 | `/admin/users` | is_staff/is_active 토글 |
-
----
-
-## 소셜 로그인 (카카오)
-
-### 인증 흐름
-1. 프론트엔드: `/api/auth/kakao/login/` 호출 → 카카오 로그인 URL 반환
-2. 사용자: 카카오 로그인 페이지에서 인증
-3. 카카오: redirect_uri로 인가 코드 전달
-4. 프론트엔드: `/api/auth/kakao/callback/`에 인가 코드 전송
-5. 백엔드: 토큰 발급 및 사용자 정보 조회 → DRF Token 반환
-
-### Username 생성 규칙
-소셜 로그인 사용자의 username은 `{provider}_{provider_user_id}` 형식으로 자동 생성됩니다.
-- 예시: `kakao_1234567890`
-- 장점: 고유성 보장, 소셜 계정 식별 용이
-
-### 모델 구조
-- **UserProfile**: 사용자 편집 가능 정보 (닉네임)
-- **SocialAccount**: 소셜 로그인 연동 정보 (provider, provider_user_id)
-
-### 로그인 페이지
-- 일반 사용자: 카카오 로그인만 표시
-- 관리자 로그인: `/login?mode=admin` URL로 접근
-
----
-
-## 모바일 반응형
-
-- **모바일 우선**: 기본 모바일 → `sm:` 데스크탑 확장
-- **햄버거 메뉴**: `md:hidden` 버튼
-- **바텀시트 모달**: `items-end sm:items-center`
-- **반응형 그리드**: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
+**테스트 실패 시 푸시 금지**
 
 ---
 
 ## 코드 컨벤션
 
-- **Backend**: Django/DRF 표준
-- **Frontend**: ESLint (react-hooks, react-refresh)
-- **커밋**: Co-Authored-By 포함
-- **커밋 메시지**: `Feat:`, `Fix:`, `Docs:`, `Refactor:` 접두사
+### 커밋 메시지
+- 접두사: `Feat:`, `Fix:`, `Docs:`, `Refactor:`, `Test:`
+- Tidying(구조 변경) 커밋: `Refactor:` 접두사 사용
+- Feature(동작 변경) 커밋: `Feat:`, `Fix:` 접두사 사용
+- Co-Authored-By 포함
+
+### Backend
+- Django/DRF 표준 패턴
+- 비즈니스 로직은 `services.py`에 분리 (View에서 직접 처리하지 않음)
+- 관리자 API는 `views_admin.py` / `serializers_admin.py`로 분리
+
+### Frontend
+- ESLint (react-hooks, react-refresh)
+- TanStack Query로 서버 상태 관리
+- Tailwind CSS 4 (`@theme` 디렉티브, `design-tokens.css`)
+- 관리자 모듈은 `src/admin/`에 독립적으로 관리
 
 ---
 
-## 문서 관리 가이드
+## 관련 문서
 
-### 문서별 용도 및 업데이트 원칙
-
-| 문서 | 용도 | 업데이트 시점 |
-|------|------|--------------|
-| **CLAUDE.md** | Claude Code가 프로젝트를 이해하기 위한 컨텍스트 | 기술 스택, 모델, API 변경 시 |
-| **PRD.md** | 제품 요구사항 명세 (Product Requirements Document) | 기능 추가, 아키텍처 변경 시 |
-| **HISTORY.md** | 개발 히스토리 및 구현 완료 기능 | 주요 기능 완료 시 |
-| **DEPLOY.md** | 배포 가이드 (환경 설정, 배포 절차) | 배포 프로세스 변경 시 |
-| **TROUBLESHOOTING.md** | 배포 및 개발 중 발생하는 문제 해결 | 새로운 문제 해결 시 |
-| **README.md** | 프로젝트 소개 및 시작 가이드 | 프로젝트 개요 변경 시 |
-
-### 기능 추가/변경 시 문서 업데이트 체크리스트
-
-**예시: 카카오 소셜 로그인 구현 시**
-
-- [x] **CLAUDE.md**
-  - 데이터 모델 다이어그램 (UserProfile, SocialAccount)
-  - API 엔드포인트 (카카오 로그인/콜백)
-  - 환경 변수 (KAKAO_CLIENT_SECRET)
-  - 소셜 로그인 섹션 추가
-  - 테스트 개수 업데이트 (87→119)
-
-- [x] **PRD.md**
-  - ERD 다이어그램 (UserProfile, SocialAccount 관계)
-  - 데이터 모델 상세 (UserProfile, SocialAccount 필드)
-  - API 명세 (카카오 엔드포인트)
-  - 환경 변수 목록
-  - 향후 계획 업데이트
-
-- [x] **HISTORY.md**
-  - 구현 완료 기능 요약 (카카오 소셜 로그인)
-  - 새로운 섹션 추가 (15. 카카오 소셜 로그인)
-  - 테스트 개수 업데이트
-  - 파일 구조 변경 (services_oauth.py)
-
-- [x] **DEPLOY.md**
-  - Railway 설정 (railway.json 사용법)
-  - 환경 변수 추가 (KAKAO_CLIENT_SECRET)
-  - 카카오 개발자 설정 상세 (Redirect URI, 동의항목)
-  - 배포 확인 방법 (카카오 로그인 테스트)
-  - 체크리스트 업데이트
-
-- [x] **TROUBLESHOOTING.md**
-  - Railway 배포 문제 (Root Directory, dotenv)
-  - 카카오 소셜 로그인 문제 (404, Redirect URI, 토큰 발급)
-
-### 문서 업데이트 원칙
-
-1. **일관성 유지**: 모든 문서에서 동일한 정보는 일관되게 업데이트
-2. **역할 분리**: 각 문서의 역할에 맞는 내용만 포함
-   - 설정 → DEPLOY.md
-   - 문제 해결 → TROUBLESHOOTING.md
-   - 기능 소개 → CLAUDE.md, PRD.md
-   - 완료 기록 → HISTORY.md
-3. **중복 최소화**: 상세 내용은 한 곳에만, 다른 곳에서는 참조
-4. **테스트 개수**: Backend/Frontend 테스트 개수는 실제 값과 일치해야 함
-
----
-
-## 향후 개선 계획
-
-- [x] 카카오 소셜 로그인 연동
-- [ ] 구글 소셜 로그인 연동
-- [ ] 리뷰 좋아요/댓글 기능
-- [ ] 맛집 검색 기능
-- [ ] 템플릿 공유 기능
+| 문서 | 내용 |
+|------|------|
+| `PRD.md` | 제품 요구사항, API 명세 (6절), 데이터 모델 상세 (5절), 향후 계획 (10절) |
+| `DEPLOY.md` | 배포 가이드, 환경변수 (5절), 외부 서비스 설정 (3절) |
+| `HISTORY.md` | 구현 완료 기능 히스토리 |
+| `TROUBLESHOOTING.md` | 배포/개발 문제 해결 |
