@@ -523,6 +523,7 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>  # 빌드 시점에 번들 포함
 - [x] 에러 모니터링 (Sentry 연동)
 - [x] 이미지 업로드 검증 (파일 타입, 용량 제한)
 - [x] DB 인덱스 추가 (Review, BingoBoard 등 주요 FK)
+- [ ] OCI Always Free Tier 이전 (Fly.io → OCI ARM VM Seoul, 상세: `OCI_MIGRATION_PLAN.md`)
 
 ### P1: 안정성 및 프로덕션 퀄리티
 - [x] 글로벌 에러 바운더리 + 토스트 알림 (react-hot-toast)
