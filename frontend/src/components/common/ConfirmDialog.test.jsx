@@ -91,5 +91,25 @@ describe('ConfirmDialog', () => {
       await user.keyboard('{Escape}');
       expect(onCancel).toHaveBeenCalledTimes(1);
     });
+
+    it('should focus cancel button when opened', () => {
+      render(<ConfirmDialog {...defaultProps} />);
+      expect(document.activeElement).toBe(screen.getByText('취소'));
+    });
+
+    it('should restore focus to previously focused element when closed', () => {
+      const button = document.createElement('button');
+      button.textContent = 'trigger';
+      document.body.appendChild(button);
+      button.focus();
+
+      const { rerender } = render(<ConfirmDialog {...defaultProps} />);
+      expect(document.activeElement).toBe(screen.getByText('취소'));
+
+      rerender(<ConfirmDialog {...defaultProps} isOpen={false} />);
+      expect(document.activeElement).toBe(button);
+
+      document.body.removeChild(button);
+    });
   });
 });
