@@ -27,8 +27,11 @@ flowchart TB
         Frontend["Frontend<br/>(Static Files)"]
     end
 
-    subgraph Railway["Railway"]
+    subgraph FlyIo["Fly.io"]
         Backend["Django 6.0<br/>+ DRF 3.16"]
+    end
+
+    subgraph Supabase["Supabase"]
         DB[(PostgreSQL)]
     end
 
@@ -53,9 +56,9 @@ flowchart TB
 |------|------|
 | **Frontend** | React 19, Vite 7, Tailwind CSS 4, React Router 7, TanStack Query 5 |
 | **Backend** | Django 6.0, Django REST Framework 3.16, Token Authentication |
-| **Database** | PostgreSQL (Railway) |
+| **Database** | PostgreSQL (Supabase) |
 | **Storage** | Cloudinary (이미지) |
-| **Deploy** | Vercel (Frontend), Railway (Backend) |
+| **Deploy** | Vercel (Frontend), Fly.io (Backend) |
 
 ---
 
@@ -131,6 +134,8 @@ delicious_bingo/
 │   │   ├── pages/              # 페이지 컴포넌트
 │   │   └── styles/             # 브랜드 컬러, 애니메이션
 │   └── package.json
+├── .dockerignore               # Docker 빌드 제외 파일
+├── fly.toml                    # Fly.io 배포 설정
 ├── CLAUDE.md                   # AI 개발 컨텍스트
 ├── DEPLOY.md                   # 배포 가이드
 ├── HISTORY.md                  # 개발 히스토리
@@ -145,7 +150,7 @@ delicious_bingo/
 | 문서 | 설명 |
 |------|------|
 | [PRD.md](./PRD.md) | 제품 요구사항, 데이터 모델, API 명세 |
-| [DEPLOY.md](./DEPLOY.md) | Railway/Vercel 배포 가이드 |
+| [DEPLOY.md](./DEPLOY.md) | Fly.io/Vercel 배포 가이드 |
 | [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | 배포 트러블슈팅 |
 | [HISTORY.md](./HISTORY.md) | 개발 히스토리 |
 | [CLAUDE.md](./CLAUDE.md) | AI 개발 컨텍스트 |
@@ -154,7 +159,8 @@ delicious_bingo/
 
 ## 배포
 
-자동 배포: `git push origin master` → Railway + Vercel 자동 빌드
+- Frontend: `git push origin master` → Vercel 자동 빌드
+- Backend: `fly deploy` → Fly.io 배포
 
 자세한 내용은 [DEPLOY.md](./DEPLOY.md) 참조.
 

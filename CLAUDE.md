@@ -152,6 +152,8 @@ delicious_bingo/
 │   ├── e2e-prod-test.cjs          # 프로덕션 E2E 테스트
 │   └── package.json
 │
+├── .dockerignore                  # Docker 빌드 제외 파일
+├── fly.toml                       # Fly.io 배포 설정
 ├── PRD.md                         # 제품 요구사항
 ├── DEPLOY.md                      # 배포 가이드 + 환경변수
 ├── HISTORY.md                     # 개발 히스토리
