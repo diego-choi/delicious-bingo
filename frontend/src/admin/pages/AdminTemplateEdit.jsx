@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { adminTemplatesApi, adminCategoriesApi, adminRestaurantsApi } from '../api/adminEndpoints';
 
 export default function AdminTemplateEdit() {
@@ -67,7 +68,7 @@ export default function AdminTemplateEdit() {
       });
     } catch (error) {
       console.error('템플릿 정보 로드 실패:', error);
-      alert('템플릿 정보를 불러오는데 실패했습니다.');
+      toast.error('템플릿 정보를 불러오는데 실패했습니다.');
       navigate('/admin/templates');
     } finally {
       setIsLoading(false);
@@ -94,7 +95,7 @@ export default function AdminTemplateEdit() {
     e.preventDefault();
 
     if (!formData.title.trim()) {
-      alert('템플릿 제목을 입력해주세요.');
+      toast.error('템플릿 제목을 입력해주세요.');
       return;
     }
 
@@ -122,7 +123,7 @@ export default function AdminTemplateEdit() {
       navigate('/admin/templates');
     } catch (error) {
       console.error('저장 실패:', error);
-      alert('저장에 실패했습니다.');
+      toast.error('저장에 실패했습니다.');
     } finally {
       setIsSaving(false);
     }

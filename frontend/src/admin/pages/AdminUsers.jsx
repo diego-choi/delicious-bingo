@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { adminUsersApi } from '../api/adminEndpoints';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -45,7 +46,7 @@ export default function AdminUsers() {
   const handleToggle = async (userId, field, currentValue) => {
     // 자기 자신의 권한/활성 상태를 해제하는 것만 방지 (True -> False)
     if (userId === currentUser?.id && currentValue === true) {
-      alert(field === 'is_staff'
+      toast.error(field === 'is_staff'
         ? '자기 자신의 관리자 권한을 해제할 수 없습니다.'
         : '자기 자신을 비활성화할 수 없습니다.');
       return;
@@ -57,7 +58,7 @@ export default function AdminUsers() {
       fetchUsers();
     } catch (error) {
       console.error('업데이트 실패:', error);
-      alert(error.response?.data?.error || '업데이트에 실패했습니다.');
+      toast.error(error.response?.data?.error || '업데이트에 실패했습니다.');
     } finally {
       setUpdatingUserId(null);
     }

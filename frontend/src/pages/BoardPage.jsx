@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useBoard, useCreateReview } from '../hooks/useBoards';
 import BingoGrid from '../components/bingo/BingoGrid';
 import BingoHeader from '../components/bingo/BingoHeader';
@@ -41,7 +42,7 @@ export default function BoardPage() {
       setSelectedCell(null);
     } catch (err) {
       console.error('리뷰 등록 실패:', err);
-      alert('리뷰 등록에 실패했습니다. 다시 시도해주세요.');
+      toast.error('리뷰 등록에 실패했습니다. 다시 시도해주세요.');
     }
   };
 

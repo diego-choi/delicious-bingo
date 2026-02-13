@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { adminRestaurantsApi, adminCategoriesApi } from '../api/adminEndpoints';
 
 export default function AdminRestaurants() {
@@ -54,7 +55,7 @@ export default function AdminRestaurants() {
       fetchRestaurants();
     } catch (error) {
       console.error('삭제 실패:', error);
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 

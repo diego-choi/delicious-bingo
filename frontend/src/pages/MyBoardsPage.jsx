@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useBoards, useDeleteBoard } from '../hooks/useBoards';
 
 export default function MyBoardsPage() {
@@ -11,7 +12,7 @@ export default function MyBoardsPage() {
       try {
         await deleteBoard.mutateAsync(id);
       } catch {
-        alert('삭제에 실패했습니다.');
+        toast.error('삭제에 실패했습니다.');
       }
     }
   };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { adminRestaurantsApi, adminCategoriesApi } from '../api/adminEndpoints';
 import KakaoPlaceSearch from '../components/KakaoPlaceSearch';
 
@@ -54,7 +55,7 @@ export default function AdminRestaurantEdit() {
       });
     } catch (error) {
       console.error('식당 정보 로드 실패:', error);
-      alert('식당 정보를 불러오는데 실패했습니다.');
+      toast.error('식당 정보를 불러오는데 실패했습니다.');
       navigate('/admin/restaurants');
     } finally {
       setIsLoading(false);
@@ -85,12 +86,12 @@ export default function AdminRestaurantEdit() {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      alert('식당명을 입력해주세요.');
+      toast.error('식당명을 입력해주세요.');
       return;
     }
 
     if (!formData.category) {
-      alert('카테고리를 선택해주세요.');
+      toast.error('카테고리를 선택해주세요.');
       return;
     }
 
@@ -114,7 +115,7 @@ export default function AdminRestaurantEdit() {
       navigate('/admin/restaurants');
     } catch (error) {
       console.error('저장 실패:', error);
-      alert('저장에 실패했습니다.');
+      toast.error('저장에 실패했습니다.');
     } finally {
       setIsSaving(false);
     }

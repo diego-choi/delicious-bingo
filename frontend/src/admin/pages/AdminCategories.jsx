@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { adminCategoriesApi } from '../api/adminEndpoints';
 
 export default function AdminCategories() {
@@ -35,7 +36,7 @@ export default function AdminCategories() {
       fetchCategories();
     } catch (error) {
       console.error('추가 실패:', error);
-      alert('카테고리 추가에 실패했습니다.');
+      toast.error('카테고리 추가에 실패했습니다.');
     }
   };
 
@@ -54,7 +55,7 @@ export default function AdminCategories() {
       fetchCategories();
     } catch (error) {
       console.error('수정 실패:', error);
-      alert('카테고리 수정에 실패했습니다.');
+      toast.error('카테고리 수정에 실패했습니다.');
     }
   };
 
@@ -66,7 +67,7 @@ export default function AdminCategories() {
       fetchCategories();
     } catch (error) {
       console.error('삭제 실패:', error);
-      alert('카테고리 삭제에 실패했습니다.');
+      toast.error('카테고리 삭제에 실패했습니다.');
     }
   };
 

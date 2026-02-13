@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useTemplate } from '../hooks/useTemplates';
 import { useCreateBoard } from '../hooks/useBoards';
 
@@ -16,7 +17,7 @@ export default function TemplateDetailPage() {
       });
       navigate(`/boards/${board.id}`);
     } catch {
-      alert('빙고 보드 생성에 실패했습니다. 로그인이 필요합니다.');
+      toast.error('빙고 보드 생성에 실패했습니다. 로그인이 필요합니다.');
     }
   };
 

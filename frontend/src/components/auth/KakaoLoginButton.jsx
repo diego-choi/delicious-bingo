@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { authApi } from '../../api/endpoints';
 
 /**
@@ -20,7 +21,7 @@ export function KakaoLoginButton({ className = '', disabled = false }) {
       window.location.href = url;
     } catch (error) {
       console.error('Failed to get Kakao auth URL:', error);
-      alert('카카오 로그인을 시작할 수 없습니다.');
+      toast.error('카카오 로그인을 시작할 수 없습니다.');
       setIsLoading(false);
     }
   };
