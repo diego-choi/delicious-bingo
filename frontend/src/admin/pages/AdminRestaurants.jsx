@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { adminRestaurantsApi, adminCategoriesApi } from '../api/adminEndpoints';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
 
 export default function AdminRestaurants() {
   const [restaurants, setRestaurants] = useState([]);
@@ -10,6 +12,7 @@ export default function AdminRestaurants() {
   const [pagination, setPagination] = useState({ count: 0, next: null, previous: null });
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({ search: '', category: '', is_approved: '' });
+  const { confirm, ...dialogProps } = useConfirmDialog();
 
   useEffect(() => {
     fetchRestaurants();
@@ -48,7 +51,13 @@ export default function AdminRestaurants() {
   };
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`"${name}" 식당을 삭제하시겠습니까?`)) return;
+    const confirmed = await confirm({
+      title: '식당 삭제',
+      message: `"${name}" 식당을 삭제하시겠습니까?`,
+      confirmText: '삭제',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     try {
       await adminRestaurantsApi.delete(id);
@@ -222,6 +231,7 @@ export default function AdminRestaurants() {
           </>
         )}
       </div>
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

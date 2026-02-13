@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { adminTemplatesApi, adminCategoriesApi } from '../api/adminEndpoints';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
 
 export default function AdminTemplates() {
   const [templates, setTemplates] = useState([]);
@@ -10,6 +12,7 @@ export default function AdminTemplates() {
   const [pagination, setPagination] = useState({ count: 0, next: null, previous: null });
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({ search: '', category: '', is_active: '' });
+  const { confirm, ...dialogProps } = useConfirmDialog();
 
   useEffect(() => {
     fetchTemplates();
@@ -48,7 +51,13 @@ export default function AdminTemplates() {
   };
 
   const handleDelete = async (id, title) => {
-    if (!window.confirm(`"${title}" 템플릿을 삭제하시겠습니까?`)) return;
+    const confirmed = await confirm({
+      title: '템플릿 삭제',
+      message: `"${title}" 템플릿을 삭제하시겠습니까?`,
+      confirmText: '삭제',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     try {
       await adminTemplatesApi.delete(id);
@@ -237,6 +246,7 @@ export default function AdminTemplates() {
           </>
         )}
       </div>
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

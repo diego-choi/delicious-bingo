@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { adminCategoriesApi } from '../api/adminEndpoints';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
@@ -9,6 +11,7 @@ export default function AdminCategories() {
   const [editName, setEditName] = useState('');
   const [newName, setNewName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const { confirm, ...dialogProps } = useConfirmDialog();
 
   useEffect(() => {
     fetchCategories();
@@ -60,7 +63,13 @@ export default function AdminCategories() {
   };
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`"${name}" 카테고리를 삭제하시겠습니까?\n연결된 식당과 템플릿의 카테고리가 제거됩니다.`)) return;
+    const confirmed = await confirm({
+      title: '카테고리 삭제',
+      message: `"${name}" 카테고리를 삭제하시겠습니까?\n연결된 식당과 템플릿의 카테고리가 제거됩니다.`,
+      confirmText: '삭제',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     try {
       await adminCategoriesApi.delete(id);
@@ -198,6 +207,7 @@ export default function AdminCategories() {
           </div>
         )}
       </div>
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

@@ -1,14 +1,23 @@
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useBoards, useDeleteBoard } from '../hooks/useBoards';
+import { useConfirmDialog } from '../hooks/useConfirmDialog';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 
 export default function MyBoardsPage() {
   const { data, isLoading, error } = useBoards();
   const deleteBoard = useDeleteBoard();
+  const { confirm, ...dialogProps } = useConfirmDialog();
 
   const handleDelete = async (id, e) => {
     e.preventDefault();
-    if (confirm('정말 이 빙고 보드를 삭제하시겠습니까?')) {
+    const confirmed = await confirm({
+      title: '빙고 보드 삭제',
+      message: '정말 이 빙고 보드를 삭제하시겠습니까?',
+      confirmText: '삭제',
+      variant: 'danger',
+    });
+    if (confirmed) {
       try {
         await deleteBoard.mutateAsync(id);
       } catch {
@@ -92,6 +101,7 @@ export default function MyBoardsPage() {
           ))}
         </div>
       )}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }
