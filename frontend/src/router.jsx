@@ -6,6 +6,7 @@ import TemplateDetailPage from './pages/TemplateDetailPage';
 import MyBoardsPage from './pages/MyBoardsPage';
 import BoardPage from './pages/BoardPage';
 import LeaderboardPage from './pages/LeaderboardPage';
+import ReviewFeedPage from './pages/ReviewFeedPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import KakaoCallbackPage from './pages/KakaoCallbackPage';
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
       {
         path: 'boards/:id',
         element: <BoardPage />,
+      },
+      {
+        path: 'feed',
+        element: <ReviewFeedPage />,
       },
       {
         path: 'leaderboard',

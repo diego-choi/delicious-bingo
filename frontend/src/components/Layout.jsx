@@ -6,6 +6,7 @@ const navItems = [
   { path: '/', label: '홈' },
   { path: '/templates', label: '빙고 템플릿' },
   { path: '/boards', label: '내 빙고', requiresAuth: true },
+  { path: '/feed', label: '리뷰 피드' },
   { path: '/leaderboard', label: '리더보드' },
 ];
 

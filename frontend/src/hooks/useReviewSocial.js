@@ -13,6 +13,7 @@ export function useToggleLike(boardId) {
       if (boardId) {
         queryClient.invalidateQueries({ queryKey: ['board', String(boardId)] });
       }
+      queryClient.invalidateQueries({ queryKey: ['reviewFeed'] });
     },
   });
 }
@@ -43,6 +44,7 @@ export function useCreateComment(boardId) {
       if (boardId) {
         queryClient.invalidateQueries({ queryKey: ['board', String(boardId)] });
       }
+      queryClient.invalidateQueries({ queryKey: ['reviewFeed'] });
     },
   });
 }
@@ -62,6 +64,7 @@ export function useDeleteComment(boardId) {
       if (boardId) {
         queryClient.invalidateQueries({ queryKey: ['board', String(boardId)] });
       }
+      queryClient.invalidateQueries({ queryKey: ['reviewFeed'] });
     },
   });
 }

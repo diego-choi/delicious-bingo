@@ -27,6 +27,7 @@ export const reviewsApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
   getById: (id) => apiClient.get(`/reviews/${id}/`),
+  getFeed: (page = 1) => apiClient.get('/reviews/feed/', { params: { page } }),
   toggleLike: (reviewId) => apiClient.post(`/reviews/${reviewId}/like/`),
   getComments: (reviewId) => apiClient.get(`/reviews/${reviewId}/comments/`),
   createComment: (reviewId, content) =>
