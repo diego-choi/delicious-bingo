@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator, MinLengthValidator
+from .validators import validate_image_file_size
 
 
 class Category(models.Model):
@@ -82,6 +83,12 @@ class BingoBoard(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['is_completed', 'completed_at']),
+        ]
+
     def __str__(self):
         return f"{self.user.username}'s {self.template.title} Board"
 
@@ -94,7 +101,7 @@ class Review(models.Model):
     restaurant = models.ForeignKey(
         Restaurant, on_delete=models.CASCADE, related_name="reviews"
     )
-    image = models.ImageField(upload_to="reviews/")
+    image = models.ImageField(upload_to="reviews/", validators=[validate_image_file_size])
     content = models.TextField(validators=[MinLengthValidator(10)])
     rating = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
@@ -105,6 +112,9 @@ class Review(models.Model):
 
     class Meta:
         unique_together = ["bingo_board", "restaurant"]
+        indexes = [
+            models.Index(fields=['is_public', '-created_at']),
+        ]
 
     def __str__(self):
         return f"{self.user.username}'s review for {self.restaurant.name}"

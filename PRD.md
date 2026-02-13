@@ -470,7 +470,7 @@ erDiagram
 ### 테스트 커버리지
 | 영역 | 테스트 수 | 도구 |
 |------|----------|------|
-| Backend 유닛 | 154개 | Django TestCase |
+| Backend 유닛 | 169개 | Django TestCase |
 | Frontend 유닛 | 87개 | Vitest + Testing Library |
 | E2E 개발 | 18개 | Playwright |
 | E2E 프로덕션 | 13개 | Playwright |
@@ -515,11 +515,11 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>  # 빌드 시점에 번들 포함
 우선순위 기준: 보안 > 안정성/운영 > 사용자 경험 > 기능 확장
 
 ### P0: 보안 및 운영 필수
-- [ ] API Rate Limiting (로그인/회원가입 brute force 방지)
-- [ ] Health Check 엔드포인트 (`/api/health/`)
-- [ ] 에러 모니터링 (Sentry 연동)
-- [ ] 이미지 업로드 검증 (파일 타입, 용량 제한)
-- [ ] DB 인덱스 추가 (Review, BingoBoard 등 주요 FK)
+- [x] API Rate Limiting (로그인/회원가입 brute force 방지)
+- [x] Health Check 엔드포인트 (`/api/health/`)
+- [x] 에러 모니터링 (Sentry 연동)
+- [x] 이미지 업로드 검증 (파일 타입, 용량 제한)
+- [x] DB 인덱스 추가 (Review, BingoBoard 등 주요 FK)
 
 ### P1: 안정성 및 프로덕션 퀄리티
 - [ ] 글로벌 에러 바운더리 + 토스트 알림

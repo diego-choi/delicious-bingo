@@ -722,6 +722,10 @@ class LeaderboardAPITest(APITestCase):
 class RegisterAPITest(APITestCase):
     """회원가입 API 테스트"""
 
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+
     def test_register_success(self):
         """정상적인 회원가입"""
         response = self.client.post('/api/auth/register/', {
@@ -2475,3 +2479,92 @@ class ReviewFeedAPITest(APITestCase):
         self.assertIn('count', response.data)
         self.assertIn('next', response.data)
         self.assertIn('results', response.data)
+
+
+# =============================================================================
+# P0: Health Check API 테스트
+# =============================================================================
+
+class HealthCheckAPITest(APITestCase):
+    """Health Check 엔드포인트 테스트"""
+
+    def test_health_check_returns_ok(self):
+        """GET /api/health/ 는 200과 status: ok를 반환해야 한다"""
+        response = self.client.get('/api/health/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['status'], 'ok')
+
+
+# =============================================================================
+# P0: API Rate Limiting 테스트
+# =============================================================================
+
+from django.test import override_settings
+
+
+class AuthRateLimitTest(APITestCase):
+    """로그인/회원가입 Rate Limiting 테스트"""
+
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+        self.user = User.objects.create_user('testuser', password='testpass123')
+
+    def tearDown(self):
+        from django.core.cache import cache
+        cache.clear()
+
+    @override_settings(
+        CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
+    )
+    def test_login_rate_limited_after_excessive_requests(self):
+        """로그인 엔드포인트는 과도한 요청 시 429를 반환해야 한다"""
+        from unittest.mock import patch
+        from django.core.cache import cache
+        cache.clear()
+        with patch.object(
+            __import__('api.throttles', fromlist=['AuthRateThrottle']).AuthRateThrottle,
+            'THROTTLE_RATES', {'auth': '3/minute'}
+        ):
+            data = {'username': 'testuser', 'password': 'wrongpass'}
+            for _ in range(3):
+                self.client.post('/api/auth/login/', data)
+            response = self.client.post('/api/auth/login/', data)
+            self.assertEqual(response.status_code, 429)
+
+    @override_settings(
+        CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
+    )
+    def test_register_rate_limited_after_excessive_requests(self):
+        """회원가입 엔드포인트는 과도한 요청 시 429를 반환해야 한다"""
+        from unittest.mock import patch
+        from django.core.cache import cache
+        cache.clear()
+        with patch.object(
+            __import__('api.throttles', fromlist=['AuthRateThrottle']).AuthRateThrottle,
+            'THROTTLE_RATES', {'auth': '3/minute'}
+        ):
+            data = {'username': 'x', 'password': 'short', 'password_confirm': 'short', 'email': 'x@x.com'}
+            for _ in range(3):
+                self.client.post('/api/auth/register/', data)
+            response = self.client.post('/api/auth/register/', data)
+            self.assertEqual(response.status_code, 429)
+
+
+# =============================================================================
+# P0: 이미지 업로드 크기 검증 테스트
+# =============================================================================
+
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+
+class ImageUploadValidationTest(TestCase):
+    """이미지 업로드 크기 검증 테스트"""
+
+    def test_oversized_image_rejected(self):
+        """5MB를 초과하는 이미지는 거부되어야 한다"""
+        from api.validators import validate_image_file_size
+        from django.core.exceptions import ValidationError
+        large_file = SimpleUploadedFile('big.jpg', b'x' * (5 * 1024 * 1024 + 1), content_type='image/jpeg')
+        with self.assertRaises(ValidationError):
+            validate_image_file_size(large_file)

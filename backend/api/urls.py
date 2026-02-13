@@ -18,6 +18,7 @@ admin_router.register('categories', views_admin.AdminCategoryViewSet, basename='
 admin_router.register('users', views_admin.AdminUserViewSet, basename='admin-user')
 
 urlpatterns = [
+    path('health/', views.health_check, name='health-check'),
     path('reviews/feed/', views.review_feed, name='review-feed'),
     path('', include(router.urls)),
     path('admin/', include(admin_router.urls)),

@@ -253,6 +253,13 @@ def review_comments(request, review_id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health_check(request):
+    """Health Check 엔드포인트"""
+    return Response({'status': 'ok'})
+
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def review_comment_delete(request, review_id, comment_id):
