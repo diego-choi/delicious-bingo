@@ -85,6 +85,42 @@ class ReviewSerializer(serializers.ModelSerializer):
         return False
 
 
+class ReviewFeedSerializer(serializers.ModelSerializer):
+    restaurant_name = serializers.CharField(source='restaurant.name', read_only=True)
+    display_name = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Review
+        fields = [
+            'id', 'restaurant', 'restaurant_name', 'display_name',
+            'image', 'content', 'rating', 'visited_date', 'created_at',
+            'like_count', 'comment_count', 'is_liked',
+        ]
+
+    def get_display_name(self, obj):
+        try:
+            if obj.user.profile.nickname:
+                return obj.user.profile.nickname
+        except Exception:
+            pass
+        return obj.user.username
+
+    def get_like_count(self, obj):
+        return obj.likes.count()
+
+    def get_comment_count(self, obj):
+        return obj.comments.count()
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
+
+
 class ReviewCommentSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     display_name = serializers.SerializerMethodField()

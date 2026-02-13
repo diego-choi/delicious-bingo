@@ -564,6 +564,26 @@ def profile_view(request):
 
 
 # =============================================================================
+# Review Feed API
+# =============================================================================
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def review_feed(request):
+    """공개 리뷰 피드 - 최신순, 페이지네이션"""
+    from rest_framework.pagination import PageNumberPagination
+    from .serializers import ReviewFeedSerializer
+
+    reviews = Review.objects.filter(is_public=True).select_related(
+        'restaurant', 'user', 'user__profile'
+    ).order_by('-created_at')
+    paginator = PageNumberPagination()
+    page = paginator.paginate_queryset(reviews, request)
+    serializer = ReviewFeedSerializer(page, many=True, context={'request': request})
+    return paginator.get_paginated_response(serializer.data)
+
+
+# =============================================================================
 # Review Social (Like/Comment) APIs
 # =============================================================================
 
