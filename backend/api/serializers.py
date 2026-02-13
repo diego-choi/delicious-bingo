@@ -58,6 +58,16 @@ class BingoTemplateDetailSerializer(serializers.ModelSerializer):
 # Phase 2: Review & BingoBoard Serializers
 # =============================================================================
 
+def _get_display_name(user):
+    """사용자 표시 이름: profile.nickname 우선, 없으면 username"""
+    try:
+        if user.profile.nickname:
+            return user.profile.nickname
+    except Exception:
+        pass
+    return user.username
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     like_count = serializers.SerializerMethodField()
     comment_count = serializers.SerializerMethodField()
@@ -85,40 +95,20 @@ class ReviewSerializer(serializers.ModelSerializer):
         return False
 
 
-class ReviewFeedSerializer(serializers.ModelSerializer):
+class ReviewFeedSerializer(ReviewSerializer):
     restaurant_name = serializers.CharField(source='restaurant.name', read_only=True)
     display_name = serializers.SerializerMethodField()
-    like_count = serializers.SerializerMethodField()
-    comment_count = serializers.SerializerMethodField()
-    is_liked = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Review
+    class Meta(ReviewSerializer.Meta):
         fields = [
             'id', 'restaurant', 'restaurant_name', 'display_name',
             'image', 'content', 'rating', 'visited_date', 'created_at',
             'like_count', 'comment_count', 'is_liked',
         ]
+        read_only_fields = []
 
     def get_display_name(self, obj):
-        try:
-            if obj.user.profile.nickname:
-                return obj.user.profile.nickname
-        except Exception:
-            pass
-        return obj.user.username
-
-    def get_like_count(self, obj):
-        return obj.likes.count()
-
-    def get_comment_count(self, obj):
-        return obj.comments.count()
-
-    def get_is_liked(self, obj):
-        request = self.context.get('request')
-        if request and hasattr(request, 'user') and request.user.is_authenticated:
-            return obj.likes.filter(user=request.user).exists()
-        return False
+        return _get_display_name(obj.user)
 
 
 class ReviewCommentSerializer(serializers.ModelSerializer):
@@ -131,12 +121,7 @@ class ReviewCommentSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
     def get_display_name(self, obj):
-        try:
-            if obj.user.profile.nickname:
-                return obj.user.profile.nickname
-        except Exception:
-            pass
-        return obj.user.username
+        return _get_display_name(obj.user)
 
 
 class ReviewCommentCreateSerializer(serializers.ModelSerializer):
