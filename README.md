@@ -2,7 +2,7 @@
 
 맛집 탐방을 게임화한 5x5 빙고 웹 애플리케이션입니다.
 
-**Live Demo**: https://delicious-bingo.vercel.app
+**Live Demo**: https://delicious-bingo.fly.dev
 
 ---
 
@@ -23,12 +23,8 @@ flowchart TB
         React["React 19 + Vite 7"]
     end
 
-    subgraph Vercel["Vercel"]
-        Frontend["Frontend<br/>(Static Files)"]
-    end
-
     subgraph FlyIo["Fly.io"]
-        Backend["Django 6.0<br/>+ DRF 3.16"]
+        Backend["Django 6.0 + DRF 3.16<br/>(Backend + SPA)"]
     end
 
     subgraph Supabase["Supabase"]
@@ -41,8 +37,7 @@ flowchart TB
         KakaoLocal["Kakao Local<br/>(REST API)"]
     end
 
-    React -->|HTTPS| Frontend
-    Frontend -->|API Calls| Backend
+    React -->|HTTPS| Backend
     Backend -->|SQL| DB
     Backend -->|Upload| Cloudinary
     Backend -->|Search| KakaoLocal
@@ -58,7 +53,7 @@ flowchart TB
 | **Backend** | Django 6.0, Django REST Framework 3.16, Token Authentication |
 | **Database** | PostgreSQL (Supabase) |
 | **Storage** | Cloudinary (이미지) |
-| **Deploy** | Vercel (Frontend), Fly.io (Backend) |
+| **Deploy** | Fly.io (Django + SPA 단일 배포) |
 
 ---
 
@@ -122,7 +117,6 @@ delicious_bingo/
 │   │   ├── services.py         # 빙고 라인 판정 로직
 │   │   └── fixtures/           # 초기 데이터
 │   ├── config/                 # Django 설정
-│   ├── Dockerfile              # 프로덕션 빌드
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
@@ -134,6 +128,7 @@ delicious_bingo/
 │   │   ├── pages/              # 페이지 컴포넌트
 │   │   └── styles/             # 브랜드 컬러, 애니메이션
 │   └── package.json
+├── Dockerfile                  # Multi-stage build (Node + Python)
 ├── .dockerignore               # Docker 빌드 제외 파일
 ├── fly.toml                    # Fly.io 배포 설정
 ├── CLAUDE.md                   # AI 개발 컨텍스트
@@ -150,7 +145,7 @@ delicious_bingo/
 | 문서 | 설명 |
 |------|------|
 | [PRD.md](./PRD.md) | 제품 요구사항, 데이터 모델, API 명세 |
-| [DEPLOY.md](./DEPLOY.md) | Fly.io/Vercel 배포 가이드 |
+| [DEPLOY.md](./DEPLOY.md) | Fly.io 배포 가이드 |
 | [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | 배포 트러블슈팅 |
 | [HISTORY.md](./HISTORY.md) | 개발 히스토리 |
 | [CLAUDE.md](./CLAUDE.md) | AI 개발 컨텍스트 |
@@ -159,8 +154,9 @@ delicious_bingo/
 
 ## 배포
 
-- Frontend: `git push origin master` → Vercel 자동 빌드
-- Backend: `fly deploy` → Fly.io 배포
+```bash
+fly deploy
+```
 
 자세한 내용은 [DEPLOY.md](./DEPLOY.md) 참조.
 

@@ -3,29 +3,30 @@
 ## 배포 아키텍처
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│     Vercel      │────▶│     Fly.io      │────▶│    Supabase     │
-│   (Frontend)    │     │   (Backend)     │     │  (PostgreSQL)   │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-                               │
-                               ▼
-                        ┌─────────────────┐
-                        │   Cloudinary    │
-                        │ (Image Storage) │
-                        └─────────────────┘
+┌─────────────────┐     ┌─────────────────┐
+│     Fly.io      │────▶│    Supabase     │
+│ (Django + SPA)  │     │  (PostgreSQL)   │
+└─────────────────┘     └─────────────────┘
+        │
+        ▼
+┌─────────────────┐
+│   Cloudinary    │
+│ (Image Storage) │
+└─────────────────┘
 ```
 
 | 서비스 | 용도 | URL |
 |--------|------|-----|
-| Vercel | Frontend (React + Vite) | https://delicious-bingo.vercel.app |
-| Fly.io | Backend (Django + DRF) | https://delicious-bingo.fly.dev |
+| Fly.io | Django Backend + React SPA | https://delicious-bingo.fly.dev |
 | Supabase | PostgreSQL Database | - |
 | Cloudinary | 이미지 저장소 | - |
 | Kakao | 지도 표시 + 장소 검색 | - |
 
+Django가 WhiteNoise를 통해 Vite SPA 빌드 결과물을 함께 서빙합니다 (same-origin, CORS 불필요).
+
 ---
 
-## 1. Backend 배포 (Fly.io)
+## 1. 배포 (Fly.io)
 
 ### 1.1 사전 준비
 ```bash
@@ -45,13 +46,19 @@ fly apps create delicious-bingo
 fly deploy
 ```
 
-`fly.toml` 설정 (프로젝트 루트):
+`Dockerfile` (프로젝트 루트) — Multi-stage build:
+1. **Stage 1**: Node.js에서 Frontend 빌드 (`npm run build`)
+2. **Stage 2**: Python에서 Backend + Frontend 빌드 결과물 서빙
+
+`fly.toml` 설정:
 ```toml
 app = 'delicious-bingo'
 primary_region = 'nrt'
 
 [build]
-  dockerfile = 'backend/Dockerfile'
+  dockerfile = 'Dockerfile'
+  [build.args]
+    VITE_KAKAO_JS_KEY = "<카카오-JavaScript-키>"
 
 [http_service]
   internal_port = 8000
@@ -66,9 +73,6 @@ primary_region = 'nrt'
   cpus = 1
 ```
 
-빌드 컨텍스트는 프로젝트 루트이며, `backend/Dockerfile`이 `backend/` 디렉토리의 파일을 복사합니다.
-`.dockerignore`(프로젝트 루트)로 frontend, .git 등 불필요한 파일을 제외합니다.
-
 ### 1.3 환경 변수 (Secrets)
 ```bash
 fly secrets set \
@@ -76,13 +80,12 @@ fly secrets set \
   DEBUG=False \
   ALLOWED_HOSTS=.fly.dev \
   DATABASE_URL=<Supabase-PostgreSQL-URI> \
-  CORS_ALLOWED_ORIGINS=https://delicious-bingo.vercel.app \
   CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME \
   KAKAO_REST_API_KEY=<카카오-REST-API-키> \
   KAKAO_CLIENT_SECRET=<카카오-Client-Secret>
 ```
 
-**주의**: `python-dotenv`는 프로덕션에서 불필요합니다. `settings.py`에서 선택적 import 처리됨.
+**참고**: `VITE_KAKAO_JS_KEY`는 `fly.toml`의 `[build.args]`에서 설정 (빌드 시점에 번들에 포함).
 
 > Secret Key 생성: `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
 
@@ -113,61 +116,32 @@ psql <SUPABASE_DATABASE_URL> < backup.sql
 
 ---
 
-## 3. Frontend 배포 (Vercel)
+## 3. 외부 서비스 설정
 
-### 3.1 프로젝트 생성
-1. [Vercel](https://vercel.com) → GitHub 로그인
-2. "New Project" → 저장소 Import
-3. Framework: Vite, Root Directory: `frontend`
-
-### 3.2 환경 변수 (배포 전 필수 설정)
-| 변수 | 값 |
-|------|-----|
-| `VITE_API_URL` | `https://delicious-bingo.fly.dev/api` |
-| `VITE_KAKAO_JS_KEY` | `<카카오-JavaScript-키>` |
-
-> **중요**: Vite는 빌드 시점에 환경변수를 번들에 포함하므로, 반드시 배포 전에 설정
-
-### 3.3 자동 배포 설정
-
-**Git Integration 연결**:
-1. Settings → Git → Connect Git Repository
-2. GitHub 저장소 선택
-
-**선택적 빌드 (Ignored Build Step)**:
-1. Settings → Build and Deployment → Ignored Build Step
-2. Custom 선택 → `git diff --quiet HEAD^ HEAD -- .`
-
-> frontend/ 변경 시에만 빌드 실행, 다른 파일 변경 시 스킵
-
----
-
-## 4. 외부 서비스 설정
-
-### 4.1 Cloudinary
+### 3.1 Cloudinary
 1. [Cloudinary](https://cloudinary.com) 가입
 2. Dashboard에서 Cloud Name, API Key, API Secret 확인
 3. Fly.io secrets에 `CLOUDINARY_URL` 설정
 
-### 4.2 카카오 개발자
+### 3.2 카카오 개발자
 
 #### 애플리케이션 설정
 1. [카카오 개발자](https://developers.kakao.com) → 애플리케이션 생성
 2. 앱 키 확인:
    - **REST API 키** → Fly.io `KAKAO_REST_API_KEY`
-   - **JavaScript 키** → Vercel `VITE_KAKAO_JS_KEY`
+   - **JavaScript 키** → `fly.toml` `VITE_KAKAO_JS_KEY` (build arg)
 
 #### 플랫폼 설정
 3. 플랫폼 → Web → 사이트 도메인 등록:
    - `http://localhost:5173` (개발)
-   - `https://delicious-bingo.vercel.app` (프로덕션)
+   - `https://delicious-bingo.fly.dev` (프로덕션)
 
 #### 카카오 로그인 설정 (소셜 로그인용)
 4. 제품 설정 → 카카오 로그인:
    - **카카오 로그인 활성화**: ON
    - **Redirect URI** 등록:
      - `http://localhost:5173/auth/kakao/callback` (개발)
-     - `https://delicious-bingo.vercel.app/auth/kakao/callback` (프로덕션)
+     - `https://delicious-bingo.fly.dev/auth/kakao/callback` (프로덕션)
 
 5. 동의항목 설정:
    - **닉네임**: 필수 동의
@@ -180,19 +154,25 @@ psql <SUPABASE_DATABASE_URL> < backup.sql
 
 ---
 
-## 5. 배포 확인
+## 4. 배포 확인
 
 ### API 테스트
 ```bash
+# SPA 로드
+curl https://delicious-bingo.fly.dev/
+
 # 카테고리 API
 curl https://delicious-bingo.fly.dev/api/categories/
 
-# 카카오 로그인 URL 생성
-curl "https://delicious-bingo.fly.dev/api/auth/kakao/authorize/?redirect_uri=https://delicious-bingo.vercel.app/auth/kakao/callback"
+# Cache-Control 헤더 확인 (index.html은 no-cache)
+curl -I https://delicious-bingo.fly.dev/
+
+# Django Admin
+# https://delicious-bingo.fly.dev/django-admin/
 ```
 
 ### 카카오 소셜 로그인 수동 테스트
-1. https://delicious-bingo.vercel.app 접속
+1. https://delicious-bingo.fly.dev 접속
 2. 카카오 로그인 버튼 클릭
 3. 카카오 계정으로 로그인
 4. 콜백 후 프로필 페이지 확인
@@ -203,53 +183,37 @@ curl "https://delicious-bingo.fly.dev/api/auth/kakao/authorize/?redirect_uri=htt
 cd frontend && npm run e2e:prod
 ```
 
-**예상 결과**: 15개 테스트 중 13개 이상 성공 (프로필 관련 2개는 테스트 데이터 의존)
-
 ---
 
-## 6. 환경 변수 요약
+## 5. 환경 변수 요약
 
-### Fly.io (Backend)
+### Fly.io Secrets
 | 변수 | 필수 | 설명 |
 |------|:----:|------|
 | `SECRET_KEY` | O | Django 시크릿 키 |
 | `DEBUG` | O | `False` |
 | `ALLOWED_HOSTS` | O | `.fly.dev` |
 | `DATABASE_URL` | O | Supabase PostgreSQL URI |
-| `CORS_ALLOWED_ORIGINS` | O | Vercel URL |
 | `CLOUDINARY_URL` | O | 이미지 저장소 |
 | `KAKAO_REST_API_KEY` | O | 카카오 REST API 키 (소셜 로그인 + 장소 검색) |
 | `KAKAO_CLIENT_SECRET` | O | 카카오 Client Secret (소셜 로그인 보안) |
 
-### Vercel (Frontend)
-| 변수 | 필수 | 설명 |
-|------|:----:|------|
-| `VITE_API_URL` | O | Backend API URL |
-| `VITE_KAKAO_JS_KEY` | - | 지도 표시 |
+### fly.toml Build Args
+| 변수 | 설명 |
+|------|------|
+| `VITE_KAKAO_JS_KEY` | 카카오 JavaScript 키 (지도 표시, 클라이언트 공개 키) |
 
 ---
 
-## 7. 업데이트 배포
+## 6. 업데이트 배포
 
-### Backend (Fly.io)
 ```bash
 fly deploy
 ```
 
-### Frontend (Vercel)
-```bash
-git push origin master
-# → Vercel 자동 빌드 및 배포
-```
-
-### 수동 배포 (Frontend)
-```bash
-cd frontend && vercel --prod
-```
-
 ---
 
-## 8. 운영 명령어
+## 7. 운영 명령어
 
 ```bash
 # 로그 확인
@@ -270,7 +234,7 @@ fly scale memory 512
 
 ---
 
-## 9. 체크리스트
+## 8. 체크리스트
 
 ### 환경 설정
 - [ ] Supabase 프로젝트 생성 (Tokyo 리전)
@@ -279,10 +243,10 @@ fly scale memory 512
 - [ ] `DEBUG=False`
 - [ ] `ALLOWED_HOSTS` 설정
 - [ ] `DATABASE_URL` 설정 (Supabase URI)
-- [ ] `CORS_ALLOWED_ORIGINS` 설정
 - [ ] `CLOUDINARY_URL` 설정
 - [ ] `KAKAO_REST_API_KEY` 설정
 - [ ] `KAKAO_CLIENT_SECRET` 설정
+- [ ] `VITE_KAKAO_JS_KEY` 설정 (fly.toml build args)
 - [ ] 카카오 플랫폼 도메인 등록
 - [ ] 카카오 Redirect URI 등록
 - [ ] 카카오 동의항목 설정
@@ -290,24 +254,23 @@ fly scale memory 512
 ### 배포
 - [ ] Fly.io 앱 생성
 - [ ] `fly deploy` 성공
-- [ ] Vercel `VITE_API_URL` 업데이트 → Redeploy
+- [ ] SPA 로드 확인
 - [ ] API 테스트 통과
 - [ ] E2E 프로덕션 테스트 통과
 
 ---
 
-## 10. 비용
+## 9. 비용
 
 | 서비스 | 무료 티어 |
 |--------|----------|
 | Fly.io | 3 shared-cpu-1x VMs, 256MB RAM 각각 |
 | Supabase | 500MB DB, 1GB 대역폭/월 |
-| Vercel | 개인 프로젝트 무제한 |
 | Cloudinary | 25GB 저장, 25GB 대역폭/월 |
 
 ---
 
-## 11. 문제 해결
+## 10. 문제 해결
 
 배포 중 문제가 발생하면 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)를 참조하세요.
 
@@ -316,5 +279,4 @@ fly scale memory 512
 - DB 연결 오류 → Supabase URI 확인 (pooler vs direct)
 - dotenv import 오류
 - 카카오 소셜 로그인 문제
-- CORS 에러
 - Cloudinary 이미지 업로드 실패

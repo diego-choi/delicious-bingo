@@ -2,8 +2,7 @@
 
 맛집 탐방을 게임화한 5x5 빙고 웹 애플리케이션. 사용자가 맛집 템플릿을 선택하고, 실제 방문 후 리뷰를 작성하면 빙고 셀이 활성화되어 목표 라인 수 달성 시 완료.
 
-- **Frontend**: https://delicious-bingo.vercel.app
-- **Backend API**: https://delicious-bingo.fly.dev
+- **URL**: https://delicious-bingo.fly.dev
 
 ---
 
@@ -131,7 +130,6 @@ delicious_bingo/
 │   ├── config/
 │   │   ├── settings.py
 │   │   └── urls.py
-│   ├── Dockerfile
 │   ├── start.sh
 │   └── requirements.txt
 │
@@ -152,6 +150,7 @@ delicious_bingo/
 │   ├── e2e-prod-test.cjs          # 프로덕션 E2E 테스트
 │   └── package.json
 │
+├── Dockerfile                     # Multi-stage build (Node + Python)
 ├── .dockerignore                  # Docker 빌드 제외 파일
 ├── fly.toml                       # Fly.io 배포 설정
 ├── PRD.md                         # 제품 요구사항
@@ -225,9 +224,8 @@ cd frontend && npm run e2e:prod
 2. E2E 개발 테스트 (로컬 서버 실행 상태)
    └── cd frontend && npm run e2e
 
-3. 커밋 & 푸시
-   └── git push origin master → 자동 배포 (Vercel)
-   └── fly deploy → Backend 배포 (Fly.io)
+3. 커밋 & 배포
+   └── fly deploy → Fly.io 배포 (Frontend + Backend)
 
 4. E2E 프로덕션 테스트 (배포 후 1-2분 대기)
    └── cd frontend && npm run e2e:prod
