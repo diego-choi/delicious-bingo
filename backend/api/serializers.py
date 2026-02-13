@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Restaurant, BingoTemplate, BingoTemplateItem, BingoBoard, Review
+from .models import Category, Restaurant, BingoTemplate, BingoTemplateItem, BingoBoard, Review, ReviewLike, ReviewComment
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -59,13 +59,65 @@ class BingoTemplateDetailSerializer(serializers.ModelSerializer):
 # =============================================================================
 
 class ReviewSerializer(serializers.ModelSerializer):
+    like_count = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    username = serializers.CharField(source='user.username', read_only=True)
+    display_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Review
         fields = [
             'id', 'restaurant', 'image', 'content',
-            'rating', 'visited_date', 'is_public', 'created_at'
+            'rating', 'visited_date', 'is_public', 'created_at',
+            'like_count', 'comment_count', 'is_liked',
+            'username', 'display_name',
         ]
         read_only_fields = ['id', 'created_at']
+
+    def get_like_count(self, obj):
+        return obj.likes.count()
+
+    def get_comment_count(self, obj):
+        return obj.comments.count()
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
+
+    def get_display_name(self, obj):
+        try:
+            if obj.user.profile.nickname:
+                return obj.user.profile.nickname
+        except Exception:
+            pass
+        return obj.user.username
+
+
+class ReviewCommentSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    display_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReviewComment
+        fields = ['id', 'username', 'display_name', 'content', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+    def get_display_name(self, obj):
+        try:
+            if obj.user.profile.nickname:
+                return obj.user.profile.nickname
+        except Exception:
+            pass
+        return obj.user.username
+
+
+class ReviewCommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewComment
+        fields = ['content']
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
