@@ -119,7 +119,8 @@ delicious_bingo/
 │   │   ├── models.py              # 데이터 모델
 │   │   ├── serializers.py         # DRF Serializers
 │   │   ├── serializers_admin.py   # Admin Serializers
-│   │   ├── views.py               # ViewSets + Auth APIs
+│   │   ├── views.py               # ViewSets + Leaderboard + Feed + Review Social
+│   │   ├── views_auth.py          # Auth APIs (register, login, logout, kakao, me, profile)
 │   │   ├── views_admin.py         # Admin ViewSets
 │   │   ├── services.py            # BingoService (라인 감지)
 │   │   ├── services_oauth.py      # KakaoOAuthService (소셜 로그인)
