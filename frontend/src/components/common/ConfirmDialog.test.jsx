@@ -111,5 +111,29 @@ describe('ConfirmDialog', () => {
 
       document.body.removeChild(button);
     });
+
+    it('should trap focus: Tab from last button moves to first button', async () => {
+      const user = userEvent.setup();
+      render(<ConfirmDialog {...defaultProps} />);
+
+      const cancelBtn = screen.getByText('취소');
+      const confirmBtn = screen.getByText('확인');
+
+      confirmBtn.focus();
+      await user.tab();
+      expect(document.activeElement).toBe(cancelBtn);
+    });
+
+    it('should trap focus: Shift+Tab from first button moves to last button', async () => {
+      const user = userEvent.setup();
+      render(<ConfirmDialog {...defaultProps} />);
+
+      const cancelBtn = screen.getByText('취소');
+      const confirmBtn = screen.getByText('확인');
+
+      cancelBtn.focus();
+      await user.tab({ shift: true });
+      expect(document.activeElement).toBe(confirmBtn);
+    });
   });
 });
