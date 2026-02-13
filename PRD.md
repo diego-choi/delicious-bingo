@@ -533,7 +533,8 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>  # 빌드 시점에 번들 포함
 - [x] Gunicorn 워커 설정 최적화
 
 ### P2: 사용자 경험 개선
-- [ ] ConfirmDialog 접근성 개선 (role/aria-modal, ESC 키 닫기, 포커스 트랩)
+- [x] ConfirmDialog 접근성 개선 (role/aria-modal, ESC 키 닫기, 포커스 트랩)
+- [ ] 모달 접근성 공통 훅 추출 (`useModalA11y`: ESC 닫기, 포커스 트랩, 스크롤 잠금) → ConfirmDialog, CellDetailModal, CompletionCelebration 적용
 - [ ] 페이지별 로딩 표시 일관성 통일 (스켈레톤 미적용 페이지 보완)
 - [ ] 맛집/템플릿 검색 및 카테고리 필터
 - [ ] SEO 메타 태그 (react-helmet-async)
