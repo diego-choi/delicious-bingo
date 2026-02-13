@@ -12,6 +12,7 @@ export function useConfirmDialog() {
   const resolveRef = useRef(null);
 
   const confirm = useCallback(({ title, message, variant = 'default', confirmText = '확인', cancelText = '취소' }) => {
+    resolveRef.current?.(false);
     setState({ isOpen: true, title, message, variant, confirmText, cancelText });
     return new Promise((resolve) => {
       resolveRef.current = resolve;

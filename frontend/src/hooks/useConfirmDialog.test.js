@@ -56,6 +56,36 @@ describe('useConfirmDialog', () => {
     expect(result.current.isOpen).toBe(false);
   });
 
+  it('should resolve previous promise as false when confirm is called again', async () => {
+    const { result } = renderHook(() => useConfirmDialog());
+
+    let firstResolved;
+    let secondResolved;
+
+    act(() => {
+      result.current.confirm({ title: '첫 번째', message: '1' }).then((v) => {
+        firstResolved = v;
+      });
+    });
+
+    await act(async () => {
+      result.current.confirm({ title: '두 번째', message: '2' }).then((v) => {
+        secondResolved = v;
+      });
+    });
+
+    // 첫 번째 Promise는 false로 해소되어야 함
+    expect(firstResolved).toBe(false);
+    // 두 번째 다이얼로그가 열려있어야 함
+    expect(result.current.title).toBe('두 번째');
+
+    await act(async () => {
+      result.current.onConfirm();
+    });
+
+    expect(secondResolved).toBe(true);
+  });
+
   it('should pass variant through', () => {
     const { result } = renderHook(() => useConfirmDialog());
 
