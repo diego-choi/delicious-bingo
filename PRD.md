@@ -17,8 +17,7 @@
 | **플랫폼** | 모바일 웹 (반응형) |
 
 ### 배포 URL
-- **Frontend**: https://delicious-bingo.vercel.app
-- **Backend API**: https://delicious-bingo.fly.dev
+- https://delicious-bingo.fly.dev
 
 ---
 
@@ -50,9 +49,8 @@
 ### 인프라
 | 서비스 | 용도 |
 |--------|------|
-| Fly.io | Backend 호스팅 |
+| Fly.io | Django + SPA 단일 배포 |
 | Supabase | PostgreSQL 데이터베이스 |
-| Vercel | Frontend 호스팅 |
 | Cloudinary | 이미지 CDN |
 | Kakao Maps API | 지도 서비스 |
 
@@ -494,22 +492,20 @@ cd frontend && npm run e2e:prod   # 프로덕션
 
 ## 9. 환경 변수
 
-### Backend (Fly.io)
+### Fly.io Secrets
 ```bash
 SECRET_KEY=<Django secret key>
 DEBUG=False
 ALLOWED_HOSTS=<domain>
 DATABASE_URL=<PostgreSQL URL>
-CORS_ALLOWED_ORIGINS=<frontend URL>
 CLOUDINARY_URL=<Cloudinary URL>
 KAKAO_REST_API_KEY=<카카오 REST API 키>
 KAKAO_CLIENT_SECRET=<카카오 Client Secret>
 ```
 
-### Frontend (Vercel)
+### fly.toml Build Args
 ```bash
-VITE_API_URL=<backend URL>
-VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>
+VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>  # 빌드 시점에 번들 포함
 ```
 
 ---
