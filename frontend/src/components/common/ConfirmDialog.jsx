@@ -42,16 +42,13 @@ export default function ConfirmDialog({
     if (isOpen) {
       previousFocusRef.current = document.activeElement;
       cancelButtonRef.current?.focus();
-    } else if (previousFocusRef.current) {
-      previousFocusRef.current.focus();
-      previousFocusRef.current = null;
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen) {
       document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = ''; };
+    } else {
+      document.body.style.overflow = '';
+      if (previousFocusRef.current) {
+        previousFocusRef.current.focus();
+        previousFocusRef.current = null;
+      }
     }
   }, [isOpen]);
 
@@ -60,6 +57,7 @@ export default function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
+        aria-hidden="true"
         data-testid="confirm-backdrop"
         className="absolute inset-0 bg-black/50"
         onClick={onCancel}
