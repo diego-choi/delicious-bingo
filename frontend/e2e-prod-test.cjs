@@ -211,6 +211,58 @@ async function runTests() {
     results.push({ test: '모바일 반응형', status: 'FAIL', error: e.message });
   }
 
+  // Test 13: Toaster 컨테이너 마운트 확인
+  console.log('13. Toaster 컨테이너 마운트 테스트...');
+  try {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+    const hasToaster = await page.evaluate(() => {
+      const divs = document.querySelectorAll('div[style]');
+      for (const div of divs) {
+        if (div.style.position === 'fixed' && div.style.zIndex === '9999') {
+          return true;
+        }
+      }
+      return false;
+    });
+    if (hasToaster) {
+      results.push({ test: 'Toaster 컨테이너 마운트', status: 'PASS' });
+    } else {
+      results.push({ test: 'Toaster 컨테이너 마운트', status: 'FAIL', error: 'Toaster container not found in DOM' });
+    }
+  } catch (e) {
+    results.push({ test: 'Toaster 컨테이너 마운트', status: 'FAIL', error: e.message });
+  }
+
+  // Test 14: 스켈레톤 → 콘텐츠 전환
+  console.log('14. 스켈레톤 로딩 전환 테스트...');
+  try {
+    await page.route('**/api/templates/**', async (route) => {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await route.continue();
+    });
+    await page.goto(BASE_URL + '/templates', { waitUntil: 'domcontentloaded' });
+    // 스켈레톤이 표시되는지 확인
+    const skeletonVisible = await page.waitForSelector('.animate-pulse', { timeout: 10000 })
+      .then(() => true)
+      .catch(() => false);
+    // API 응답 후 실제 콘텐츠로 전환되는지 확인
+    const contentLoaded = await page.waitForSelector('text=빙고', { timeout: 15000 })
+      .then(() => true)
+      .catch(() => false);
+    await page.unroute('**/api/templates/**');
+    if (skeletonVisible && contentLoaded) {
+      results.push({ test: '스켈레톤 → 콘텐츠 전환', status: 'PASS' });
+    } else if (!skeletonVisible) {
+      results.push({ test: '스켈레톤 → 콘텐츠 전환', status: 'FAIL', error: 'Skeleton not displayed' });
+    } else {
+      results.push({ test: '스켈레톤 → 콘텐츠 전환', status: 'FAIL', error: 'Content not loaded after skeleton' });
+    }
+  } catch (e) {
+    await page.unroute('**/api/templates/**').catch(() => {});
+    results.push({ test: '스켈레톤 → 콘텐츠 전환', status: 'FAIL', error: e.message });
+  }
+
   await browser.close();
 
   // Print Results
