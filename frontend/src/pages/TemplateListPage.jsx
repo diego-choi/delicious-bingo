@@ -1,13 +1,19 @@
 import { Link } from 'react-router-dom';
 import { useTemplates } from '../hooks/useTemplates';
+import { SkeletonCard } from '../components/common/Skeleton';
 
 export default function TemplateListPage() {
   const { data, isLoading, error } = useTemplates();
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">로딩 중...</p>
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">빙고 템플릿</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       </div>
     );
   }

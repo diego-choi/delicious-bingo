@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useBoards, useDeleteBoard } from '../hooks/useBoards';
 import { useConfirmDialog } from '../hooks/useConfirmDialog';
 import ConfirmDialog from '../components/common/ConfirmDialog';
+import { SkeletonCard } from '../components/common/Skeleton';
 
 export default function MyBoardsPage() {
   const { data, isLoading, error } = useBoards();
@@ -28,8 +29,13 @@ export default function MyBoardsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">로딩 중...</p>
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">내 빙고 보드</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       </div>
     );
   }

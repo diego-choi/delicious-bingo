@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useBoard, useCreateReview } from '../hooks/useBoards';
+import { SkeletonBingoGrid } from '../components/common/Skeleton';
 import BingoGrid from '../components/bingo/BingoGrid';
 import BingoHeader from '../components/bingo/BingoHeader';
 import CellDetailModal from '../components/modals/CellDetailModal';
@@ -51,14 +52,7 @@ export default function BoardPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
-          <p className="text-gray-500">빙고 보드를 불러오는 중...</p>
-        </div>
-      </div>
-    );
+    return <SkeletonBingoGrid />;
   }
 
   if (error) {

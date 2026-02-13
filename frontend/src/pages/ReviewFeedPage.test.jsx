@@ -48,7 +48,10 @@ describe('ReviewFeedPage', () => {
   it('shows loading state', () => {
     reviewsApi.getFeed.mockReturnValue(new Promise(() => {})); // never resolves
     renderPage();
-    expect(screen.getByText('리뷰를 불러오는 중...')).toBeInTheDocument();
+    expect(screen.getByText('리뷰 피드')).toBeInTheDocument();
+    // 스켈레톤 로딩 컴포넌트가 렌더링됨
+    const skeletons = document.querySelectorAll('.animate-pulse');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
   it('shows error state', async () => {

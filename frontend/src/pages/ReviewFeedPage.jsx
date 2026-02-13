@@ -1,5 +1,6 @@
 import { useReviewFeed } from '../hooks/useReviewFeed';
 import ReviewSocialSection from '../components/bingo/ReviewSocialSection';
+import { SkeletonFeedItem } from '../components/common/Skeleton';
 
 function StarRating({ rating }) {
   return (
@@ -22,10 +23,14 @@ export default function ReviewFeedPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
-          <p className="text-gray-500">리뷰를 불러오는 중...</p>
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
+          리뷰 피드
+        </h1>
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonFeedItem key={i} />
+          ))}
         </div>
       </div>
     );
