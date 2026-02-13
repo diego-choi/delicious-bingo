@@ -2105,3 +2105,106 @@ class ReviewCommentModelTest(TestCase):
             user=self.user, review=self.review, content='댓글입니다'
         )
         self.assertEqual(self.review.comments.count(), 1)
+
+
+class ReviewSerializerSocialFieldsTest(TestCase):
+    """ReviewSerializer 좋아요/댓글 필드 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user('testuser', password='testpass')
+        self.user2 = User.objects.create_user('testuser2', password='testpass')
+        self.category = Category.objects.create(name="테스트")
+        self.template = BingoTemplate.objects.create(
+            category=self.category, title="테스트 빙고"
+        )
+        self.restaurant = Restaurant.objects.create(
+            category=self.category, name="테스트 맛집", address="주소",
+            latitude=37.0, longitude=127.0, is_approved=True, created_by=self.user
+        )
+        BingoTemplateItem.objects.create(
+            template=self.template, restaurant=self.restaurant, position=0
+        )
+        self.board = BingoBoard.objects.create(
+            user=self.user, template=self.template, target_line_count=1
+        )
+        self.review = Review.objects.create(
+            user=self.user, bingo_board=self.board, restaurant=self.restaurant,
+            content='테스트 리뷰입니다 10자 이상', rating=5, visited_date='2025-01-01'
+        )
+
+    def _get_serializer_data(self, user=None):
+        from .serializers import ReviewSerializer
+        from rest_framework.test import APIRequestFactory
+        factory = APIRequestFactory()
+        request = factory.get('/')
+        if user:
+            request.user = user
+        else:
+            from django.contrib.auth.models import AnonymousUser
+            request.user = AnonymousUser()
+        return ReviewSerializer(self.review, context={'request': request}).data
+
+    def test_review_serializer_has_like_count(self):
+        """ReviewSerializer가 like_count 필드를 포함해야 한다"""
+        data = self._get_serializer_data()
+        self.assertIn('like_count', data)
+        self.assertEqual(data['like_count'], 0)
+
+    def test_review_serializer_like_count_accuracy(self):
+        """like_count가 좋아요 수를 정확히 반영해야 한다"""
+        from .models import ReviewLike
+        ReviewLike.objects.create(user=self.user, review=self.review)
+        ReviewLike.objects.create(user=self.user2, review=self.review)
+        data = self._get_serializer_data()
+        self.assertEqual(data['like_count'], 2)
+
+    def test_review_serializer_has_comment_count(self):
+        """ReviewSerializer가 comment_count 필드를 포함해야 한다"""
+        data = self._get_serializer_data()
+        self.assertIn('comment_count', data)
+        self.assertEqual(data['comment_count'], 0)
+
+    def test_review_serializer_comment_count_accuracy(self):
+        """comment_count가 댓글 수를 정확히 반영해야 한다"""
+        from .models import ReviewComment
+        ReviewComment.objects.create(user=self.user, review=self.review, content='댓글1')
+        ReviewComment.objects.create(user=self.user2, review=self.review, content='댓글2')
+        data = self._get_serializer_data()
+        self.assertEqual(data['comment_count'], 2)
+
+    def test_review_serializer_is_liked_true(self):
+        """좋아요한 경우 is_liked가 True"""
+        from .models import ReviewLike
+        ReviewLike.objects.create(user=self.user, review=self.review)
+        data = self._get_serializer_data(user=self.user)
+        self.assertIn('is_liked', data)
+        self.assertTrue(data['is_liked'])
+
+    def test_review_serializer_is_liked_false(self):
+        """좋아요하지 않은 경우 is_liked가 False"""
+        data = self._get_serializer_data(user=self.user)
+        self.assertFalse(data['is_liked'])
+
+    def test_review_serializer_is_liked_anonymous(self):
+        """비인증 사용자는 is_liked가 False"""
+        data = self._get_serializer_data(user=None)
+        self.assertFalse(data['is_liked'])
+
+    def test_review_serializer_has_username(self):
+        """ReviewSerializer가 username 필드를 포함해야 한다"""
+        data = self._get_serializer_data()
+        self.assertIn('username', data)
+        self.assertEqual(data['username'], 'testuser')
+
+    def test_review_serializer_has_display_name(self):
+        """ReviewSerializer가 display_name 필드를 포함해야 한다"""
+        data = self._get_serializer_data()
+        self.assertIn('display_name', data)
+        self.assertEqual(data['display_name'], 'testuser')
+
+    def test_review_serializer_display_name_uses_nickname(self):
+        """닉네임이 있으면 display_name이 닉네임"""
+        from .models import UserProfile
+        UserProfile.objects.create(user=self.user, nickname='맛집탐험가')
+        data = self._get_serializer_data()
+        self.assertEqual(data['display_name'], '맛집탐험가')
