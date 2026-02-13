@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 from django.db import models
 from django.db.models import Count, F, ExpressionWrapper, DurationField
 from django.contrib.auth import get_user_model, authenticate
-from .models import Category, BingoTemplate, BingoBoard, Review
+from .models import Category, BingoTemplate, BingoBoard, Review, ReviewLike, ReviewComment
 
 User = get_user_model()
 from .serializers import (
@@ -561,3 +561,70 @@ def profile_view(request):
             ],
         },
     })
+
+
+# =============================================================================
+# Review Social (Like/Comment) APIs
+# =============================================================================
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def review_like_toggle(request, review_id):
+    """리뷰 좋아요 토글 (생성/삭제)"""
+    try:
+        review = Review.objects.get(id=review_id, is_public=True)
+    except Review.DoesNotExist:
+        return Response({'error': '리뷰를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+
+    like, created = ReviewLike.objects.get_or_create(user=request.user, review=review)
+    if not created:
+        like.delete()
+
+    return Response({
+        'is_liked': created,
+        'like_count': review.likes.count(),
+    })
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def review_comments(request, review_id):
+    """리뷰 댓글 목록 조회 / 작성"""
+    try:
+        review = Review.objects.get(id=review_id, is_public=True)
+    except Review.DoesNotExist:
+        return Response({'error': '리뷰를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        from .serializers import ReviewCommentSerializer
+        comments = review.comments.select_related('user').all()
+        serializer = ReviewCommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    # POST
+    from .serializers import ReviewCommentCreateSerializer
+    serializer = ReviewCommentCreateSerializer(data=request.data)
+    if serializer.is_valid():
+        comment = serializer.save(user=request.user, review=review)
+        from .serializers import ReviewCommentSerializer
+        return Response(
+            ReviewCommentSerializer(comment).data,
+            status=status.HTTP_201_CREATED
+        )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def review_comment_delete(request, review_id, comment_id):
+    """리뷰 댓글 삭제 (본인만 가능)"""
+    try:
+        comment = ReviewComment.objects.get(id=comment_id, review_id=review_id)
+    except ReviewComment.DoesNotExist:
+        return Response({'error': '댓글을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if comment.user != request.user:
+        return Response({'error': '본인의 댓글만 삭제할 수 있습니다.'}, status=status.HTTP_403_FORBIDDEN)
+
+    comment.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
