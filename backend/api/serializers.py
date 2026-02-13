@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Restaurant, BingoTemplate, BingoTemplateItem, BingoBoard, Review, ReviewLike, ReviewComment
+from .models import Category, Restaurant, BingoTemplate, BingoTemplateItem, BingoBoard, Review, ReviewComment
 
 
 class CategorySerializer(serializers.ModelSerializer):
