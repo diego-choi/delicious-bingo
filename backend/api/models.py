@@ -110,6 +110,25 @@ class Review(models.Model):
         return f"{self.user.username}'s review for {self.restaurant.name}"
 
 
+class ReviewLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_likes')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'review']
+
+
+class ReviewComment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_comments')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField(validators=[MinLengthValidator(1)])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+
 class UserProfile(models.Model):
     """사용자 프로필 (닉네임 등 사용자 설정 정보)"""
     user = models.OneToOneField(
