@@ -82,5 +82,14 @@ describe('ConfirmDialog', () => {
       const message = document.getElementById(messageId);
       expect(message).toHaveTextContent('정말 삭제하시겠습니까?');
     });
+
+    it('should call onCancel when ESC key is pressed', async () => {
+      const user = userEvent.setup();
+      const onCancel = vi.fn();
+      render(<ConfirmDialog {...defaultProps} onCancel={onCancel} />);
+
+      await user.keyboard('{Escape}');
+      expect(onCancel).toHaveBeenCalledTimes(1);
+    });
   });
 });
