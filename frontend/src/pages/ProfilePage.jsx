@@ -5,22 +5,22 @@ import { useAuth } from '../hooks/useAuth';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { data, isLoading, error } = useProfile();
   const updateProfile = useUpdateProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ nickname: '' });
   const [formErrors, setFormErrors] = useState({});
 
-  // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
+  // 인증 확인이 완료된 후, 미인증 사용자는 로그인 페이지로 리다이렉트
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/login', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
-  // 인증되지 않은 경우 렌더링하지 않음 (리다이렉트 대기)
-  if (!isAuthenticated) {
+  // 인증 로딩 중이거나 미인증 상태면 렌더링하지 않음
+  if (authLoading || !isAuthenticated) {
     return null;
   }
 

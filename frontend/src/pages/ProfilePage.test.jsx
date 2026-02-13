@@ -275,6 +275,35 @@ describe('ProfilePage', () => {
     });
   });
 
+  describe('인증 가드', () => {
+    it('인증 로딩 중에는 리다이렉트하지 않아야 한다', () => {
+      const authLoadingContext = {
+        ...mockAuthContextValue,
+        user: null,
+        isLoading: true,
+        isAuthenticated: false,
+      };
+
+      authApi.getProfile.mockReturnValue(new Promise(() => {}));
+
+      render(
+        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+          <AuthContext.Provider value={authLoadingContext}>
+            <BrowserRouter>
+              <ProfilePage />
+            </BrowserRouter>
+          </AuthContext.Provider>
+        </QueryClientProvider>
+      );
+
+      // 로딩 중이므로 로그인 페이지로 리다이렉트되지 않아야 함
+      // (리다이렉트되면 아무것도 렌더링되지 않음)
+      // 로딩 스피너 또는 null이 아닌 것을 확인하지 않고,
+      // window.location이 /login이 아닌지 확인
+      expect(window.location.pathname).not.toBe('/login');
+    });
+  });
+
   describe('에러 처리', () => {
     it('API 에러 시 에러 메시지를 표시해야 한다', async () => {
       authApi.getProfile.mockRejectedValue(new Error('Network error'));
