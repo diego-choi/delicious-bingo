@@ -80,22 +80,8 @@ async function runTests() {
     results.push({ test: '로그인 페이지', status: 'FAIL', error: e.message });
   }
 
-  // Test 5: Register Page - Should Redirect to Login
-  console.log('5. 회원가입 페이지 테스트 (로그인으로 리다이렉트)...');
-  try {
-    await page.goto(BASE_URL + '/register', { waitUntil: 'networkidle' });
-    const currentUrl = page.url();
-    if (currentUrl.includes('/login')) {
-      results.push({ test: '회원가입 리다이렉트', status: 'PASS' });
-    } else {
-      results.push({ test: '회원가입 리다이렉트', status: 'FAIL', error: 'Did not redirect to login' });
-    }
-  } catch (e) {
-    results.push({ test: '회원가입 페이지', status: 'FAIL', error: e.message });
-  }
-
-  // Test 6: Leaderboard Page
-  console.log('6. 리더보드 페이지 테스트...');
+  // Test 5: Leaderboard Page
+  console.log('5. 리더보드 페이지 테스트...');
   try {
     await page.goto(BASE_URL + '/leaderboard', { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000);
@@ -109,7 +95,21 @@ async function runTests() {
     results.push({ test: '리더보드 페이지', status: 'FAIL', error: e.message });
   }
 
-  // Test 7: API Health Check
+  // Test 6: Health Check API
+  console.log('6. Health Check API 테스트...');
+  try {
+    const response = await page.request.get(API_URL + '/health/');
+    const data = await response.json();
+    if (response.ok() && data.status === 'ok') {
+      results.push({ test: 'Health Check API', status: 'PASS' });
+    } else {
+      results.push({ test: 'Health Check API', status: 'FAIL', error: 'Unexpected response' });
+    }
+  } catch (e) {
+    results.push({ test: 'Health Check API', status: 'FAIL', error: e.message });
+  }
+
+  // Test 7: API 연결 (템플릿)
   console.log('7. API 연결 테스트...');
   try {
     const response = await page.request.get(API_URL + '/templates/');
@@ -123,18 +123,19 @@ async function runTests() {
     results.push({ test: 'API 연결', status: 'FAIL', error: e.message });
   }
 
-  // Test 8: Registration Disabled - Redirects to Login
-  console.log('8. 회원가입 비활성화 테스트...');
+  // Test 8: 리뷰 피드 페이지
+  console.log('8. 리뷰 피드 페이지 테스트...');
   try {
-    await page.goto(BASE_URL + '/register', { waitUntil: 'networkidle' });
-    const currentUrl = page.url();
-    if (currentUrl.includes('/login')) {
-      results.push({ test: '회원가입 비활성화', status: 'PASS', detail: '로그인으로 리다이렉트' });
+    await page.goto(BASE_URL + '/feed', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(2000);
+    const content = await page.textContent('body');
+    if (content.includes('피드') || content.includes('리뷰') || content.includes('feed')) {
+      results.push({ test: '리뷰 피드 페이지', status: 'PASS' });
     } else {
-      results.push({ test: '회원가입 비활성화', status: 'FAIL', error: 'Did not redirect to login' });
+      results.push({ test: '리뷰 피드 페이지', status: 'FAIL', error: 'Feed page not loaded' });
     }
   } catch (e) {
-    results.push({ test: '회원가입 비활성화', status: 'FAIL', error: e.message });
+    results.push({ test: '리뷰 피드 페이지', status: 'FAIL', error: e.message });
   }
 
   // Test 9: Admin Login Mode (via ?mode=admin URL)
