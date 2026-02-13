@@ -66,6 +66,9 @@ primary_region = 'nrt'
   cpus = 1
 ```
 
+빌드 컨텍스트는 프로젝트 루트이며, `backend/Dockerfile`이 `backend/` 디렉토리의 파일을 복사합니다.
+`.dockerignore`(프로젝트 루트)로 frontend, .git 등 불필요한 파일을 제외합니다.
+
 ### 1.3 환경 변수 (Secrets)
 ```bash
 fly secrets set \

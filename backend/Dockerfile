@@ -8,17 +8,16 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Install dependencies
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project
-COPY . .
+COPY backend/ .
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Copy and set up start script
-COPY start.sh /app/start.sh
+# Set up start script
 RUN chmod +x /app/start.sh
 
 # Run start script
