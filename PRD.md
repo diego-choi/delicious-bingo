@@ -414,8 +414,8 @@ erDiagram
 | GET | `/api/auth/me/` | 현재 사용자 정보 |
 | GET | `/api/auth/profile/` | 프로필 조회 |
 | PATCH | `/api/auth/profile/` | 프로필 수정 |
-| GET | `/api/auth/kakao/login/` | 카카오 로그인 URL 생성 |
-| POST | `/api/auth/kakao/callback/` | 카카오 OAuth 콜백 |
+| GET | `/api/auth/kakao/authorize/` | 카카오 인증 URL 생성 |
+| POST | `/api/auth/kakao/login/` | 카카오 OAuth 로그인/회원가입 |
 
 ### Protected API (인증 필요)
 | Method | Endpoint | 설명 |
@@ -472,8 +472,8 @@ erDiagram
 |------|----------|------|
 | Backend 유닛 | 154개 | Django TestCase |
 | Frontend 유닛 | 87개 | Vitest + Testing Library |
-| E2E 개발 | 17개 | Playwright |
-| E2E 프로덕션 | 15개 | Playwright |
+| E2E 개발 | 18개 | Playwright |
+| E2E 프로덕션 | 13개 | Playwright |
 
 ### 테스트 실행
 ```bash

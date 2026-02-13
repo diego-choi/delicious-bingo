@@ -8,7 +8,7 @@
 |------|------|
 | **개발 완료** | ✅ 모든 기능 구현 완료 |
 | **프로덕션 배포** | ✅ Fly.io (Django + SPA 단일 배포) |
-| **테스트** | ✅ Backend 154개 / Frontend 87개 / E2E 29개 |
+| **테스트** | ✅ Backend 154개 / Frontend 87개 / E2E 31개 |
 
 ### 배포 URL
 - https://delicious-bingo.fly.dev
@@ -239,14 +239,14 @@ Token 기반 회원가입/로그인 시스템.
 
 Playwright 기반 End-to-End 테스트.
 
-### 개발 환경 테스트 (17개)
+### 개발 환경 테스트 (18개)
 ```bash
 npm run e2e          # headless 모드
 npm run e2e:headed   # 브라우저 표시
 npm run e2e:slow     # 디버깅용 느린 모드
 ```
 
-### 프로덕션 테스트 (15개)
+### 프로덕션 테스트 (13개)
 ```bash
 npm run e2e:prod
 ```

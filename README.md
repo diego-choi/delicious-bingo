@@ -89,16 +89,16 @@ npm run dev
 ## 테스트
 
 ```bash
-# Backend (119 tests)
+# Backend (154 tests)
 cd backend && python manage.py test
 
-# Frontend (59 tests)
+# Frontend (87 tests)
 cd frontend && npm run test:run
 
 # E2E 개발 환경 (18 tests)
 cd frontend && npm run e2e
 
-# E2E 프로덕션 (15 tests)
+# E2E 프로덕션 (13 tests)
 cd frontend && npm run e2e:prod
 ```
 
