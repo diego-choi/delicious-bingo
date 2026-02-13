@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import re
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -72,7 +73,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'frontend_dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -177,16 +178,39 @@ else:
         },
     }
 
+# Frontend SPA (Vite build output)
+FRONTEND_DIST_DIR = BASE_DIR / 'frontend_dist'
+
+# WhiteNoise: serve frontend_dist files at URL root (/assets/*, /vite.svg, etc.)
+WHITENOISE_ROOT = FRONTEND_DIST_DIR
+
+# Vite hashed filenames get long-term cache, index.html gets no-cache
+WHITENOISE_IMMUTABLE_FILE_TEST = lambda path, url: bool(
+    re.match(r'^.+[-\.][0-9a-zA-Z]{8,12}\..+$', url)
+)
+
+
+def whitenoise_add_headers(headers, path, url):
+    if path.endswith('index.html'):
+        headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+
+
+WHITENOISE_ADD_HEADERS_FUNCTION = whitenoise_add_headers
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS settings
-CORS_ALLOWED_ORIGINS = os.environ.get(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174'
-).split(',')
+# CORS settings (production: same-origin, no CORS needed; local dev defaults only)
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        'CORS_ALLOWED_ORIGINS',
+        'http://localhost:5173,http://localhost:5174'
+    ).split(',')
+    if origin.strip()
+]
 CORS_ALLOW_CREDENTIALS = True
 
 # Django REST Framework

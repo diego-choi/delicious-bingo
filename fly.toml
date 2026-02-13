@@ -2,7 +2,9 @@ app = 'delicious-bingo'
 primary_region = 'nrt'
 
 [build]
-  dockerfile = 'backend/Dockerfile'
+  dockerfile = 'Dockerfile'
+  [build.args]
+    VITE_KAKAO_JS_KEY = "bf61fedcd192c42f676e85d015745bb2"
 
 [http_service]
   internal_port = 8000
