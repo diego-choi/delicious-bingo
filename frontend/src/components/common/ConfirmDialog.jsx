@@ -43,12 +43,13 @@ export default function ConfirmDialog({
       previousFocusRef.current = document.activeElement;
       cancelButtonRef.current?.focus();
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      if (previousFocusRef.current) {
-        previousFocusRef.current.focus();
-        previousFocusRef.current = null;
-      }
+      return () => {
+        document.body.style.overflow = '';
+        if (previousFocusRef.current) {
+          previousFocusRef.current.focus();
+          previousFocusRef.current = null;
+        }
+      };
     }
   }, [isOpen]);
 
