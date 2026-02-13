@@ -148,5 +148,28 @@ describe('ConfirmDialog', () => {
       rerender(<ConfirmDialog {...defaultProps} isOpen={false} />);
       expect(document.body.style.overflow).toBe('');
     });
+
+    it('should restore body scroll when unmounted while open', () => {
+      const { unmount } = render(<ConfirmDialog {...defaultProps} />);
+      expect(document.body.style.overflow).toBe('hidden');
+
+      unmount();
+      expect(document.body.style.overflow).toBe('');
+    });
+
+    it('should restore focus when unmounted while open', () => {
+      const button = document.createElement('button');
+      button.textContent = 'trigger';
+      document.body.appendChild(button);
+      button.focus();
+
+      const { unmount } = render(<ConfirmDialog {...defaultProps} />);
+      expect(document.activeElement).toBe(screen.getByText('취소'));
+
+      unmount();
+      expect(document.activeElement).toBe(button);
+
+      document.body.removeChild(button);
+    });
   });
 });
