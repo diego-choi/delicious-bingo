@@ -7,12 +7,11 @@
 | 항목 | 상태 |
 |------|------|
 | **개발 완료** | ✅ 모든 기능 구현 완료 |
-| **프로덕션 배포** | ✅ Railway + Vercel |
-| **테스트** | ✅ Backend 122개 / Frontend 62개 / E2E 29개 |
+| **프로덕션 배포** | ✅ Fly.io (Django + SPA 단일 배포) |
+| **테스트** | ✅ Backend 154개 / Frontend 87개 / E2E 29개 |
 
 ### 배포 URL
-- **Frontend**: https://delicious-bingo.vercel.app
-- **Backend API**: https://delicious-bingo-production.up.railway.app
+- https://delicious-bingo.fly.dev
 
 ---
 
@@ -29,12 +28,13 @@
 | 리더보드 | 최단 시간/최다 완료 순위 | 2026-01-09 |
 | 인증 시스템 | 회원가입, 로그인, 토큰 | 2026-01-09 |
 | 모바일 반응형 | 햄버거 메뉴, 바텀시트 | 2026-01-09 |
-| 프로덕션 배포 | Railway + Vercel | 2026-01-10 |
+| 프로덕션 배포 | Railway + Vercel → Fly.io + Supabase → Fly.io 단일 통합 | 2026-01-10 |
 | E2E 테스트 | 개발/프로덕션 환경 | 2026-01-10 |
 | Cloudinary 연동 | 클라우드 이미지 저장소 | 2026-01-10 |
 | 관리자 페이지 | 식당/템플릿/카테고리 관리 | 2026-01-10 |
 | UI 전면 개편 | 캐치테이블 스타일 + Vibrant Orange | 2026-01-23 |
 | 카카오 소셜 로그인 | OAuth 2.0 연동, 프로필 관리 | 2026-01-24 |
+| Fly.io 단일 플랫폼 통합 | Django SPA 서빙, CORS 제거 | 2026-02-13 |
 
 ---
 
@@ -224,19 +224,14 @@ Token 기반 회원가입/로그인 시스템.
 
 ## 10. 프로덕션 배포 ✅
 
-Railway(Backend) + Vercel(Frontend) 배포 구성.
+배포 플랫폼 변천: Railway + Vercel → Fly.io + Vercel → **Fly.io 단일 통합**.
 
-### Backend (Railway)
-- Docker 컨테이너 배포 (`Dockerfile` + `start.sh`)
-- PostgreSQL 데이터베이스
-- WhiteNoise 정적 파일 서빙
-- 환경변수: `SECRET_KEY`, `DATABASE_URL`, `CORS_ALLOWED_ORIGINS`
-
-### Frontend (Vercel)
-- Vite 빌드 자동 배포
-- SPA 라우팅 설정 (`vercel.json`)
-- stale-while-revalidate 캐시 전략
-- 환경변수: `VITE_API_URL`, `VITE_KAKAO_JS_KEY`
+### 현재: Fly.io 단일 배포
+- Multi-stage Docker 빌드 (Node.js → Python)
+- Django가 WhiteNoise로 Vite SPA 빌드 결과물을 함께 서빙
+- Same-origin → CORS 불필요
+- `VITE_API_URL=/api` (상대 경로)
+- Django Admin: `/django-admin/` (SPA `/admin` 충돌 방지)
 
 ---
 
@@ -396,10 +391,41 @@ KAKAO_CLIENT_SECRET=<카카오 Client Secret>
 
 ---
 
+## 16. Fly.io 단일 플랫폼 통합 ✅
+
+Frontend(Vercel)와 Backend(Fly.io) 분리 배포를 Fly.io 단일 배포로 통합.
+
+### 동기
+- 개인 프로젝트에 2개 플랫폼은 오버 스펙
+- CORS 설정 불필요 (same-origin)
+- 배포 프로세스 단일화 (`fly deploy` 한 번)
+
+### 구현 내용
+- `Dockerfile`을 프로젝트 루트로 이동, Multi-stage build (Node + Python)
+- WhiteNoise `WHITENOISE_ROOT`로 `frontend_dist/` 정적 파일 서빙
+- Vite 해시 파일명 장기 캐시, `index.html` no-cache 설정
+- SPA catch-all 라우트 (`SPAView` → `index.html`)
+- Django Admin URL을 `django-admin/`으로 변경
+- `CORS_ALLOWED_ORIGINS` 환경변수 제거 (로컬 개발용 기본값만 유지)
+
+### 변경 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `Dockerfile` | 루트로 이동, Node.js 빌드 스테이지 추가 |
+| `.dockerignore` | `frontend/` 허용, `node_modules`만 제외 |
+| `fly.toml` | Dockerfile 경로 변경, `VITE_KAKAO_JS_KEY` build arg 추가 |
+| `backend/config/settings.py` | `WHITENOISE_ROOT`, `TEMPLATES DIRS`, 캐시 헤더 설정 |
+| `backend/config/urls.py` | `django-admin/` URL, SPA catch-all 추가 |
+
+---
+
 ## 파일 구조
 
 ```
 delicious_bingo/
+├── Dockerfile                  # Multi-stage build (Node + Python)
+├── .dockerignore               # Docker 빌드 제외 파일
+├── fly.toml                    # Fly.io 배포 설정
 ├── HISTORY.md                  # 개발 히스토리 (현재 문서)
 ├── PRD.md                      # 제품 요구사항
 ├── CLAUDE.md                   # Claude Code 컨텍스트
@@ -417,12 +443,11 @@ delicious_bingo/
 │   │   ├── services_oauth.py   # KakaoOAuthService (소셜 로그인)
 │   │   ├── permissions.py      # IsAdminUser
 │   │   ├── urls.py             # API 라우팅
-│   │   ├── tests.py            # 119개 테스트
+│   │   ├── tests.py            # 154개 테스트
 │   │   └── fixtures/initial_data.json
 │   ├── config/
 │   │   ├── settings.py
 │   │   └── urls.py
-│   ├── Dockerfile
 │   ├── start.sh
 │   └── requirements.txt
 │
@@ -446,7 +471,6 @@ delicious_bingo/
     │   └── index.css
     ├── e2e-dev-test.cjs        # 17개 개발 E2E 테스트
     ├── e2e-prod-test.cjs       # 15개 프로덕션 E2E 테스트
-    ├── vercel.json
     └── package.json
 ```
 
@@ -455,10 +479,10 @@ delicious_bingo/
 ## 테스트 실행 방법
 
 ```bash
-# Backend 테스트 (122개)
+# Backend 테스트 (154개)
 cd backend && source venv/bin/activate && python manage.py test
 
-# Frontend 테스트 (62개)
+# Frontend 테스트 (87개)
 cd frontend && npm run test:run
 
 # E2E 개발 테스트 (17개) - 로컬 서버 필요
