@@ -8,7 +8,7 @@
 |------|------|
 | **개발 완료** | ✅ 모든 기능 구현 완료 |
 | **프로덕션 배포** | ✅ Fly.io (Django + SPA 단일 배포) |
-| **테스트** | ✅ Backend 154개 / Frontend 87개 / E2E 31개 |
+| **테스트** | ✅ Backend 158개 / Frontend 87개 / E2E 31개 |
 
 ### 배포 URL
 - https://delicious-bingo.fly.dev
@@ -416,4 +416,36 @@ Frontend(Vercel)와 Backend(Fly.io) 분리 배포를 Fly.io 단일 배포로 통
 | `fly.toml` | Dockerfile 경로 변경, `VITE_KAKAO_JS_KEY` build arg 추가 |
 | `backend/config/settings.py` | `WHITENOISE_ROOT`, `TEMPLATES DIRS`, 캐시 헤더 설정 |
 | `backend/config/urls.py` | `django-admin/` URL, SPA catch-all 추가 |
+
+---
+
+## 17. P0 보안 및 운영 필수 ✅
+
+보안 및 운영에 필수적인 5개 P0 항목 일괄 구현.
+
+### 구현 내용
+
+| 기능 | 설명 |
+|------|------|
+| API Rate Limiting | 로그인/회원가입 brute force 방지 (10회/분) |
+| Health Check | `GET /api/health/` 엔드포인트 |
+| Sentry 에러 모니터링 | `SENTRY_DSN` 환경변수 기반 조건부 초기화 |
+| 이미지 업로드 검증 | 파일 크기 5MB 제한 |
+| DB 인덱스 | BingoBoard(user+created_at, is_completed+completed_at), Review(is_public+created_at) |
+
+### 새로운 파일
+| 파일 | 설명 |
+|------|------|
+| `backend/api/throttles.py` | `AuthRateThrottle` (AnonRateThrottle 서브클래스) |
+| `backend/api/validators.py` | `validate_image_file_size` (5MB 제한) |
+
+### 변경 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `backend/api/views.py` | `health_check` 뷰 추가 |
+| `backend/api/views_auth.py` | `register_view`, `login_view`에 Rate Limiting 적용 |
+| `backend/api/urls.py` | `/api/health/` 경로 추가 |
+| `backend/api/models.py` | Review.image에 파일 크기 검증, BingoBoard/Review에 DB 인덱스 추가 |
+| `backend/config/settings.py` | Sentry 초기화, `DEFAULT_THROTTLE_RATES` 추가 |
+| `backend/requirements.txt` | `sentry-sdk[django]` 추가 |
 

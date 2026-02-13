@@ -398,6 +398,7 @@ erDiagram
 ### Public API
 | Method | Endpoint | 설명 |
 |--------|----------|------|
+| GET | `/api/health/` | 헬스 체크 |
 | GET | `/api/categories/` | 카테고리 목록 |
 | GET | `/api/templates/` | 템플릿 목록 |
 | GET | `/api/templates/:id/` | 템플릿 상세 |
@@ -470,7 +471,7 @@ erDiagram
 ### 테스트 커버리지
 | 영역 | 테스트 수 | 도구 |
 |------|----------|------|
-| Backend 유닛 | 169개 | Django TestCase |
+| Backend 유닛 | 158개 | Django TestCase |
 | Frontend 유닛 | 87개 | Vitest + Testing Library |
 | E2E 개발 | 18개 | Playwright |
 | E2E 프로덕션 | 13개 | Playwright |
@@ -501,6 +502,7 @@ DATABASE_URL=<PostgreSQL URL>
 CLOUDINARY_URL=<Cloudinary URL>
 KAKAO_REST_API_KEY=<카카오 REST API 키>
 KAKAO_CLIENT_SECRET=<카카오 Client Secret>
+SENTRY_DSN=<Sentry DSN (선택)>
 ```
 
 ### fly.toml Build Args

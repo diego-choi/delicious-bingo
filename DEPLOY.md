@@ -82,7 +82,8 @@ fly secrets set \
   DATABASE_URL=<Supabase-PostgreSQL-URI> \
   CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME \
   KAKAO_REST_API_KEY=<카카오-REST-API-키> \
-  KAKAO_CLIENT_SECRET=<카카오-Client-Secret>
+  KAKAO_CLIENT_SECRET=<카카오-Client-Secret> \
+  SENTRY_DSN=<Sentry-DSN>
 ```
 
 **참고**: `VITE_KAKAO_JS_KEY`는 `fly.toml`의 `[build.args]`에서 설정 (빌드 시점에 번들에 포함).
@@ -158,6 +159,9 @@ psql <SUPABASE_DATABASE_URL> < backup.sql
 
 ### API 테스트
 ```bash
+# Health Check
+curl https://delicious-bingo.fly.dev/api/health/
+
 # SPA 로드
 curl https://delicious-bingo.fly.dev/
 
@@ -197,6 +201,7 @@ cd frontend && npm run e2e:prod
 | `CLOUDINARY_URL` | O | 이미지 저장소 |
 | `KAKAO_REST_API_KEY` | O | 카카오 REST API 키 (소셜 로그인 + 장소 검색) |
 | `KAKAO_CLIENT_SECRET` | O | 카카오 Client Secret (소셜 로그인 보안) |
+| `SENTRY_DSN` | - | Sentry 에러 모니터링 DSN (선택) |
 
 ### fly.toml Build Args
 | 변수 | 설명 |

@@ -118,11 +118,13 @@ delicious_bingo/
 │   │   ├── models.py              # 데이터 모델
 │   │   ├── serializers.py         # DRF Serializers
 │   │   ├── serializers_admin.py   # Admin Serializers
-│   │   ├── views.py               # ViewSets + Leaderboard + Feed + Review Social
+│   │   ├── views.py               # ViewSets + Leaderboard + Feed + Review Social + Health Check
 │   │   ├── views_auth.py          # Auth APIs (register, login, logout, kakao, me, profile)
 │   │   ├── views_admin.py         # Admin ViewSets
 │   │   ├── services.py            # BingoService (라인 감지)
 │   │   ├── services_oauth.py      # KakaoOAuthService (소셜 로그인)
+│   │   ├── throttles.py           # AuthRateThrottle (로그인/회원가입 Rate Limiting)
+│   │   ├── validators.py          # 이미지 업로드 검증 (파일 크기 제한)
 │   │   ├── permissions.py         # IsAdminUser
 │   │   ├── urls.py                # API 라우팅
 │   │   ├── tests.py               # Backend 테스트
