@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from . import views_auth
 from . import views_admin
 
 router = DefaultRouter()
@@ -25,11 +26,11 @@ urlpatterns = [
     path('reviews/<int:review_id>/comments/', views.review_comments, name='review-comments'),
     path('reviews/<int:review_id>/comments/<int:comment_id>/', views.review_comment_delete, name='review-comment-delete'),
     path('leaderboard/', views.leaderboard, name='leaderboard'),
-    path('auth/register/', views.register_view, name='register'),
-    path('auth/login/', views.login_view, name='login'),
-    path('auth/logout/', views.logout_view, name='logout'),
-    path('auth/me/', views.me_view, name='me'),
-    path('auth/profile/', views.profile_view, name='profile'),
-    path('auth/kakao/authorize/', views.kakao_authorize_view, name='kakao-authorize'),
-    path('auth/kakao/login/', views.kakao_login_view, name='kakao-login'),
+    path('auth/register/', views_auth.register_view, name='register'),
+    path('auth/login/', views_auth.login_view, name='login'),
+    path('auth/logout/', views_auth.logout_view, name='logout'),
+    path('auth/me/', views_auth.me_view, name='me'),
+    path('auth/profile/', views_auth.profile_view, name='profile'),
+    path('auth/kakao/authorize/', views_auth.kakao_authorize_view, name='kakao-authorize'),
+    path('auth/kakao/login/', views_auth.kakao_login_view, name='kakao-login'),
 ]
