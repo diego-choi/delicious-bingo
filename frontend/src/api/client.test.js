@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
 // client.js를 동적으로 import하여 axiosRetry가 적용된 인스턴스를 테스트
