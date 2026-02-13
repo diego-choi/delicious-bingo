@@ -1987,3 +1987,121 @@ class UserProfileModelTest(TestCase):
         UserProfile.objects.create(user=user, nickname='관련테스트')
 
         self.assertEqual(user.profile.nickname, '관련테스트')
+
+
+# =============================================================================
+# ReviewLike / ReviewComment 모델 테스트
+# =============================================================================
+
+class ReviewLikeModelTest(TestCase):
+    """ReviewLike 모델 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user('testuser', password='testpass')
+        self.user2 = User.objects.create_user('testuser2', password='testpass')
+        self.category = Category.objects.create(name="테스트")
+        self.template = BingoTemplate.objects.create(
+            category=self.category, title="테스트 빙고"
+        )
+        self.restaurant = Restaurant.objects.create(
+            category=self.category, name="테스트 맛집", address="주소",
+            latitude=37.0, longitude=127.0, is_approved=True, created_by=self.user
+        )
+        BingoTemplateItem.objects.create(
+            template=self.template, restaurant=self.restaurant, position=0
+        )
+        self.board = BingoBoard.objects.create(
+            user=self.user, template=self.template, target_line_count=1
+        )
+        self.review = Review.objects.create(
+            user=self.user, bingo_board=self.board, restaurant=self.restaurant,
+            content='테스트 리뷰입니다 10자 이상', rating=5, visited_date='2025-01-01'
+        )
+
+    def test_review_like_creation(self):
+        """ReviewLike 생성"""
+        from .models import ReviewLike
+        like = ReviewLike.objects.create(user=self.user, review=self.review)
+        self.assertEqual(like.user, self.user)
+        self.assertEqual(like.review, self.review)
+        self.assertIsNotNone(like.created_at)
+
+    def test_review_like_unique_constraint(self):
+        """동일 사용자가 같은 리뷰에 중복 좋아요 불가"""
+        from .models import ReviewLike
+        from django.db import IntegrityError
+        ReviewLike.objects.create(user=self.user, review=self.review)
+        with self.assertRaises(IntegrityError):
+            ReviewLike.objects.create(user=self.user, review=self.review)
+
+    def test_review_like_different_users(self):
+        """다른 사용자는 같은 리뷰에 좋아요 가능"""
+        from .models import ReviewLike
+        ReviewLike.objects.create(user=self.user, review=self.review)
+        ReviewLike.objects.create(user=self.user2, review=self.review)
+        self.assertEqual(self.review.likes.count(), 2)
+
+    def test_review_likes_related_name(self):
+        """Review에서 likes로 접근 가능"""
+        from .models import ReviewLike
+        ReviewLike.objects.create(user=self.user, review=self.review)
+        self.assertEqual(self.review.likes.count(), 1)
+
+
+class ReviewCommentModelTest(TestCase):
+    """ReviewComment 모델 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user('testuser', password='testpass')
+        self.category = Category.objects.create(name="테스트")
+        self.template = BingoTemplate.objects.create(
+            category=self.category, title="테스트 빙고"
+        )
+        self.restaurant = Restaurant.objects.create(
+            category=self.category, name="테스트 맛집", address="주소",
+            latitude=37.0, longitude=127.0, is_approved=True, created_by=self.user
+        )
+        BingoTemplateItem.objects.create(
+            template=self.template, restaurant=self.restaurant, position=0
+        )
+        self.board = BingoBoard.objects.create(
+            user=self.user, template=self.template, target_line_count=1
+        )
+        self.review = Review.objects.create(
+            user=self.user, bingo_board=self.board, restaurant=self.restaurant,
+            content='테스트 리뷰입니다 10자 이상', rating=5, visited_date='2025-01-01'
+        )
+
+    def test_review_comment_creation(self):
+        """ReviewComment 생성"""
+        from .models import ReviewComment
+        comment = ReviewComment.objects.create(
+            user=self.user, review=self.review, content='좋은 리뷰네요!'
+        )
+        self.assertEqual(comment.user, self.user)
+        self.assertEqual(comment.review, self.review)
+        self.assertEqual(comment.content, '좋은 리뷰네요!')
+        self.assertIsNotNone(comment.created_at)
+
+    def test_review_comment_ordering(self):
+        """댓글은 created_at 오름차순 정렬"""
+        from .models import ReviewComment
+        import time
+        c1 = ReviewComment.objects.create(
+            user=self.user, review=self.review, content='첫 번째 댓글'
+        )
+        time.sleep(0.01)
+        c2 = ReviewComment.objects.create(
+            user=self.user, review=self.review, content='두 번째 댓글'
+        )
+        comments = list(self.review.comments.all())
+        self.assertEqual(comments[0], c1)
+        self.assertEqual(comments[1], c2)
+
+    def test_review_comments_related_name(self):
+        """Review에서 comments로 접근 가능"""
+        from .models import ReviewComment
+        ReviewComment.objects.create(
+            user=self.user, review=self.review, content='댓글입니다'
+        )
+        self.assertEqual(self.review.comments.count(), 1)
