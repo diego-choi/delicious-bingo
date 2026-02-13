@@ -54,6 +54,7 @@ export default function MyBoardsPage() {
 
       {boards.length === 0 ? (
         <div className="text-center py-8 sm:py-12 bg-white rounded-lg shadow">
+          <div className="text-4xl mb-3">🎯</div>
           <p className="text-gray-500 mb-4 text-sm sm:text-base">아직 시작한 빙고가 없습니다.</p>
           <Link
             to="/templates"

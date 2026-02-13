@@ -33,9 +33,18 @@ export default function TemplateListPage() {
       <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">빙고 템플릿</h1>
 
       {templates.length === 0 ? (
-        <p className="text-gray-500 text-center py-8 sm:py-12 text-sm sm:text-base">
-          아직 등록된 빙고 템플릿이 없습니다.
-        </p>
+        <div className="text-center py-8 sm:py-12 bg-white rounded-lg shadow">
+          <div className="text-4xl mb-3">📋</div>
+          <p className="text-gray-500 mb-4 text-sm sm:text-base">
+            아직 등록된 빙고 템플릿이 없습니다.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="text-brand-orange hover:underline text-sm"
+          >
+            새로고침
+          </button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {templates.map((template) => (

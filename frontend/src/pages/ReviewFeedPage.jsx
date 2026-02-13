@@ -53,8 +53,9 @@ export default function ReviewFeedPage() {
         <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
           리뷰 피드
         </h1>
-        <div className="text-center py-12 text-gray-500">
-          아직 공개된 리뷰가 없습니다.
+        <div className="text-center py-12">
+          <div className="text-4xl mb-3">📝</div>
+          <p className="text-gray-500">아직 공개된 리뷰가 없습니다.</p>
         </div>
       </div>
     );
