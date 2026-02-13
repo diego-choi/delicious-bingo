@@ -59,4 +59,28 @@ describe('ConfirmDialog', () => {
     const confirmBtn = screen.getByText('삭제');
     expect(confirmBtn.className).toContain('bg-red');
   });
+
+  describe('접근성', () => {
+    it('should have role="dialog" and aria-modal="true"', () => {
+      render(<ConfirmDialog {...defaultProps} />);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+    });
+
+    it('should have aria-labelledby pointing to title', () => {
+      render(<ConfirmDialog {...defaultProps} />);
+      const dialog = screen.getByRole('dialog');
+      const titleId = dialog.getAttribute('aria-labelledby');
+      const title = document.getElementById(titleId);
+      expect(title).toHaveTextContent('삭제 확인');
+    });
+
+    it('should have aria-describedby pointing to message', () => {
+      render(<ConfirmDialog {...defaultProps} />);
+      const dialog = screen.getByRole('dialog');
+      const messageId = dialog.getAttribute('aria-describedby');
+      const message = document.getElementById(messageId);
+      expect(message).toHaveTextContent('정말 삭제하시겠습니까?');
+    });
+  });
 });
