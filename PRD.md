@@ -18,7 +18,7 @@
 
 ### 배포 URL
 - **Frontend**: https://delicious-bingo.vercel.app
-- **Backend API**: https://delicious-bingo-production.up.railway.app
+- **Backend API**: https://delicious-bingo.fly.dev
 
 ---
 
@@ -30,7 +30,7 @@
 | Python | 3.12 | 런타임 |
 | Django | 6.0.1 | 웹 프레임워크 |
 | Django REST Framework | 3.16 | REST API |
-| PostgreSQL | - | 데이터베이스 (Railway) |
+| PostgreSQL | - | 데이터베이스 (Supabase) |
 | Gunicorn | - | WSGI 서버 |
 | WhiteNoise | - | 정적 파일 서빙 |
 | Cloudinary | - | 이미지 클라우드 저장소 |
@@ -50,7 +50,8 @@
 ### 인프라
 | 서비스 | 용도 |
 |--------|------|
-| Railway | Backend 호스팅, PostgreSQL |
+| Fly.io | Backend 호스팅 |
+| Supabase | PostgreSQL 데이터베이스 |
 | Vercel | Frontend 호스팅 |
 | Cloudinary | 이미지 CDN |
 | Kakao Maps API | 지도 서비스 |
@@ -493,7 +494,7 @@ cd frontend && npm run e2e:prod   # 프로덕션
 
 ## 9. 환경 변수
 
-### Backend (Railway)
+### Backend (Fly.io)
 ```bash
 SECRET_KEY=<Django secret key>
 DEBUG=False

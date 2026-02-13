@@ -1,0 +1,8 @@
+frontend/
+node_modules/
+.git/
+*.md
+fly.toml
+railway.json
+backend/venv/
+__pycache__/

@@ -4,8 +4,8 @@
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│     Vercel      │────▶│    Railway      │────▶│   PostgreSQL    │
-│   (Frontend)    │     │   (Backend)     │     │   (Database)    │
+│     Vercel      │────▶│     Fly.io      │────▶│    Supabase     │
+│   (Frontend)    │     │   (Backend)     │     │  (PostgreSQL)   │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
                                │
                                ▼
@@ -18,55 +18,65 @@
 | 서비스 | 용도 | URL |
 |--------|------|-----|
 | Vercel | Frontend (React + Vite) | https://delicious-bingo.vercel.app |
-| Railway | Backend (Django + DRF) | https://delicious-bingo-production.up.railway.app |
-| Railway | PostgreSQL Database | - |
+| Fly.io | Backend (Django + DRF) | https://delicious-bingo.fly.dev |
+| Supabase | PostgreSQL Database | - |
 | Cloudinary | 이미지 저장소 | - |
 | Kakao | 지도 표시 + 장소 검색 | - |
 
 ---
 
-## 1. Backend 배포 (Railway)
+## 1. Backend 배포 (Fly.io)
 
-### 1.1 프로젝트 생성
-1. [Railway](https://railway.app) → GitHub 로그인
-2. "New Project" → "Provision PostgreSQL" (DB 먼저 생성)
-3. "New Service" → GitHub 저장소 연결
+### 1.1 사전 준비
+```bash
+# Fly.io CLI 설치
+brew install flyctl
 
-### 1.2 설정
-| 설정 | 값 |
-|------|-----|
-| Root Directory | `backend` (또는 비워두기 - railway.json 사용 시) |
-| Builder | Dockerfile (자동 감지) |
-
-**railway.json 사용 (권장)**:
-프로젝트 루트에 `railway.json` 파일이 있으면 Root Directory를 비워두세요.
-```json
-{
-  "$schema": "https://railway.app/railway.schema.json",
-  "build": {
-    "builder": "DOCKERFILE",
-    "dockerfilePath": "backend/Dockerfile"
-  },
-  "deploy": {
-    "startCommand": "sh backend/start.sh",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
-  }
-}
+# 로그인
+fly auth login
 ```
 
-**주의**: Root Directory를 `/backend`로 설정하지 마세요 (절대 경로로 인식되어 오류 발생)
-
-### 1.3 환경 변수
+### 1.2 앱 생성 및 배포
 ```bash
-SECRET_KEY=<django-secret-key>
-DEBUG=False
-ALLOWED_HOSTS=.railway.app
-DATABASE_URL=<PostgreSQL 연결 시 자동 설정>
-CORS_ALLOWED_ORIGINS=https://delicious-bingo.vercel.app
-CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-KAKAO_REST_API_KEY=<카카오-REST-API-키>
-KAKAO_CLIENT_SECRET=<카카오-Client-Secret>
+# 앱 생성 (프로젝트 루트에서 실행)
+fly apps create delicious-bingo
+
+# 배포
+fly deploy
+```
+
+`fly.toml` 설정 (프로젝트 루트):
+```toml
+app = 'delicious-bingo'
+primary_region = 'nrt'
+
+[build]
+  dockerfile = 'backend/Dockerfile'
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  memory = '256mb'
+  cpu_kind = 'shared'
+  cpus = 1
+```
+
+### 1.3 환경 변수 (Secrets)
+```bash
+fly secrets set \
+  SECRET_KEY=<django-secret-key> \
+  DEBUG=False \
+  ALLOWED_HOSTS=.fly.dev \
+  DATABASE_URL=<Supabase-PostgreSQL-URI> \
+  CORS_ALLOWED_ORIGINS=https://delicious-bingo.vercel.app \
+  CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME \
+  KAKAO_REST_API_KEY=<카카오-REST-API-키> \
+  KAKAO_CLIENT_SECRET=<카카오-Client-Secret>
 ```
 
 **주의**: `python-dotenv`는 프로덕션에서 불필요합니다. `settings.py`에서 선택적 import 처리됨.
@@ -75,29 +85,47 @@ KAKAO_CLIENT_SECRET=<카카오-Client-Secret>
 
 ### 1.4 초기 데이터
 ```bash
-railway ssh
+fly ssh console
 python manage.py createsuperuser
 python manage.py loaddata initial_data
 ```
 
 ---
 
-## 2. Frontend 배포 (Vercel)
+## 2. Database (Supabase)
 
 ### 2.1 프로젝트 생성
+1. [Supabase](https://supabase.com) → 프로젝트 생성
+2. 리전: **Northeast Asia - Tokyo** (Fly.io nrt 리전과 동일)
+3. Settings → Database → Connection string (URI) 복사
+
+### 2.2 기존 데이터 마이그레이션
+```bash
+# 기존 DB에서 덤프
+pg_dump <기존_DATABASE_URL> --no-owner --no-acl > backup.sql
+
+# Supabase DB로 복원
+psql <SUPABASE_DATABASE_URL> < backup.sql
+```
+
+---
+
+## 3. Frontend 배포 (Vercel)
+
+### 3.1 프로젝트 생성
 1. [Vercel](https://vercel.com) → GitHub 로그인
 2. "New Project" → 저장소 Import
 3. Framework: Vite, Root Directory: `frontend`
 
-### 2.2 환경 변수 (배포 전 필수 설정)
+### 3.2 환경 변수 (배포 전 필수 설정)
 | 변수 | 값 |
 |------|-----|
-| `VITE_API_URL` | `https://delicious-bingo-production.up.railway.app/api` |
+| `VITE_API_URL` | `https://delicious-bingo.fly.dev/api` |
 | `VITE_KAKAO_JS_KEY` | `<카카오-JavaScript-키>` |
 
 > **중요**: Vite는 빌드 시점에 환경변수를 번들에 포함하므로, 반드시 배포 전에 설정
 
-### 2.3 자동 배포 설정
+### 3.3 자동 배포 설정
 
 **Git Integration 연결**:
 1. Settings → Git → Connect Git Repository
@@ -111,19 +139,19 @@ python manage.py loaddata initial_data
 
 ---
 
-## 3. 외부 서비스 설정
+## 4. 외부 서비스 설정
 
-### 3.1 Cloudinary
+### 4.1 Cloudinary
 1. [Cloudinary](https://cloudinary.com) 가입
 2. Dashboard에서 Cloud Name, API Key, API Secret 확인
-3. Railway 환경변수에 `CLOUDINARY_URL` 설정
+3. Fly.io secrets에 `CLOUDINARY_URL` 설정
 
-### 3.2 카카오 개발자
+### 4.2 카카오 개발자
 
 #### 애플리케이션 설정
 1. [카카오 개발자](https://developers.kakao.com) → 애플리케이션 생성
 2. 앱 키 확인:
-   - **REST API 키** → Railway `KAKAO_REST_API_KEY`
+   - **REST API 키** → Fly.io `KAKAO_REST_API_KEY`
    - **JavaScript 키** → Vercel `VITE_KAKAO_JS_KEY`
 
 #### 플랫폼 설정
@@ -145,19 +173,19 @@ python manage.py loaddata initial_data
 
 6. 보안 설정:
    - **Client Secret**: 활성화
-   - 생성된 값을 Railway `KAKAO_CLIENT_SECRET`에 설정
+   - 생성된 값을 Fly.io `KAKAO_CLIENT_SECRET`에 설정
 
 ---
 
-## 4. 배포 확인
+## 5. 배포 확인
 
 ### API 테스트
 ```bash
 # 카테고리 API
-curl https://delicious-bingo-production.up.railway.app/api/categories/
+curl https://delicious-bingo.fly.dev/api/categories/
 
 # 카카오 로그인 URL 생성
-curl "https://delicious-bingo-production.up.railway.app/api/auth/kakao/authorize/?redirect_uri=https://delicious-bingo.vercel.app/auth/kakao/callback"
+curl "https://delicious-bingo.fly.dev/api/auth/kakao/authorize/?redirect_uri=https://delicious-bingo.vercel.app/auth/kakao/callback"
 ```
 
 ### 카카오 소셜 로그인 수동 테스트
@@ -176,15 +204,15 @@ cd frontend && npm run e2e:prod
 
 ---
 
-## 5. 환경 변수 요약
+## 6. 환경 변수 요약
 
-### Railway (Backend)
+### Fly.io (Backend)
 | 변수 | 필수 | 설명 |
 |------|:----:|------|
 | `SECRET_KEY` | O | Django 시크릿 키 |
 | `DEBUG` | O | `False` |
-| `ALLOWED_HOSTS` | O | `.railway.app` |
-| `DATABASE_URL` | O | PostgreSQL 연결 시 자동 |
+| `ALLOWED_HOSTS` | O | `.fly.dev` |
+| `DATABASE_URL` | O | Supabase PostgreSQL URI |
 | `CORS_ALLOWED_ORIGINS` | O | Vercel URL |
 | `CLOUDINARY_URL` | O | 이미지 저장소 |
 | `KAKAO_REST_API_KEY` | O | 카카오 REST API 키 (소셜 로그인 + 장소 검색) |
@@ -198,31 +226,56 @@ cd frontend && npm run e2e:prod
 
 ---
 
-## 6. 업데이트 배포
+## 7. 업데이트 배포
 
-### 자동 배포 (권장)
+### Backend (Fly.io)
 ```bash
-git push origin master
-# → Railway + Vercel 자동 빌드 및 배포
+fly deploy
 ```
 
-### 수동 배포
+### Frontend (Vercel)
 ```bash
-# Backend
-cd backend && railway up
+git push origin master
+# → Vercel 자동 빌드 및 배포
+```
 
-# Frontend
+### 수동 배포 (Frontend)
+```bash
 cd frontend && vercel --prod
 ```
 
 ---
 
-## 7. 체크리스트
+## 8. 운영 명령어
+
+```bash
+# 로그 확인
+fly logs
+
+# SSH 접속
+fly ssh console
+
+# 앱 상태 확인
+fly status
+
+# 머신 목록
+fly machine list
+
+# 스케일링
+fly scale memory 512
+```
+
+---
+
+## 9. 체크리스트
 
 ### 환경 설정
+- [ ] Supabase 프로젝트 생성 (Tokyo 리전)
+- [ ] 기존 DB → Supabase 마이그레이션
 - [ ] `SECRET_KEY` 설정
 - [ ] `DEBUG=False`
 - [ ] `ALLOWED_HOSTS` 설정
+- [ ] `DATABASE_URL` 설정 (Supabase URI)
 - [ ] `CORS_ALLOWED_ORIGINS` 설정
 - [ ] `CLOUDINARY_URL` 설정
 - [ ] `KAKAO_REST_API_KEY` 설정
@@ -231,32 +284,33 @@ cd frontend && vercel --prod
 - [ ] 카카오 Redirect URI 등록
 - [ ] 카카오 동의항목 설정
 
-### 자동 배포
-- [ ] Railway: Root Directory `backend` (또는 비워두기)
-- [ ] Railway: `railway.json` 파일 생성 (권장)
-- [ ] Vercel: Git Integration 연결
-- [ ] Vercel: Root Directory `frontend`
-- [ ] Vercel: Ignored Build Step 설정
-- [ ] 자동 배포 테스트 완료
+### 배포
+- [ ] Fly.io 앱 생성
+- [ ] `fly deploy` 성공
+- [ ] Vercel `VITE_API_URL` 업데이트 → Redeploy
+- [ ] API 테스트 통과
+- [ ] E2E 프로덕션 테스트 통과
 
 ---
 
-## 8. 비용
+## 10. 비용
 
 | 서비스 | 무료 티어 |
 |--------|----------|
-| Railway | 월 $5 크레딧 |
+| Fly.io | 3 shared-cpu-1x VMs, 256MB RAM 각각 |
+| Supabase | 500MB DB, 1GB 대역폭/월 |
 | Vercel | 개인 프로젝트 무제한 |
 | Cloudinary | 25GB 저장, 25GB 대역폭/월 |
 
 ---
 
-## 9. 문제 해결
+## 11. 문제 해결
 
 배포 중 문제가 발생하면 [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)를 참조하세요.
 
 **주요 트러블슈팅:**
-- Railway Root Directory 오류
+- Fly.io 배포 실패 → `fly logs` 확인
+- DB 연결 오류 → Supabase URI 확인 (pooler vs direct)
 - dotenv import 오류
 - 카카오 소셜 로그인 문제
 - CORS 에러
