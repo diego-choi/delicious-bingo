@@ -42,7 +42,8 @@
 | Tailwind CSS | 4 | 스타일링 |
 | React Router | 7 | 라우팅 |
 | TanStack Query | 5 | 서버 상태 관리 |
-| Axios | - | HTTP 클라이언트 |
+| Axios + axios-retry | - | HTTP 클라이언트 + 재시도 |
+| react-hot-toast | - | 토스트 알림 |
 | Vitest | - | 유닛 테스트 |
 | Playwright | - | E2E 테스트 |
 
@@ -472,9 +473,9 @@ erDiagram
 | 영역 | 테스트 수 | 도구 |
 |------|----------|------|
 | Backend 유닛 | 158개 | Django TestCase |
-| Frontend 유닛 | 87개 | Vitest + Testing Library |
+| Frontend 유닛 | 102개 | Vitest + Testing Library |
 | E2E 개발 | 18개 | Playwright |
-| E2E 프로덕션 | 13개 | Playwright |
+| E2E 프로덕션 | 15개 | Playwright |
 
 ### 테스트 실행
 ```bash
@@ -524,12 +525,12 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>  # 빌드 시점에 번들 포함
 - [x] DB 인덱스 추가 (Review, BingoBoard 등 주요 FK)
 
 ### P1: 안정성 및 프로덕션 퀄리티
-- [ ] 글로벌 에러 바운더리 + 토스트 알림
-- [ ] API 요청 실패 시 재시도 로직 (axios-retry)
-- [ ] 페이지별 로딩 스켈레톤
-- [ ] 삭제 확인 다이얼로그 (빙고판 삭제 등)
-- [ ] 빈 상태 UI (보드 없음, 리뷰 없음 등)
-- [ ] Gunicorn 워커 설정 최적화
+- [x] 글로벌 에러 바운더리 + 토스트 알림 (react-hot-toast)
+- [x] API 요청 실패 시 재시도 로직 (axios-retry)
+- [x] 페이지별 로딩 스켈레톤
+- [x] 삭제 확인 다이얼로그 (빙고판 삭제 등)
+- [x] 빈 상태 UI (보드 없음, 리뷰 없음 등)
+- [x] Gunicorn 워커 설정 최적화
 
 ### P2: 사용자 경험 개선
 - [ ] ConfirmDialog 접근성 개선 (role/aria-modal, ESC 키 닫기, 포커스 트랩)

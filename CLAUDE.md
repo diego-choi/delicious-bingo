@@ -138,10 +138,10 @@ delicious_bingo/
 ├── frontend/
 │   ├── src/
 │   │   ├── admin/                 # 관리자 모듈 (api/, components/, hooks/, pages/)
-│   │   ├── api/                   # Axios 인스턴스 + API 함수
-│   │   ├── components/            # bingo/, common/, forms/, map/, modals/, Layout
+│   │   ├── api/                   # Axios 인스턴스 (axios-retry) + API 함수
+│   │   ├── components/            # bingo/, common/ (ConfirmDialog, Skeleton), forms/, map/, modals/, Layout
 │   │   ├── contexts/              # AuthContext, AuthProvider
-│   │   ├── hooks/                 # useAuth, useTemplates, useBoards 등
+│   │   ├── hooks/                 # useAuth, useTemplates, useBoards, useConfirmDialog 등
 │   │   ├── pages/                 # 페이지 컴포넌트
 │   │   ├── styles/design-tokens.css
 │   │   ├── utils/cn.js
@@ -252,7 +252,10 @@ cd frontend && npm run e2e:prod
 
 ### Frontend
 - ESLint (react-hooks, react-refresh)
-- TanStack Query로 서버 상태 관리
+- TanStack Query로 서버 상태 관리 (retry: 0, axios-retry에서 재시도 처리)
+- Axios + axios-retry (GET/멱등 요청 2회 재시도, POST 제외)
+- react-hot-toast로 토스트 알림 (alert() 미사용)
+- ConfirmDialog + useConfirmDialog 훅으로 삭제 확인 (confirm() 미사용)
 - Tailwind CSS 4 (`@theme` 디렉티브, `design-tokens.css`)
 - 관리자 모듈은 `src/admin/`에 독립적으로 관리
 

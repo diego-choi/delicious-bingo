@@ -49,7 +49,7 @@ flowchart TB
 
 | 영역 | 기술 |
 |------|------|
-| **Frontend** | React 19, Vite 7, Tailwind CSS 4, React Router 7, TanStack Query 5 |
+| **Frontend** | React 19, Vite 7, Tailwind CSS 4, React Router 7, TanStack Query 5, axios-retry, react-hot-toast |
 | **Backend** | Django 6.0, Django REST Framework 3.16, Token Authentication |
 | **Database** | PostgreSQL (Supabase) |
 | **Storage** | Cloudinary (이미지) |
@@ -89,16 +89,16 @@ npm run dev
 ## 테스트
 
 ```bash
-# Backend (154 tests)
+# Backend (158 tests)
 cd backend && python manage.py test
 
-# Frontend (87 tests)
+# Frontend (102 tests)
 cd frontend && npm run test:run
 
 # E2E 개발 환경 (18 tests)
 cd frontend && npm run e2e
 
-# E2E 프로덕션 (13 tests)
+# E2E 프로덕션 (15 tests)
 cd frontend && npm run e2e:prod
 ```
 

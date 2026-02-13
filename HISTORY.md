@@ -8,7 +8,7 @@
 |------|------|
 | **개발 완료** | ✅ 모든 기능 구현 완료 |
 | **프로덕션 배포** | ✅ Fly.io (Django + SPA 단일 배포) |
-| **테스트** | ✅ Backend 158개 / Frontend 87개 / E2E 31개 |
+| **테스트** | ✅ Backend 158개 / Frontend 102개 / E2E 33개 |
 
 ### 배포 URL
 - https://delicious-bingo.fly.dev
@@ -35,6 +35,7 @@
 | UI 전면 개편 | 캐치테이블 스타일 + Vibrant Orange | 2026-01-23 |
 | 카카오 소셜 로그인 | OAuth 2.0 연동, 프로필 관리 | 2026-01-24 |
 | Fly.io 단일 플랫폼 통합 | Django SPA 서빙, CORS 제거 | 2026-02-13 |
+| P1 안정성 및 프로덕션 퀄리티 | 토스트, 재시도, 스켈레톤, 확인 다이얼로그, Gunicorn 최적화 | 2026-02-13 |
 
 ---
 
@@ -246,7 +247,7 @@ npm run e2e:headed   # 브라우저 표시
 npm run e2e:slow     # 디버깅용 느린 모드
 ```
 
-### 프로덕션 테스트 (13개)
+### 프로덕션 테스트 (15개)
 ```bash
 npm run e2e:prod
 ```
@@ -448,4 +449,48 @@ Frontend(Vercel)와 Backend(Fly.io) 분리 배포를 Fly.io 단일 배포로 통
 | `backend/api/models.py` | Review.image에 파일 크기 검증, BingoBoard/Review에 DB 인덱스 추가 |
 | `backend/config/settings.py` | Sentry 초기화, `DEFAULT_THROTTLE_RATES` 추가 |
 | `backend/requirements.txt` | `sentry-sdk[django]` 추가 |
+
+---
+
+## 18. P1 안정성 및 프로덕션 퀄리티 ✅
+
+프로덕션 품질 향상을 위한 6개 P1 항목 일괄 구현.
+
+### 구현 내용
+
+| 기능 | 설명 |
+|------|------|
+| Gunicorn 워커 최적화 | gthread 2 workers × 2 threads, max-requests 1000 (Fly.io 256MB 최적) |
+| 토스트 알림 | react-hot-toast, alert() 22개 호출 → toast로 교체 (10개 파일) |
+| API 재시도 | axios-retry, GET/멱등 요청 2회 재시도 (POST 제외), TanStack Query retry:0 |
+| 삭제 확인 다이얼로그 | ConfirmDialog + useConfirmDialog 훅, confirm() 4곳 교체 |
+| 빈 상태 UI | 3개 페이지에 아이콘 추가 (🎯📋📝) |
+| 스켈레톤 로딩 | SkeletonCard, SkeletonBingoGrid, SkeletonFeedItem (4개 페이지 적용) |
+
+### 새로운 파일
+| 파일 | 설명 |
+|------|------|
+| `frontend/src/components/common/ConfirmDialog.jsx` | 삭제 확인 모달 (danger/default variant) |
+| `frontend/src/components/common/ConfirmDialog.test.jsx` | ConfirmDialog 테스트 (7건) |
+| `frontend/src/components/common/Skeleton.jsx` | 스켈레톤 3종 (Card, BingoGrid, FeedItem) |
+| `frontend/src/components/common/Skeleton.test.jsx` | Skeleton 테스트 (3건) |
+| `frontend/src/hooks/useConfirmDialog.js` | Promise 기반 확인 다이얼로그 훅 |
+| `frontend/src/hooks/useConfirmDialog.test.js` | useConfirmDialog 테스트 (6건) |
+| `frontend/src/api/client.test.js` | API 클라이언트 테스트 (5건) |
+
+### 주요 변경 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `backend/start.sh` | Gunicorn gthread 워커 설정 |
+| `frontend/src/main.jsx` | Toaster 마운트, TanStack Query retry:0 |
+| `frontend/src/api/client.js` | axios-retry, timeout 15초 |
+| 10개 페이지/컴포넌트 | alert() → toast 교체 |
+| 4개 페이지 | confirm() → ConfirmDialog 교체 |
+| 4개 페이지 | 로딩 상태를 스켈레톤으로 교체 |
+
+### 삭제된 파일
+| 파일 | 사유 |
+|------|------|
+| `frontend/src/components/common/LoadingSpinner.jsx` | 스켈레톤으로 대체, 참조 0건 |
+| `frontend/src/components/common/LoadingSpinner.test.jsx` | 위 파일의 테스트 |
 
