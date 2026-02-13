@@ -2208,3 +2208,173 @@ class ReviewSerializerSocialFieldsTest(TestCase):
         UserProfile.objects.create(user=self.user, nickname='맛집탐험가')
         data = self._get_serializer_data()
         self.assertEqual(data['display_name'], '맛집탐험가')
+
+
+# =============================================================================
+# 리뷰 좋아요/댓글 API 테스트
+# =============================================================================
+
+class ReviewLikeAPITest(APITestCase):
+    """리뷰 좋아요 토글 API 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user('testuser', password='testpass')
+        self.user2 = User.objects.create_user('testuser2', password='testpass')
+        self.category = Category.objects.create(name="테스트")
+        self.template = BingoTemplate.objects.create(
+            category=self.category, title="테스트 빙고"
+        )
+        self.restaurant = Restaurant.objects.create(
+            category=self.category, name="테스트 맛집", address="주소",
+            latitude=37.0, longitude=127.0, is_approved=True, created_by=self.user
+        )
+        BingoTemplateItem.objects.create(
+            template=self.template, restaurant=self.restaurant, position=0
+        )
+        self.board = BingoBoard.objects.create(
+            user=self.user, template=self.template, target_line_count=1
+        )
+        self.review = Review.objects.create(
+            user=self.user, bingo_board=self.board, restaurant=self.restaurant,
+            content='테스트 리뷰입니다 10자 이상', rating=5, visited_date='2025-01-01',
+            is_public=True
+        )
+
+    def test_like_toggle_requires_auth(self):
+        """좋아요 토글은 인증이 필요하다"""
+        response = self.client.post(f'/api/reviews/{self.review.id}/like/')
+        self.assertIn(response.status_code, [401, 403])
+
+    def test_like_toggle_creates_like(self):
+        """좋아요 토글 시 좋아요 생성"""
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post(f'/api/reviews/{self.review.id}/like/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data['is_liked'])
+        self.assertEqual(response.data['like_count'], 1)
+
+    def test_like_toggle_removes_like(self):
+        """이미 좋아요한 경우 토글 시 좋아요 삭제"""
+        from .models import ReviewLike
+        ReviewLike.objects.create(user=self.user2, review=self.review)
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post(f'/api/reviews/{self.review.id}/like/')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data['is_liked'])
+        self.assertEqual(response.data['like_count'], 0)
+
+    def test_like_toggle_private_review_forbidden(self):
+        """비공개 리뷰에는 좋아요 불가"""
+        self.review.is_public = False
+        self.review.save()
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post(f'/api/reviews/{self.review.id}/like/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_like_toggle_nonexistent_review(self):
+        """존재하지 않는 리뷰에 좋아요 시 404"""
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post('/api/reviews/99999/like/')
+        self.assertEqual(response.status_code, 404)
+
+
+class ReviewCommentAPITest(APITestCase):
+    """리뷰 댓글 API 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user('testuser', password='testpass')
+        self.user2 = User.objects.create_user('testuser2', password='testpass')
+        self.category = Category.objects.create(name="테스트")
+        self.template = BingoTemplate.objects.create(
+            category=self.category, title="테스트 빙고"
+        )
+        self.restaurant = Restaurant.objects.create(
+            category=self.category, name="테스트 맛집", address="주소",
+            latitude=37.0, longitude=127.0, is_approved=True, created_by=self.user
+        )
+        BingoTemplateItem.objects.create(
+            template=self.template, restaurant=self.restaurant, position=0
+        )
+        self.board = BingoBoard.objects.create(
+            user=self.user, template=self.template, target_line_count=1
+        )
+        self.review = Review.objects.create(
+            user=self.user, bingo_board=self.board, restaurant=self.restaurant,
+            content='테스트 리뷰입니다 10자 이상', rating=5, visited_date='2025-01-01',
+            is_public=True
+        )
+
+    def test_comments_list_requires_auth(self):
+        """댓글 목록 조회는 인증이 필요하다"""
+        response = self.client.get(f'/api/reviews/{self.review.id}/comments/')
+        self.assertIn(response.status_code, [401, 403])
+
+    def test_create_comment(self):
+        """댓글 작성"""
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post(
+            f'/api/reviews/{self.review.id}/comments/',
+            {'content': '좋은 리뷰네요!'}
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['content'], '좋은 리뷰네요!')
+        self.assertEqual(response.data['username'], 'testuser2')
+
+    def test_list_comments(self):
+        """댓글 목록 조회"""
+        from .models import ReviewComment
+        ReviewComment.objects.create(
+            user=self.user, review=self.review, content='첫 번째 댓글'
+        )
+        ReviewComment.objects.create(
+            user=self.user2, review=self.review, content='두 번째 댓글'
+        )
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(f'/api/reviews/{self.review.id}/comments/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+
+    def test_create_comment_empty_content_fails(self):
+        """빈 내용으로 댓글 작성 시 실패"""
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post(
+            f'/api/reviews/{self.review.id}/comments/',
+            {'content': ''}
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_comment_private_review_forbidden(self):
+        """비공개 리뷰에는 댓글 불가"""
+        self.review.is_public = False
+        self.review.save()
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.post(
+            f'/api/reviews/{self.review.id}/comments/',
+            {'content': '댓글입니다'}
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_own_comment(self):
+        """본인 댓글 삭제"""
+        from .models import ReviewComment
+        comment = ReviewComment.objects.create(
+            user=self.user2, review=self.review, content='삭제할 댓글'
+        )
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.delete(
+            f'/api/reviews/{self.review.id}/comments/{comment.id}/'
+        )
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(ReviewComment.objects.filter(id=comment.id).exists())
+
+    def test_delete_other_user_comment_forbidden(self):
+        """다른 사용자의 댓글 삭제 불가"""
+        from .models import ReviewComment
+        comment = ReviewComment.objects.create(
+            user=self.user, review=self.review, content='다른 사용자 댓글'
+        )
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.delete(
+            f'/api/reviews/{self.review.id}/comments/{comment.id}/'
+        )
+        self.assertEqual(response.status_code, 403)
