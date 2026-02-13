@@ -2190,24 +2190,6 @@ class ReviewSerializerSocialFieldsTest(TestCase):
         data = self._get_serializer_data(user=None)
         self.assertFalse(data['is_liked'])
 
-    def test_review_serializer_has_username(self):
-        """ReviewSerializer가 username 필드를 포함해야 한다"""
-        data = self._get_serializer_data()
-        self.assertIn('username', data)
-        self.assertEqual(data['username'], 'testuser')
-
-    def test_review_serializer_has_display_name(self):
-        """ReviewSerializer가 display_name 필드를 포함해야 한다"""
-        data = self._get_serializer_data()
-        self.assertIn('display_name', data)
-        self.assertEqual(data['display_name'], 'testuser')
-
-    def test_review_serializer_display_name_uses_nickname(self):
-        """닉네임이 있으면 display_name이 닉네임"""
-        from .models import UserProfile
-        UserProfile.objects.create(user=self.user, nickname='맛집탐험가')
-        data = self._get_serializer_data()
-        self.assertEqual(data['display_name'], '맛집탐험가')
 
 
 # =============================================================================
