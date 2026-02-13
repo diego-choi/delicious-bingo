@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ReviewForm from '../forms/ReviewForm';
 import KakaoMap from '../map/KakaoMap';
+import ReviewSocialSection from '../bingo/ReviewSocialSection';
 
 /**
  * 셀 상세 모달 컴포넌트
@@ -148,6 +149,11 @@ export default function CellDetailModal({
                   <p className="text-sm text-gray-500">
                     방문일: {cell.review.visited_date}
                   </p>
+
+                  {/* 좋아요/댓글 */}
+                  {cell.review.is_public && (
+                    <ReviewSocialSection review={cell.review} boardId={boardId} />
+                  )}
                 </div>
               )}
             </div>

@@ -27,6 +27,12 @@ export const reviewsApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
   getById: (id) => apiClient.get(`/reviews/${id}/`),
+  toggleLike: (reviewId) => apiClient.post(`/reviews/${reviewId}/like/`),
+  getComments: (reviewId) => apiClient.get(`/reviews/${reviewId}/comments/`),
+  createComment: (reviewId, content) =>
+    apiClient.post(`/reviews/${reviewId}/comments/`, { content }),
+  deleteComment: (reviewId, commentId) =>
+    apiClient.delete(`/reviews/${reviewId}/comments/${commentId}/`),
 };
 
 // 리더보드 API
