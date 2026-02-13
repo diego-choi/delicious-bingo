@@ -2286,9 +2286,22 @@ class ReviewCommentAPITest(APITestCase):
             is_public=True
         )
 
-    def test_comments_list_requires_auth(self):
-        """댓글 목록 조회는 인증이 필요하다"""
+    def test_comments_list_accessible_without_auth(self):
+        """댓글 목록 조회는 비로그인도 가능하다"""
+        from .models import ReviewComment
+        ReviewComment.objects.create(
+            user=self.user, review=self.review, content='공개 댓글'
+        )
         response = self.client.get(f'/api/reviews/{self.review.id}/comments/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
+    def test_create_comment_requires_auth(self):
+        """댓글 작성은 인증이 필요하다"""
+        response = self.client.post(
+            f'/api/reviews/{self.review.id}/comments/',
+            {'content': '비로그인 댓글'}
+        )
         self.assertIn(response.status_code, [401, 403])
 
     def test_create_comment(self):

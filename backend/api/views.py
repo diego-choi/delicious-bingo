@@ -223,9 +223,9 @@ def review_like_toggle(request, review_id):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def review_comments(request, review_id):
-    """리뷰 댓글 목록 조회 / 작성"""
+    """리뷰 댓글 목록 조회 (AllowAny) / 작성 (인증 필요)"""
     try:
         review = Review.objects.get(id=review_id, is_public=True)
     except Review.DoesNotExist:
@@ -237,7 +237,10 @@ def review_comments(request, review_id):
         serializer = ReviewCommentSerializer(comments, many=True)
         return Response(serializer.data)
 
-    # POST
+    # POST - 인증 필요
+    if not request.user or not request.user.is_authenticated:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
     from .serializers import ReviewCommentCreateSerializer
     serializer = ReviewCommentCreateSerializer(data=request.data)
     if serializer.is_valid():
