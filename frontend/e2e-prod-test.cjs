@@ -1,7 +1,7 @@
 const { chromium } = require('playwright');
 
-const BASE_URL = 'https://delicious-bingo.fly.dev';
-const API_URL = 'https://delicious-bingo.fly.dev/api';
+const BASE_URL = process.env.E2E_BASE_URL || 'https://delicious-bingo.duckdns.org';
+const API_URL = `${BASE_URL}/api`;
 
 async function runTests() {
   const browser = await chromium.launch({ headless: true });

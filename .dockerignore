@@ -5,3 +5,7 @@ node_modules/
 fly.toml
 backend/venv/
 __pycache__/
+.env
+.env.*
+certbot/
+nginx/

@@ -2,7 +2,7 @@
 
 맛집 탐방을 게임화한 5x5 빙고 웹 애플리케이션. 사용자가 맛집 템플릿을 선택하고, 실제 방문 후 리뷰를 작성하면 빙고 셀이 활성화되어 목표 라인 수 달성 시 완료.
 
-- **URL**: https://delicious-bingo.fly.dev
+- **URL**: https://delicious-bingo.duckdns.org
 
 ---
 

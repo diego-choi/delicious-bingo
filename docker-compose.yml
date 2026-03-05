@@ -1,0 +1,44 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_KAKAO_JS_KEY: ${VITE_KAKAO_JS_KEY}
+    container_name: delicious-bingo-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - "8000"
+    networks:
+      - internal
+
+  nginx:
+    image: nginx:alpine
+    container_name: delicious-bingo-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - app
+    networks:
+      - internal
+
+  certbot:
+    image: certbot/certbot
+    container_name: delicious-bingo-certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
