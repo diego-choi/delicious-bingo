@@ -12,19 +12,22 @@ export default function BoardPage() {
   const { id } = useParams();
   const { data: board, isLoading, error } = useBoard(id);
   const createReview = useCreateReview();
-  const [selectedCell, setSelectedCell] = useState(null);
+  const [selectedPosition, setSelectedPosition] = useState(null);
   const [celebration, setCelebration] = useState({ show: false, isGoalAchieved: false });
 
   // 활성화된 셀 수 계산
   const cells = board?.cells || [];
   const activatedCells = cells.filter((cell) => cell.is_activated).length;
+  const selectedCell = selectedPosition !== null
+    ? cells.find((c) => c.position === selectedPosition) ?? null
+    : null;
 
   const handleCellClick = (cell) => {
-    setSelectedCell(cell);
+    setSelectedPosition(cell.position);
   };
 
   const handleCloseModal = () => {
-    setSelectedCell(null);
+    setSelectedPosition(null);
   };
 
   const handleReviewSubmit = async (formData) => {
@@ -40,7 +43,7 @@ export default function BoardPage() {
       }
 
       // 모달 닫기
-      setSelectedCell(null);
+      setSelectedPosition(null);
     } catch (err) {
       console.error('리뷰 등록 실패:', err);
       toast.error('리뷰 등록에 실패했습니다. 다시 시도해주세요.');
