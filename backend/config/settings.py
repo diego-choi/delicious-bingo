@@ -46,7 +46,11 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
-    if DEBUG or 'test' in sys.argv:
+    # 개발, 테스트, Docker 빌드(collectstatic) 시에는 insecure key 허용
+    _is_build_or_dev = DEBUG or any(
+        cmd in sys.argv for cmd in ('test', 'collectstatic', 'migrate')
+    )
+    if _is_build_or_dev:
         SECRET_KEY = 'django-insecure-dev-only-key'
     else:
         raise ValueError("SECRET_KEY 환경변수가 설정되지 않았습니다.")
