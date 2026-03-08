@@ -2584,3 +2584,113 @@ class ImageUploadValidationTest(TestCase):
         large_file = SimpleUploadedFile('big.jpg', b'x' * (5 * 1024 * 1024 + 1), content_type='image/jpeg')
         with self.assertRaises(ValidationError):
             validate_image_file_size(large_file)
+
+
+# =============================================================================
+# Review Visibility Update 테스트
+# =============================================================================
+
+class ReviewVisibilityAPITest(APITestCase):
+    """리뷰 공개 여부 변경 API 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user('testuser', password='testpass')
+        self.other_user = User.objects.create_user('otheruser', password='testpass')
+        self.category = Category.objects.create(name="평양냉면")
+        self.template = BingoTemplate.objects.create(
+            category=self.category,
+            title="테스트 빙고"
+        )
+        self.restaurants = []
+        for i in range(25):
+            restaurant = Restaurant.objects.create(
+                category=self.category,
+                name=f"맛집{i}",
+                address=f"주소{i}",
+                latitude=37.0,
+                longitude=127.0,
+                is_approved=True,
+                created_by=self.user
+            )
+            self.restaurants.append(restaurant)
+            BingoTemplateItem.objects.create(
+                template=self.template,
+                restaurant=restaurant,
+                position=i
+            )
+        self.board = BingoBoard.objects.create(
+            user=self.user,
+            template=self.template,
+            target_line_count=1
+        )
+        self.review = Review.objects.create(
+            user=self.user,
+            bingo_board=self.board,
+            restaurant=self.restaurants[0],
+            content='맛있었습니다',
+            rating=5,
+            visited_date='2025-01-01',
+            is_public=True
+        )
+
+    def test_update_review_visibility_to_private(self):
+        """PATCH로 공개 리뷰를 비공개로 변경할 수 있다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(
+            f'/api/reviews/{self.review.id}/',
+            {'is_public': False},
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.review.refresh_from_db()
+        self.assertFalse(self.review.is_public)
+
+    def test_update_review_visibility_to_public(self):
+        """PATCH로 비공개 리뷰를 공개로 변경할 수 있다"""
+        self.review.is_public = False
+        self.review.save()
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(
+            f'/api/reviews/{self.review.id}/',
+            {'is_public': True},
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.review.refresh_from_db()
+        self.assertTrue(self.review.is_public)
+
+    def test_update_review_visibility_requires_auth(self):
+        """미인증 사용자는 리뷰 공개 여부를 변경할 수 없다"""
+        response = self.client.patch(
+            f'/api/reviews/{self.review.id}/',
+            {'is_public': False},
+            format='json'
+        )
+        self.assertIn(response.status_code, [
+            status.HTTP_401_UNAUTHORIZED,
+            status.HTTP_403_FORBIDDEN
+        ])
+
+    def test_update_review_visibility_other_user_forbidden(self):
+        """타인의 리뷰 공개 여부를 변경할 수 없다"""
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.patch(
+            f'/api/reviews/{self.review.id}/',
+            {'is_public': False},
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_review_rejects_other_fields(self):
+        """PATCH로 is_public 외의 필드는 변경할 수 없다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(
+            f'/api/reviews/{self.review.id}/',
+            {'is_public': False, 'content': '수정된 내용', 'rating': 1},
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.review.refresh_from_db()
+        self.assertFalse(self.review.is_public)
+        self.assertEqual(self.review.content, '맛있었습니다')
+        self.assertEqual(self.review.rating, 5)
