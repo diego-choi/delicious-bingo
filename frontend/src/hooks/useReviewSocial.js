@@ -49,6 +49,23 @@ export function useCreateComment(boardId) {
   });
 }
 
+export function useUpdateReviewVisibility(boardId) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ reviewId, isPublic }) => {
+      const response = await reviewsApi.updateVisibility(reviewId, isPublic);
+      return response.data;
+    },
+    onSuccess: () => {
+      if (boardId) {
+        queryClient.invalidateQueries({ queryKey: ['board', String(boardId)] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['reviewFeed'] });
+    },
+  });
+}
+
 export function useDeleteComment(boardId) {
   const queryClient = useQueryClient();
 

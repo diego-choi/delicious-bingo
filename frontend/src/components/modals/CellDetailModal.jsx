@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import ReviewForm from '../forms/ReviewForm';
 import KakaoMap from '../map/KakaoMap';
 import ReviewSocialSection from '../bingo/ReviewSocialSection';
+import { useUpdateReviewVisibility } from '../../hooks/useReviewSocial';
 
 /**
  * 셀 상세 모달 컴포넌트
@@ -20,6 +22,7 @@ export default function CellDetailModal({
   isSubmitting = false,
 }) {
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const updateVisibility = useUpdateReviewVisibility(boardId);
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -149,6 +152,39 @@ export default function CellDetailModal({
                   <p className="text-sm text-gray-500">
                     방문일: {cell.review.visited_date}
                   </p>
+
+                  {/* 공개 여부 토글 */}
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={cell.review.is_public}
+                        onChange={() => {
+                          const newValue = !cell.review.is_public;
+                          updateVisibility.mutate(
+                            { reviewId: cell.review.id, isPublic: newValue },
+                            {
+                              onSuccess: () => {
+                                toast.success(
+                                  newValue
+                                    ? '리뷰가 공개되었습니다'
+                                    : '리뷰가 비공개되었습니다'
+                                );
+                              },
+                              onError: () => {
+                                toast.error('공개 여부 변경에 실패했습니다');
+                              },
+                            }
+                          );
+                        }}
+                        disabled={updateVisibility.isPending}
+                        className="sr-only peer"
+                      />
+                      <div className="w-10 h-6 bg-gray-300 rounded-full peer-checked:bg-brand-orange transition-colors" />
+                      <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-4 transition-transform" />
+                    </div>
+                    <span className="text-sm text-gray-700">리뷰 피드에 공개</span>
+                  </label>
 
                   {/* 좋아요/댓글 */}
                   {cell.review.is_public && (

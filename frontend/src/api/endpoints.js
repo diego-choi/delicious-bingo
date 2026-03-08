@@ -27,6 +27,8 @@ export const reviewsApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
   getById: (id) => apiClient.get(`/reviews/${id}/`),
+  updateVisibility: (reviewId, isPublic) =>
+    apiClient.patch(`/reviews/${reviewId}/`, { is_public: isPublic }),
   getFeed: (page = 1) => apiClient.get('/reviews/feed/', { params: { page } }),
   toggleLike: (reviewId) => apiClient.post(`/reviews/${reviewId}/like/`),
   getComments: (reviewId) => apiClient.get(`/reviews/${reviewId}/comments/`),

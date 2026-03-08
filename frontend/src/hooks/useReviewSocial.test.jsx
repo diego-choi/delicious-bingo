@@ -6,6 +6,7 @@ import {
   useReviewComments,
   useCreateComment,
   useDeleteComment,
+  useUpdateReviewVisibility,
 } from './useReviewSocial';
 
 vi.mock('../api/endpoints', () => ({
@@ -14,6 +15,7 @@ vi.mock('../api/endpoints', () => ({
     getComments: vi.fn(),
     createComment: vi.fn(),
     deleteComment: vi.fn(),
+    updateVisibility: vi.fn(),
   },
 }));
 
@@ -124,6 +126,32 @@ describe('useReviewSocial hooks', () => {
       });
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['board', '5'],
+      });
+    });
+  });
+
+  describe('useUpdateReviewVisibility', () => {
+    it('calls updateVisibility API and invalidates queries', async () => {
+      reviewsApi.updateVisibility.mockResolvedValue({
+        data: { is_public: false },
+      });
+
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const { result } = renderHook(() => useUpdateReviewVisibility('5'), {
+        wrapper: createWrapper(),
+      });
+
+      await act(async () => {
+        await result.current.mutateAsync({ reviewId: 42, isPublic: false });
+      });
+
+      expect(reviewsApi.updateVisibility).toHaveBeenCalledWith(42, false);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ['board', '5'],
+      });
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ['reviewFeed'],
       });
     });
   });
