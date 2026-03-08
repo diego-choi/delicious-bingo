@@ -11,6 +11,7 @@ export default function ReviewForm({ onSubmit, isSubmitting = false }) {
     content: '',
     rating: 5,
     visited_date: new Date().toISOString().split('T')[0],
+    is_public: true,
   });
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -74,6 +75,7 @@ export default function ReviewForm({ onSubmit, isSubmitting = false }) {
     submitData.append('content', formData.content);
     submitData.append('rating', formData.rating);
     submitData.append('visited_date', formData.visited_date);
+    submitData.append('is_public', formData.is_public);
     if (image) {
       submitData.append('image', image);
     }
@@ -193,6 +195,23 @@ export default function ReviewForm({ onSubmit, isSubmitting = false }) {
           </span>
         </div>
       </div>
+
+      {/* 공개 여부 */}
+      <label className="flex items-center gap-3 cursor-pointer select-none">
+        <div className="relative">
+          <input
+            type="checkbox"
+            checked={formData.is_public}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, is_public: e.target.checked }))
+            }
+            className="sr-only peer"
+          />
+          <div className="w-10 h-6 bg-gray-300 rounded-full peer-checked:bg-brand-orange transition-colors" />
+          <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-4 transition-transform" />
+        </div>
+        <span className="text-sm text-gray-700">리뷰 피드에 공개</span>
+      </label>
 
       {/* 제출 버튼 */}
       <button
