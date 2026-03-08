@@ -172,6 +172,7 @@ delicious_bingo/
 ├── PRD.md                         # 제품 요구사항
 ├── DEPLOY.md                      # 배포 가이드 + 환경변수
 ├── HISTORY.md                     # 개발 히스토리
+├── TODO.md                        # 향후 개선 계획 (P0~P3 우선순위별)
 ├── TROUBLESHOOTING.md             # 문제 해결
 └── README.md
 ```
