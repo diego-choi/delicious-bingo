@@ -34,15 +34,15 @@ export default function LeaderboardPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">리더보드</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center font-display">리더보드</h1>
 
       {/* 탭 버튼 */}
-      <div className="flex bg-gray-100 rounded-lg p-1 mb-4 sm:mb-6">
+      <div className="flex bg-brand-beige/50 rounded-lg p-1 mb-4 sm:mb-6">
         <button
           onClick={() => setActiveTab('fastest')}
           className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors ${
             activeTab === 'fastest'
-              ? 'bg-white text-brand-orange shadow'
+              ? 'bg-brand-cream text-brand-orange shadow'
               : 'text-gray-600 hover:text-gray-800'
           }`}
         >
@@ -52,7 +52,7 @@ export default function LeaderboardPage() {
           onClick={() => setActiveTab('most')}
           className={`flex-1 py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors ${
             activeTab === 'most'
-              ? 'bg-white text-brand-orange shadow'
+              ? 'bg-brand-cream text-brand-orange shadow'
               : 'text-gray-600 hover:text-gray-800'
           }`}
         >
@@ -62,9 +62,9 @@ export default function LeaderboardPage() {
 
       {/* 최단 시간 클리어 순위 */}
       {activeTab === 'fastest' && (
-        <div className="bg-white rounded-xl shadow overflow-hidden">
+        <div className="bg-brand-cream rounded-xl border border-brand-beige overflow-hidden">
           <div className="bg-brand-orange px-4 sm:px-6 py-3 sm:py-4">
-            <h2 className="text-white font-semibold flex items-center gap-2 text-sm sm:text-base">
+            <h2 className="text-white font-semibold font-display flex items-center gap-2 text-sm sm:text-base">
               <span className="text-lg sm:text-xl">⚡</span>
               최단 시간 클리어
             </h2>
@@ -75,7 +75,7 @@ export default function LeaderboardPage() {
               아직 완료된 빙고가 없습니다.
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-brand-beige">
               {fastest_completions.map((item) => (
                 <div
                   key={`${item.username}-${item.completed_at}`}
@@ -108,9 +108,9 @@ export default function LeaderboardPage() {
 
       {/* 최다 완료 순위 */}
       {activeTab === 'most' && (
-        <div className="bg-white rounded-xl shadow overflow-hidden">
-          <div className="bg-gradient-to-r from-green-400 to-emerald-500 px-4 sm:px-6 py-3 sm:py-4">
-            <h2 className="text-white font-semibold flex items-center gap-2 text-sm sm:text-base">
+        <div className="bg-brand-cream rounded-xl border border-brand-beige overflow-hidden">
+          <div className="bg-brand-olive px-4 sm:px-6 py-3 sm:py-4">
+            <h2 className="text-white font-semibold font-display flex items-center gap-2 text-sm sm:text-base">
               <span className="text-lg sm:text-xl">🏆</span>
               최다 완료
             </h2>
@@ -121,7 +121,7 @@ export default function LeaderboardPage() {
               아직 완료된 빙고가 없습니다.
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-brand-beige">
               {most_completions.map((item) => (
                 <div
                   key={item.username}
@@ -142,7 +142,7 @@ export default function LeaderboardPage() {
                     <p className="font-medium text-sm sm:text-base truncate">{item.username}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="font-semibold text-green-600 text-sm sm:text-base">
+                    <p className="font-semibold text-brand-olive text-sm sm:text-base">
                       {item.completed_count}회 완료
                     </p>
                   </div>

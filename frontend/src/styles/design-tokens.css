@@ -6,13 +6,19 @@
 
 @theme {
   /* Brand Colors */
-  --color-brand-orange: #FF8A00;
-  --color-brand-beige: #FFF9F0;
-  --color-brand-charcoal: #1A1A1A;
-  --color-brand-gold: #FFD700;
+  --color-brand-orange: #E85D3A;    /* 토마토 레드 */
+  --color-brand-beige: #F4E8D1;     /* 크래프트 베이지 */
+  --color-brand-charcoal: #2D2D2D;  /* 숯 그레이 */
+  --color-brand-gold: #FFD93D;      /* 웜 옐로 */
+  --color-brand-olive: #7CB342;     /* 올리브 그린 */
+  --color-brand-cream: #FFFEF5;     /* 따뜻한 화이트 */
 
   /* Inactive Cell Color */
-  --color-cell-inactive: #F5F3F0;
+  --color-cell-inactive: #EDE6D8;   /* 크래프트 셀 */
+
+  /* Fonts */
+  --font-display: 'Gaegu', cursive;
+  --font-body: 'Noto Sans KR', sans-serif;
 }
 
 /* =============================================================================

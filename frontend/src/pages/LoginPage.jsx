@@ -38,9 +38,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 sm:px-0">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-6 sm:p-8">
+      <div className="max-w-md w-full bg-brand-cream rounded-xl border border-brand-beige shadow-lg p-6 sm:p-8">
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">로그인</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-brand-charcoal font-display">로그인</h1>
           <p className="text-gray-500 mt-2 text-sm sm:text-base">빙고 도전을 시작하세요!</p>
         </div>
 
@@ -104,7 +104,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">또는</span>
+                <span className="px-2 bg-brand-cream text-gray-500">또는</span>
               </div>
             </div>
 

@@ -38,12 +38,14 @@ export default function CompletionCelebration({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      {/* 컨페티 효과 - 오렌지/골드 원형 */}
+      {/* 컨페티 효과 — 홀수=원형, 짝수=다이아몬드 */}
       <div ref={confettiRef} className="absolute inset-0 pointer-events-none overflow-hidden">
         {confettiItems.map((item) => (
           <div
             key={item.id}
-            className="absolute rounded-full animate-confetti-fall"
+            className={`absolute animate-confetti-fall ${
+              item.id % 2 === 0 ? 'rounded-sm rotate-45' : 'rounded-full'
+            }`}
             style={{
               left: `${item.left}%`,
               top: `-20px`,
@@ -57,18 +59,18 @@ export default function CompletionCelebration({
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center relative z-10 mx-4">
+      <div className="bg-brand-cream rounded-2xl border-2 border-dashed border-brand-charcoal/20 p-6 sm:p-8 max-w-sm w-full text-center relative z-10 mx-4">
         {/* 아이콘 */}
         <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">
           {isGoalAchieved ? '🏆' : '🎉'}
         </div>
 
         {/* 제목 */}
-        <h2 className="text-xl sm:text-2xl font-bold mb-2">
+        <h2 className="text-xl sm:text-2xl font-bold font-display mb-2">
           {isGoalAchieved ? (
             <span className="text-brand-orange">목표 달성!</span>
           ) : (
-            <span className="text-green-600">빙고!</span>
+            <span className="text-brand-olive">빙고!</span>
           )}
         </h2>
 

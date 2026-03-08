@@ -35,7 +35,9 @@ describe('BingoCell', () => {
   it('shows check icon when activated', () => {
     const activatedCell = { ...mockCell, is_activated: true };
     render(<BingoCell cell={activatedCell} onClick={() => {}} />);
-    expect(screen.getByText('✓')).toBeInTheDocument();
+    const cell = screen.getByText('테스트 맛집').closest('button');
+    const svgCircle = cell.querySelector('svg circle');
+    expect(svgCircle).toBeInTheDocument();
   });
 
   it('calls onClick when clicked', () => {
@@ -71,15 +73,16 @@ describe('BingoCell', () => {
     expect(imageLayer.style.backgroundImage).toContain('food.jpg');
 
     // 오버레이 레이어 확인
-    const overlayLayer = cell.querySelector('.bg-brand-orange\\/60');
+    const overlayLayer = cell.querySelector('.bg-brand-orange\\/50');
     expect(overlayLayer).toBeInTheDocument();
 
     // 텍스트가 흰색이고 z-10으로 오버레이 위에 표시되는지 확인
     const textElement = screen.getByText('테스트 맛집');
     expect(textElement).toHaveClass('relative', 'z-10', 'text-white');
 
-    // 체크마크도 표시되는지 확인
-    expect(screen.getByText('✓')).toBeInTheDocument();
+    // SVG 체크 아이콘도 표시되는지 확인
+    const svgCircle = cell.querySelector('svg circle');
+    expect(svgCircle).toBeInTheDocument();
   });
 
   it('shows orange background when activated without image', () => {

@@ -100,10 +100,10 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">내 프로필</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 font-display">내 프로필</h1>
 
       {/* 사용자 정보 섹션 */}
-      <div className="bg-white rounded-xl shadow p-4 sm:p-6 mb-4 sm:mb-6">
+      <div className="bg-brand-cream rounded-xl border border-brand-beige p-4 sm:p-6 mb-4 sm:mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">사용자 정보</h2>
           {!isEditing && (
@@ -191,23 +191,23 @@ export default function ProfilePage() {
       </div>
 
       {/* 활동 통계 섹션 */}
-      <div className="bg-white rounded-xl shadow p-4 sm:p-6 mb-4 sm:mb-6">
+      <div className="bg-brand-cream rounded-xl border border-brand-beige p-4 sm:p-6 mb-4 sm:mb-6">
         <h2 className="text-lg font-semibold mb-4">활동 통계</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="text-center p-3 bg-brand-beige rounded-lg">
-            <p className="text-2xl font-bold text-brand-orange">{statistics.total_boards}</p>
+            <p className="text-2xl font-bold text-brand-orange font-display">{statistics.total_boards}</p>
             <p className="text-sm text-gray-600">시작한 빙고</p>
           </div>
-          <div className="text-center p-3 bg-green-50 rounded-lg">
-            <p className="text-2xl font-bold text-green-600">{statistics.completed_boards}</p>
+          <div className="text-center p-3 bg-brand-olive/10 rounded-lg">
+            <p className="text-2xl font-bold text-brand-olive font-display">{statistics.completed_boards}</p>
             <p className="text-sm text-gray-600">완료한 빙고</p>
           </div>
           <div className="text-center p-3 bg-blue-50 rounded-lg">
-            <p className="text-2xl font-bold text-blue-600">{statistics.total_reviews}</p>
+            <p className="text-2xl font-bold text-blue-600 font-display">{statistics.total_reviews}</p>
             <p className="text-sm text-gray-600">작성한 리뷰</p>
           </div>
           <div className="text-center p-3 bg-purple-50 rounded-lg">
-            <p className="text-2xl font-bold text-purple-600">
+            <p className="text-2xl font-bold text-purple-600 font-display">
               {statistics.average_rating ? statistics.average_rating.toFixed(1) : '-'}
             </p>
             <p className="text-sm text-gray-600">평균 평점</p>
@@ -216,7 +216,7 @@ export default function ProfilePage() {
       </div>
 
       {/* 최근 완료한 빙고 */}
-      <div className="bg-white rounded-xl shadow p-4 sm:p-6 mb-4 sm:mb-6">
+      <div className="bg-brand-cream rounded-xl border border-brand-beige p-4 sm:p-6 mb-4 sm:mb-6">
         <h2 className="text-lg font-semibold mb-4">최근 완료한 빙고</h2>
         {recent_activity.completed_boards.length === 0 ? (
           <p className="text-gray-500 text-center py-4">아직 완료한 빙고가 없습니다.</p>
@@ -226,14 +226,14 @@ export default function ProfilePage() {
               <Link
                 key={board.id}
                 to={`/boards/${board.id}`}
-                className="block p-3 border border-gray-200 rounded-lg hover:border-brand-orange/50 transition-colors"
+                className="block p-3 border border-brand-beige rounded-lg hover:border-brand-orange/50 transition-colors"
               >
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="font-medium">{board.template_title}</p>
                     <p className="text-sm text-gray-500">목표: {board.target_line_count}줄</p>
                   </div>
-                  <p className="text-sm text-green-600">{formatDate(board.completed_at)}</p>
+                  <p className="text-sm text-brand-olive">{formatDate(board.completed_at)}</p>
                 </div>
               </Link>
             ))}
@@ -242,7 +242,7 @@ export default function ProfilePage() {
       </div>
 
       {/* 최근 작성한 리뷰 */}
-      <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+      <div className="bg-brand-cream rounded-xl border border-brand-beige p-4 sm:p-6">
         <h2 className="text-lg font-semibold mb-4">최근 작성한 리뷰</h2>
         {recent_activity.recent_reviews.length === 0 ? (
           <p className="text-gray-500 text-center py-4">아직 작성한 리뷰가 없습니다.</p>
@@ -251,7 +251,7 @@ export default function ProfilePage() {
             {recent_activity.recent_reviews.map((review) => (
               <div
                 key={review.id}
-                className="p-3 border border-gray-200 rounded-lg"
+                className="p-3 border border-brand-beige rounded-lg"
               >
                 <div className="flex justify-between items-start">
                   <div>

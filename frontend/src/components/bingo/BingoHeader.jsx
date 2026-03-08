@@ -19,14 +19,14 @@ export default function BingoHeader({
   const lineProgress = Math.min(Math.round((completedLines / targetLines) * 100), 100);
 
   return (
-    <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg">
+    <div className="bg-brand-cream p-4 sm:p-6 rounded-xl shadow-lg border border-brand-beige">
       {/* 제목 & 상태 */}
       <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <h1 className="text-base sm:text-xl font-bold text-brand-charcoal truncate pr-2">{title}</h1>
+        <h1 className="text-base sm:text-xl font-bold text-brand-charcoal font-display truncate pr-2">{title}</h1>
         <span
           className={`text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full font-medium whitespace-nowrap ${
             isCompleted
-              ? 'bg-green-100 text-green-700'
+              ? 'bg-brand-olive/20 text-brand-olive'
               : 'bg-brand-beige text-brand-orange'
           }`}
         >
@@ -37,15 +37,15 @@ export default function BingoHeader({
       {/* 통계 */}
       <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-3 sm:mb-4 bg-brand-beige rounded-lg p-3">
         <div className="text-center">
-          <p className="text-2xl sm:text-3xl font-bold text-brand-orange">{completedLines}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-brand-orange font-display">{completedLines}</p>
           <p className="text-xs sm:text-sm text-gray-500">완료 라인</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl sm:text-3xl font-bold text-brand-charcoal">{targetLines}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-brand-charcoal font-display">{targetLines}</p>
           <p className="text-xs sm:text-sm text-gray-500">목표</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl sm:text-3xl font-bold text-brand-charcoal">{activatedCells}/25</p>
+          <p className="text-2xl sm:text-3xl font-bold text-brand-charcoal font-display">{activatedCells}/25</p>
           <p className="text-xs sm:text-sm text-gray-500">방문 완료</p>
         </div>
       </div>
@@ -56,10 +56,10 @@ export default function BingoHeader({
           <span className="text-gray-600">목표 달성률</span>
           <span className="font-medium text-brand-orange">{lineProgress}%</span>
         </div>
-        <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
+        <div className="bg-brand-beige rounded-full h-3 overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${
-              isCompleted ? 'bg-green-500' : 'bg-brand-orange'
+              isCompleted ? 'bg-brand-olive' : 'bg-brand-orange'
             }`}
             style={{ width: `${lineProgress}%` }}
           />
@@ -72,7 +72,7 @@ export default function BingoHeader({
           <span className="text-gray-600">맛집 방문률</span>
           <span className="font-medium text-gray-700">{progress}%</span>
         </div>
-        <div className="bg-gray-200 rounded-full h-1.5 sm:h-2 overflow-hidden">
+        <div className="bg-brand-beige rounded-full h-1.5 sm:h-2 overflow-hidden">
           <div
             className="h-full bg-gray-400 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}

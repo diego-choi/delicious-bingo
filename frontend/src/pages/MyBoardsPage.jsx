@@ -30,7 +30,7 @@ export default function MyBoardsPage() {
   if (isLoading) {
     return (
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">내 빙고 보드</h1>
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 font-display">내 빙고 보드</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {Array.from({ length: 3 }).map((_, i) => (
             <SkeletonCard key={i} />
@@ -56,10 +56,10 @@ export default function MyBoardsPage() {
 
   return (
     <div>
-      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">내 빙고 보드</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 font-display">내 빙고 보드</h1>
 
       {boards.length === 0 ? (
-        <div className="text-center py-8 sm:py-12 bg-white rounded-lg shadow">
+        <div className="text-center py-8 sm:py-12 bg-brand-cream rounded-lg border border-brand-beige">
           <div className="text-4xl mb-3">🎯</div>
           <p className="text-gray-500 mb-4 text-sm sm:text-base">아직 시작한 빙고가 없습니다.</p>
           <Link
@@ -75,12 +75,12 @@ export default function MyBoardsPage() {
             <Link
               key={board.id}
               to={`/boards/${board.id}`}
-              className="block bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow relative"
+              className="block bg-brand-cream p-4 sm:p-6 rounded-lg border border-brand-beige hover:shadow-lg transition-shadow relative"
             >
               <div className="flex items-start justify-between mb-2 sm:mb-3">
                 <span className={`text-xs px-2 py-1 rounded ${
                   board.is_completed
-                    ? 'bg-green-100 text-green-700'
+                    ? 'bg-brand-olive/20 text-brand-olive'
                     : 'bg-brand-beige text-brand-orange'
                 }`}>
                   {board.is_completed ? '완료' : '진행 중'}
@@ -98,7 +98,7 @@ export default function MyBoardsPage() {
                 <p>완료 라인: {board.completed_lines || 0}줄</p>
                 <p>진행률: {board.progress?.percentage || 0}%</p>
               </div>
-              <div className="mt-3 bg-gray-200 rounded-full h-2">
+              <div className="mt-3 bg-brand-beige rounded-full h-2">
                 <div
                   className="bg-brand-orange rounded-full h-2 transition-all"
                   style={{ width: `${board.progress?.percentage || 0}%` }}

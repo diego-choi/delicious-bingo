@@ -40,22 +40,22 @@ export default function TemplateDetailPage() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* 템플릿 정보 */}
-      <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-4 sm:mb-6">
+      <div className="bg-brand-cream p-4 sm:p-6 rounded-lg border border-brand-beige mb-4 sm:mb-6">
         <span className="text-xs bg-brand-beige text-brand-orange px-2 py-1 rounded">
           {template.category_name}
         </span>
-        <h1 className="text-xl sm:text-2xl font-bold mt-2 sm:mt-3 mb-1 sm:mb-2">{template.title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold mt-2 sm:mt-3 mb-1 sm:mb-2 font-display">{template.title}</h1>
         <p className="text-gray-600 text-sm sm:text-base">{template.description}</p>
       </div>
 
       {/* 맛집 목록 미리보기 */}
-      <div className="bg-white p-4 sm:p-6 rounded-lg shadow mb-4 sm:mb-6">
+      <div className="bg-brand-cream p-4 sm:p-6 rounded-lg border border-brand-beige mb-4 sm:mb-6">
         <h2 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">포함된 맛집 ({template.items?.length || 0}개)</h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {template.items?.map((item, index) => (
             <div
               key={item.id}
-              className="p-2 sm:p-3 bg-gray-50 rounded text-center text-xs sm:text-sm"
+              className="p-2 sm:p-3 bg-brand-beige/50 rounded text-center text-xs sm:text-sm"
             >
               <span className="text-gray-400 text-[10px] sm:text-xs">#{index + 1}</span>
               <p className="font-medium truncate">{item.restaurant.name}</p>
@@ -65,7 +65,7 @@ export default function TemplateDetailPage() {
       </div>
 
       {/* 도전 시작 */}
-      <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+      <div className="bg-brand-cream p-4 sm:p-6 rounded-lg border border-brand-beige">
         <h2 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">빙고 도전하기</h2>
         <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">목표 라인 수를 선택하세요 (최대 12줄)</p>
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">

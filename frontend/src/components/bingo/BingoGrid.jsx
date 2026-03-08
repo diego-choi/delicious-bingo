@@ -25,7 +25,7 @@ export default function BingoGrid({ cells, onCellClick }) {
   }, [completedLines]);
 
   return (
-    <div className="bg-white p-2 sm:p-4 rounded-2xl shadow-lg">
+    <div className="bg-brand-cream p-2 sm:p-4 rounded-2xl shadow-md border-2 border-dashed border-brand-charcoal/15">
       <div className="grid grid-cols-5 gap-2 sm:gap-3">
         {sortedCells.map((cell) => (
           <BingoCell
@@ -37,7 +37,7 @@ export default function BingoGrid({ cells, onCellClick }) {
         ))}
       </div>
       {completedLines.length > 0 && (
-        <p className="text-center text-brand-orange font-semibold mt-3 sm:mt-4 text-sm sm:text-base">
+        <p className="text-center text-brand-orange font-semibold font-display mt-3 sm:mt-4 text-sm sm:text-base">
           {completedLines.length}줄 빙고 완성!
         </p>
       )}

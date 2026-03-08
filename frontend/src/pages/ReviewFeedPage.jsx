@@ -24,7 +24,7 @@ export default function ReviewFeedPage() {
   if (isLoading) {
     return (
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center font-display">
           리뷰 피드
         </h1>
         <div className="space-y-4">
@@ -55,7 +55,7 @@ export default function ReviewFeedPage() {
   if (reviews.length === 0) {
     return (
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center font-display">
           리뷰 피드
         </h1>
         <div className="text-center py-12">
@@ -68,7 +68,7 @@ export default function ReviewFeedPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center font-display">
         리뷰 피드
       </h1>
 
@@ -76,7 +76,7 @@ export default function ReviewFeedPage() {
         {reviews.map((review) => (
           <div
             key={review.id}
-            className="bg-white rounded-xl shadow p-4 sm:p-6"
+            className="bg-brand-cream rounded-xl border border-brand-beige p-4 sm:p-6"
           >
             {/* 작성자 + 맛집명 */}
             <div className="flex items-center justify-between mb-3">

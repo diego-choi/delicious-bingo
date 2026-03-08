@@ -31,13 +31,13 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-craft-paper flex flex-col">
       {/* 헤더 */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-brand-cream border-b-2 border-dashed border-brand-charcoal/10 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             {/* 로고 */}
-            <Link to="/" className="text-lg sm:text-xl font-bold text-brand-orange">
+            <Link to="/" className="text-lg sm:text-xl font-bold text-brand-orange font-display">
               맛집 빙고
             </Link>
 
@@ -51,7 +51,7 @@ export default function Layout() {
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       location.pathname === item.path
                         ? 'bg-brand-beige text-brand-orange'
-                        : 'text-gray-600 hover:bg-gray-100'
+                        : 'text-gray-600 hover:bg-brand-beige/50'
                     }`}
                   >
                     {item.label}
@@ -66,7 +66,7 @@ export default function Layout() {
                     {isStaff && (
                       <Link
                         to="/admin"
-                        className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors flex items-center gap-1"
+                        className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-brand-beige/50 rounded-md transition-colors flex items-center gap-1"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -83,7 +83,7 @@ export default function Layout() {
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-brand-beige/50 rounded-md transition-colors"
                     >
                       로그아웃
                     </button>
@@ -92,7 +92,7 @@ export default function Layout() {
                   <div className="flex items-center space-x-2">
                     <Link
                       to="/login"
-                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-brand-beige/50 rounded-md transition-colors"
                     >
                       로그인
                     </Link>
@@ -111,7 +111,7 @@ export default function Layout() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+              className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-800 hover:bg-brand-beige/50"
               aria-label="메뉴 열기"
             >
               {mobileMenuOpen ? (
@@ -129,7 +129,7 @@ export default function Layout() {
 
         {/* 모바일 메뉴 */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t bg-white">
+          <div className="md:hidden border-t border-dashed border-brand-charcoal/10 bg-brand-cream">
             <nav className="px-4 py-2 space-y-1">
               {filteredNavItems.map((item) => (
                 <Link
@@ -139,14 +139,14 @@ export default function Layout() {
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     location.pathname === item.path
                       ? 'bg-brand-beige text-brand-orange'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      : 'text-gray-600 hover:bg-brand-beige/50'
                   }`}
                 >
                   {item.label}
                 </Link>
               ))}
             </nav>
-            <div className="border-t px-4 py-3">
+            <div className="border-t border-dashed border-brand-charcoal/10 px-4 py-3">
               {isLoading ? (
                 <span className="text-gray-400 text-sm">...</span>
               ) : isAuthenticated ? (
@@ -155,7 +155,7 @@ export default function Layout() {
                     <Link
                       to="/admin"
                       onClick={handleNavClick}
-                      className="flex items-center gap-2 px-3 py-2 text-base text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 text-base text-gray-600 hover:bg-brand-beige/50 rounded-md transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -167,13 +167,13 @@ export default function Layout() {
                   <Link
                     to="/profile"
                     onClick={handleNavClick}
-                    className="block px-3 py-2 text-base text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                    className="block px-3 py-2 text-base text-gray-600 hover:bg-brand-beige/50 rounded-md transition-colors"
                   >
                     {user.display_name || user.username}님의 프로필
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-3 py-2 text-base text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                    className="w-full text-left px-3 py-2 text-base text-gray-600 hover:bg-brand-beige/50 rounded-md transition-colors"
                   >
                     로그아웃
                   </button>
@@ -183,7 +183,7 @@ export default function Layout() {
                   <Link
                     to="/login"
                     onClick={handleNavClick}
-                    className="block px-3 py-2 text-base text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                    className="block px-3 py-2 text-base text-gray-600 hover:bg-brand-beige/50 rounded-md transition-colors"
                   >
                     로그인
                   </Link>
@@ -207,9 +207,9 @@ export default function Layout() {
       </main>
 
       {/* 푸터 */}
-      <footer className="bg-white border-t mt-auto">
+      <footer className="bg-brand-beige/50 border-t-2 border-dashed border-brand-charcoal/10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <p className="text-center text-gray-500 text-xs sm:text-sm">
+          <p className="text-center text-gray-500 text-xs sm:text-sm font-display">
             맛집 빙고 - 맛집 탐방을 게임처럼 즐기세요!
           </p>
         </div>

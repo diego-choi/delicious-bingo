@@ -47,9 +47,9 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 sm:px-0 py-6 sm:py-0">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-6 sm:p-8">
+      <div className="max-w-md w-full bg-brand-cream rounded-xl border border-brand-beige shadow-lg p-6 sm:p-8">
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">회원가입</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-brand-charcoal font-display">회원가입</h1>
           <p className="text-gray-500 mt-2 text-sm sm:text-base">맛집 빙고 도전을 시작하세요!</p>
         </div>
 

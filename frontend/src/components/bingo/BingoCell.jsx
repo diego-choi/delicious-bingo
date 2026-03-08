@@ -13,11 +13,17 @@ function BingoCell({ cell, isHighlighted = false, onClick }) {
   const hasImage = is_activated && review?.image;
 
   const baseClasses =
-    'aspect-square p-1 sm:p-2 rounded-xl text-center text-[10px] sm:text-xs font-medium transition-all duration-200 cursor-pointer flex flex-col items-center justify-center overflow-hidden';
+    'aspect-square p-1 sm:p-2 rounded-lg border-2 border-dashed border-brand-charcoal/20 text-center text-[10px] sm:text-xs font-medium transition-all duration-200 cursor-pointer flex flex-col items-center justify-center overflow-hidden';
 
   const highlightClasses = isHighlighted
     ? 'ring-2 ring-brand-orange ring-offset-1 animate-pulse'
     : '';
+
+  const checkIcon = (
+    <svg className="relative z-10 w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
 
   // 활성화된 셀 (이미지 있음)
   if (hasImage) {
@@ -37,12 +43,14 @@ function BingoCell({ cell, isHighlighted = false, onClick }) {
           style={{ backgroundImage: `url(${review.image})` }}
         />
         {/* 오렌지 오버레이 */}
-        <div className="absolute inset-0 bg-brand-orange/60" />
+        <div className="absolute inset-0 bg-brand-orange/50" />
         {/* 컨텐츠 */}
         <span className="relative z-10 text-white line-clamp-2 leading-tight break-keep drop-shadow-sm">
           {restaurant.name}
         </span>
-        <span className="relative z-10 mt-0.5 sm:mt-1 text-sm sm:text-base text-white drop-shadow-sm">✓</span>
+        <span className="mt-0.5 sm:mt-1 text-white drop-shadow-sm">
+          {checkIcon}
+        </span>
       </button>
     );
   }
@@ -60,7 +68,9 @@ function BingoCell({ cell, isHighlighted = false, onClick }) {
         )}
       >
         <span className="line-clamp-2 leading-tight break-keep">{restaurant.name}</span>
-        <span className="mt-0.5 sm:mt-1 text-sm sm:text-base">✓</span>
+        <span className="mt-0.5 sm:mt-1">
+          {checkIcon}
+        </span>
       </button>
     );
   }
@@ -72,7 +82,7 @@ function BingoCell({ cell, isHighlighted = false, onClick }) {
       onClick={() => onClick(cell)}
       className={cn(
         baseClasses,
-        'bg-cell-inactive text-brand-charcoal hover:ring-2 hover:ring-brand-orange/50',
+        'bg-cell-inactive text-brand-charcoal hover:border-brand-orange/50',
         highlightClasses
       )}
     >
