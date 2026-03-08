@@ -87,8 +87,9 @@
 ## 개발 환경 실행
 
 ```bash
-# Backend
+# Backend (최초 1회: .env 설정)
 cd backend
+cp .env.example .env  # DEBUG=True로 변경 필요
 source venv/bin/activate
 python manage.py runserver
 
