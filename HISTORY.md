@@ -7,11 +7,11 @@
 | 항목 | 상태 |
 |------|------|
 | **개발 완료** | ✅ 모든 기능 구현 완료 |
-| **프로덕션 배포** | ✅ Fly.io (Django + SPA 단일 배포) |
+| **프로덕션 배포** | ✅ OCI VM + Docker + Nginx (Django + SPA 단일 배포) |
 | **테스트** | ✅ Backend 158개 / Frontend 114개 / E2E 33개 |
 
 ### 배포 URL
-- https://delicious-bingo.fly.dev
+- https://delicious-bingo.duckdns.org
 
 ---
 
@@ -28,13 +28,14 @@
 | 리더보드 | 최단 시간/최다 완료 순위 | 2026-01-09 |
 | 인증 시스템 | 회원가입, 로그인, 토큰 | 2026-01-09 |
 | 모바일 반응형 | 햄버거 메뉴, 바텀시트 | 2026-01-09 |
-| 프로덕션 배포 | Railway + Vercel → Fly.io + Supabase → Fly.io 단일 통합 | 2026-01-10 |
+| 프로덕션 배포 | Railway + Vercel → Fly.io → OCI VM + Docker + Nginx | 2026-01-10 |
 | E2E 테스트 | 개발/프로덕션 환경 | 2026-01-10 |
 | Cloudinary 연동 | 클라우드 이미지 저장소 | 2026-01-10 |
 | 관리자 페이지 | 식당/템플릿/카테고리 관리 | 2026-01-10 |
 | UI 전면 개편 | 캐치테이블 스타일 + Vibrant Orange | 2026-01-23 |
 | 카카오 소셜 로그인 | OAuth 2.0 연동, 프로필 관리 | 2026-01-24 |
 | Fly.io 단일 플랫폼 통합 | Django SPA 서빙, CORS 제거 | 2026-02-13 |
+| OCI Always Free Tier 이전 | Fly.io → OCI VM + Docker + Nginx + DuckDNS + Let's Encrypt | 2026-02-20 |
 | P1 안정성 및 프로덕션 퀄리티 | 토스트, 재시도, 스켈레톤, 확인 다이얼로그, Gunicorn 최적화 | 2026-02-13 |
 
 ---
@@ -225,9 +226,12 @@ Token 기반 회원가입/로그인 시스템.
 
 ## 10. 프로덕션 배포 ✅
 
-배포 플랫폼 변천: Railway + Vercel → Fly.io + Vercel → **Fly.io 단일 통합**.
+배포 플랫폼 변천: Railway + Vercel → Fly.io + Vercel → Fly.io 단일 통합 → **OCI VM + Docker + Nginx**.
 
-### 현재: Fly.io 단일 배포
+### 현재: OCI VM + Docker + Nginx
+- OCI Always Free Tier (x86 E2.1.Micro, 1GB RAM)
+- Docker Compose (Gunicorn + Nginx + Certbot)
+- DuckDNS 무료 DNS + Let's Encrypt SSL
 - Multi-stage Docker 빌드 (Node.js → Python)
 - Django가 WhiteNoise로 Vite SPA 빌드 결과물을 함께 서빙
 - Same-origin → CORS 불필요
@@ -395,11 +399,12 @@ KAKAO_CLIENT_SECRET=<카카오 Client Secret>
 ## 16. Fly.io 단일 플랫폼 통합 ✅
 
 Frontend(Vercel)와 Backend(Fly.io) 분리 배포를 Fly.io 단일 배포로 통합.
+이후 OCI Always Free Tier로 이전 (섹션 20 참조).
 
 ### 동기
 - 개인 프로젝트에 2개 플랫폼은 오버 스펙
 - CORS 설정 불필요 (same-origin)
-- 배포 프로세스 단일화 (`fly deploy` 한 번)
+- 배포 프로세스 단일화
 
 ### 구현 내용
 - `Dockerfile`을 프로젝트 루트로 이동, Multi-stage build (Node + Python)
@@ -414,7 +419,6 @@ Frontend(Vercel)와 Backend(Fly.io) 분리 배포를 Fly.io 단일 배포로 통
 |------|----------|
 | `Dockerfile` | 루트로 이동, Node.js 빌드 스테이지 추가 |
 | `.dockerignore` | `frontend/` 허용, `node_modules`만 제외 |
-| `fly.toml` | Dockerfile 경로 변경, `VITE_KAKAO_JS_KEY` build arg 추가 |
 | `backend/config/settings.py` | `WHITENOISE_ROOT`, `TEMPLATES DIRS`, 캐시 헤더 설정 |
 | `backend/config/urls.py` | `django-admin/` URL, SPA catch-all 추가 |
 
@@ -460,7 +464,7 @@ Frontend(Vercel)와 Backend(Fly.io) 분리 배포를 Fly.io 단일 배포로 통
 
 | 기능 | 설명 |
 |------|------|
-| Gunicorn 워커 최적화 | gthread 2 workers × 2 threads, max-requests 1000 (Fly.io 256MB 최적) |
+| Gunicorn 워커 최적화 | gthread 2 workers × 2 threads, max-requests 1000 |
 | 토스트 알림 | react-hot-toast, alert() 22개 호출 → toast로 교체 (10개 파일) |
 | API 재시도 | axios-retry, GET/멱등 요청 2회 재시도 (POST 제외), TanStack Query retry:0 |
 | 삭제 확인 다이얼로그 | ConfirmDialog + useConfirmDialog 훅, confirm() 4곳 교체 |
@@ -529,4 +533,46 @@ WCAG 2.1 dialog 패턴에 맞게 ConfirmDialog에 키보드/스크린리더 접�
 
 ### 향후 계획
 - `useModalA11y` 훅 추출 → CellDetailModal, CompletionCelebration에 공통 적용
+
+---
+
+## 20. OCI Always Free Tier 이전 ✅
+
+Fly.io에서 OCI (Oracle Cloud Infrastructure) Always Free Tier VM으로 이전.
+
+### 동기
+- Fly.io 무료 플랜 제약 (256MB RAM, 머신 자동 중지)
+- OCI Always Free Tier로 완전 무료 상시 운영 가능
+- 자체 SSL/DNS 관리로 플랫폼 의존도 제거
+
+### 구현 내용
+- OCI x86 VM (E2.1.Micro, 1GB RAM) + Docker Compose
+- Nginx 리버스 프록시 (SSL 터미네이션)
+- DuckDNS 무료 DNS + Let's Encrypt SSL (Certbot 자동 갱신)
+- 로컬 빌드 → Docker Hub push → VM에서 pull (1GB RAM 제약으로 VM 빌드 불가)
+
+### 인프라 구성
+```
+OCI VM (Chuncheon)
+├── Nginx (SSL/443) → Gunicorn (Django + SPA)
+├── DuckDNS (무료 DNS)
+└── Let's Encrypt (SSL 자동 갱신)
+```
+
+### 변경/추가 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `docker-compose.yml` | app + nginx + certbot 서비스 구성 |
+| `nginx/` | Nginx 설정 (SSL, reverse proxy) |
+| `deploy.sh` | 로컬 빌드 & Docker Hub push 스크립트 |
+| `init-letsencrypt.sh` | Let's Encrypt 초기 인증서 발급 |
+| `certbot-renew.sh` | 인증서 자동 갱신 스크립트 |
+| `DEPLOY.md` | OCI 배포 가이드로 전면 재작성 |
+
+### 삭제 파일
+| 파일 | 사유 |
+|------|------|
+| `fly.toml` | Fly.io 배포 설정 (더 이상 사용하지 않음) |
+| `frontend/vercel.json` | Vercel 라우팅 설정 (더 이상 사용하지 않음) |
+| `frontend/.vercel/` | Vercel 프로젝트 메타데이터 |
 

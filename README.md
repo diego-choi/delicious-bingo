@@ -2,7 +2,7 @@
 
 맛집 탐방을 게임화한 5x5 빙고 웹 애플리케이션입니다.
 
-**Live Demo**: https://delicious-bingo.fly.dev
+**Live Demo**: https://delicious-bingo.duckdns.org
 
 ---
 
@@ -23,8 +23,10 @@ flowchart TB
         React["React 19 + Vite 7"]
     end
 
-    subgraph FlyIo["Fly.io"]
-        Backend["Django 6.0 + DRF 3.16<br/>(Backend + SPA)"]
+    subgraph OCI["OCI VM (Docker)"]
+        Nginx["Nginx (SSL)"]
+        Backend["Django 6.0 + DRF 3.16<br/>(Gunicorn + SPA)"]
+        Nginx --> Backend
     end
 
     subgraph Supabase["Supabase"]
@@ -37,7 +39,7 @@ flowchart TB
         KakaoLocal["Kakao Local<br/>(REST API)"]
     end
 
-    React -->|HTTPS| Backend
+    React -->|HTTPS| Nginx
     Backend -->|SQL| DB
     Backend -->|Upload| Cloudinary
     Backend -->|Search| KakaoLocal
@@ -53,7 +55,7 @@ flowchart TB
 | **Backend** | Django 6.0, Django REST Framework 3.16, Token Authentication |
 | **Database** | PostgreSQL (Supabase) |
 | **Storage** | Cloudinary (이미지) |
-| **Deploy** | Fly.io (Django + SPA 단일 배포) |
+| **Deploy** | OCI VM + Docker + Nginx (Django + SPA 단일 배포) |
 
 ---
 
@@ -130,7 +132,6 @@ delicious_bingo/
 │   └── package.json
 ├── Dockerfile                  # Multi-stage build (Node + Python)
 ├── .dockerignore               # Docker 빌드 제외 파일
-├── fly.toml                    # Fly.io 배포 설정
 ├── CLAUDE.md                   # AI 개발 컨텍스트
 ├── DEPLOY.md                   # 배포 가이드
 ├── HISTORY.md                  # 개발 히스토리
@@ -145,7 +146,7 @@ delicious_bingo/
 | 문서 | 설명 |
 |------|------|
 | [PRD.md](./PRD.md) | 제품 요구사항, 데이터 모델, API 명세 |
-| [DEPLOY.md](./DEPLOY.md) | Fly.io 배포 가이드 |
+| [DEPLOY.md](./DEPLOY.md) | OCI VM 배포 가이드 |
 | [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | 배포 트러블슈팅 |
 | [HISTORY.md](./HISTORY.md) | 개발 히스토리 |
 | [CLAUDE.md](./CLAUDE.md) | AI 개발 컨텍스트 |
@@ -155,7 +156,11 @@ delicious_bingo/
 ## 배포
 
 ```bash
-fly deploy
+# 로컬에서 빌드 & Docker Hub push
+VITE_KAKAO_JS_KEY=<카카오-JS-키> ./deploy.sh
+
+# OCI VM에서 pull & 재시작
+docker compose pull && docker compose up -d
 ```
 
 자세한 내용은 [DEPLOY.md](./DEPLOY.md) 참조.

@@ -4,14 +4,14 @@
 
 ---
 
-## 1. Fly.io 배포 문제
+## 1. Docker 배포 문제
 
 ### 1.1 빌드 오류
 
 #### Frontend 빌드 실패 (Node.js stage)
 **증상**: `npm run build` 실패
 **원인**: `VITE_KAKAO_JS_KEY` build arg 미설정
-**해결**: `fly.toml`의 `[build.args]`에 `VITE_KAKAO_JS_KEY` 설정 확인
+**해결**: `docker-compose.yml`의 `build.args`에 `VITE_KAKAO_JS_KEY` 설정 확인
 
 #### Python 의존성 설치 실패
 **원인**: `requirements.txt`에 없는 패키지 참조
@@ -25,19 +25,24 @@
 
 #### ALLOWED_HOSTS 오류
 ```
-Invalid HTTP_HOST header: 'delicious-bingo.fly.dev'
+Invalid HTTP_HOST header: 'delicious-bingo.duckdns.org'
 ```
-**해결**: `fly secrets set ALLOWED_HOSTS=.fly.dev`
+**해결**: `.env`에 `ALLOWED_HOSTS=delicious-bingo.duckdns.org` 설정
 
 #### Database 연결 실패
-1. `DATABASE_URL` secret 확인: `fly secrets list`
+1. `.env`의 `DATABASE_URL` 확인
 2. Supabase 대시보드에서 Connection string (URI) 확인
-3. Pooler vs Direct URI 확인 (Pooler 권장)
+3. Pooler vs Direct URI 확인 (OCI VM은 IPv6 미지원이므로 Pooler 권장)
 
 #### 500 Internal Server Error
-1. 로그 확인: `fly logs`
-2. SSH 접속: `fly ssh console`
+1. 로그 확인: `docker compose logs -f app`
+2. 컨테이너 접속: `docker compose exec app bash`
 3. 배포 체크: `python manage.py check --deploy`
+
+#### Nginx 502 Bad Gateway
+**증상**: 사이트 접속 시 502 에러
+**원인**: app 컨테이너가 아직 시작되지 않았거나 비정상 종료
+**해결**: `docker compose ps`로 상태 확인, `docker compose restart app`
 
 #### SPA 라우팅 404
 **증상**: `/templates` 등 클라이언트 라우트 접근 시 404
@@ -88,7 +93,7 @@ cloudinary://API_KEY:API_SECRET@CLOUD_NAME
 2. 내 애플리케이션 → 플랫폼 → Web
 3. 사이트 도메인 추가:
    - 개발: `http://localhost:5173`
-   - 프로덕션: `https://delicious-bingo.fly.dev`
+   - 프로덕션: `https://delicious-bingo.duckdns.org`
 
 ---
 
@@ -104,7 +109,7 @@ cloudinary://API_KEY:API_SECRET@CLOUD_NAME
 
 **확인**:
 ```bash
-fly logs
+docker compose logs app
 # 다음 로그가 있어야 함:
 # Applying api.0002_add_social_account... OK
 # Applying api.0003_add_user_profile... OK
@@ -112,8 +117,7 @@ fly logs
 
 **해결**:
 ```bash
-fly ssh console
-python manage.py migrate
+docker compose exec app python manage.py migrate
 ```
 
 ### 4.2 Redirect URI 불일치 오류
@@ -127,7 +131,7 @@ python manage.py migrate
 2. 내 애플리케이션 → 제품 설정 → 카카오 로그인
 3. **Redirect URI 등록**:
    - 개발: `http://localhost:5173/auth/kakao/callback`
-   - 프로덕션: `https://delicious-bingo.fly.dev/auth/kakao/callback`
+   - 프로덕션: `https://delicious-bingo.duckdns.org/auth/kakao/callback`
 
 **주의**:
 - URL 끝에 슬래시(`/`) 없음
@@ -141,15 +145,12 @@ python manage.py migrate
 
 **확인**:
 ```bash
-fly secrets list
+# .env 파일에서 KAKAO_CLIENT_SECRET 확인
 ```
 
 **해결**:
 1. 카카오 개발자 콘솔 → 보안 → Client Secret 확인
-2. Fly.io secret 설정:
-   ```bash
-   fly secrets set KAKAO_CLIENT_SECRET=<실제값>
-   ```
+2. `.env` 파일에 `KAKAO_CLIENT_SECRET=<실제값>` 설정
 
 ### 4.4 사용자명이 "user"로만 표시
 
@@ -169,20 +170,24 @@ fly secrets list
 
 ```bash
 # 로그 확인
-fly logs
+docker compose logs -f app
+docker compose logs -f nginx
 
-# SSH 접속
-fly ssh console
+# 컨테이너 접속
+docker compose exec app bash
 
 # Django 배포 체크
-python manage.py check --deploy
+docker compose exec app python manage.py check --deploy
 
 # 마이그레이션 상태 확인
-python manage.py showmigrations
+docker compose exec app python manage.py showmigrations
 
 # 정적 파일 수집
-python manage.py collectstatic --noinput
+docker compose exec app python manage.py collectstatic --noinput
 
-# 환경변수 확인
-fly secrets list
+# 컨테이너 상태
+docker compose ps
+
+# 앱 재시작
+docker compose restart app
 ```
