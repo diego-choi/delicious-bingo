@@ -730,6 +730,25 @@ class LeaderboardAPITest(APITestCase):
         self.assertEqual(response.data['most_completions'][1]['username'], 'user2')
         self.assertEqual(response.data['most_completions'][1]['completed_count'], 1)
 
+    def test_leaderboard_shows_display_name(self):
+        """리더보드에 username 대신 display_name이 표시되어야 한다"""
+        from django.utils import timezone
+        from .models import UserProfile
+        UserProfile.objects.create(user=self.user1, nickname='맛집탐험가')
+        BingoBoard.objects.create(
+            user=self.user1, template=self.template,
+            target_line_count=1, is_completed=True,
+            completed_at=timezone.now()
+        )
+        response = self.client.get('/api/leaderboard/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data['fastest_completions'][0]['display_name'], '맛집탐험가'
+        )
+        self.assertEqual(
+            response.data['most_completions'][0]['display_name'], '맛집탐험가'
+        )
+
 
 # =============================================================================
 # Auth API 테스트
@@ -2394,6 +2413,21 @@ class ReviewCommentAPITest(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_delete_own_comment_on_private_review_allowed(self):
+        """비공개 리뷰라도 본인 댓글은 삭제할 수 있다"""
+        from .models import ReviewComment
+        comment = ReviewComment.objects.create(
+            user=self.user, review=self.review, content='삭제 대상 댓글'
+        )
+        # 리뷰를 비공개로 변경
+        self.review.is_public = False
+        self.review.save()
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(
+            f'/api/reviews/{self.review.id}/comments/{comment.id}/'
+        )
+        self.assertEqual(response.status_code, 204)
+
 
 # =============================================================================
 # 리뷰 피드 API 테스트
@@ -2694,3 +2728,56 @@ class ReviewVisibilityAPITest(APITestCase):
         self.assertFalse(self.review.is_public)
         self.assertEqual(self.review.content, '맛있었습니다')
         self.assertEqual(self.review.rating, 5)
+
+
+class ReviewBoardOwnershipTest(APITestCase):
+    """리뷰 생성 시 bingo_board 소유권 검증 테스트"""
+
+    def setUp(self):
+        self.user = User.objects.create_user('owner', password='testpass')
+        self.other_user = User.objects.create_user('attacker', password='testpass')
+
+        self.category = Category.objects.create(name="테스트")
+        self.template = BingoTemplate.objects.create(
+            category=self.category, title="테스트 빙고"
+        )
+        self.restaurants = []
+        for i in range(25):
+            r = Restaurant.objects.create(
+                category=self.category, name=f"맛집{i}",
+                address=f"주소{i}", latitude=37.0, longitude=127.0,
+                is_approved=True, created_by=self.user
+            )
+            self.restaurants.append(r)
+            BingoTemplateItem.objects.create(
+                template=self.template, restaurant=r, position=i
+            )
+
+        # owner의 보드
+        self.owner_board = BingoBoard.objects.create(
+            user=self.user, template=self.template, target_line_count=1
+        )
+
+    def test_create_review_on_other_users_board_rejected(self):
+        """타인의 빙고 보드에 리뷰를 작성하면 400 에러가 발생해야 한다"""
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.post('/api/reviews/', {
+            'bingo_board': self.owner_board.id,
+            'restaurant': self.restaurants[0].id,
+            'content': '타인의 보드에 리뷰 작성 시도입니다',
+            'rating': 5,
+            'visited_date': '2025-01-01'
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_review_on_own_board_succeeds(self):
+        """본인의 빙고 보드에 리뷰를 작성하면 성공해야 한다"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/api/reviews/', {
+            'bingo_board': self.owner_board.id,
+            'restaurant': self.restaurants[0].id,
+            'content': '본인의 보드에 리뷰 작성입니다',
+            'rating': 5,
+            'visited_date': '2025-01-01'
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

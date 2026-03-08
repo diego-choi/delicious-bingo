@@ -36,9 +36,13 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      // 인증 에러 시 토큰 제거
-      localStorage.removeItem('authToken');
+    if (error.response?.status === 401) {
+      // 세션 만료 시에만 로그아웃 처리 (로그인 실패 401은 제외)
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        localStorage.removeItem('authToken');
+        window.dispatchEvent(new Event('auth:logout'));
+      }
     }
     return Promise.reject(error);
   }

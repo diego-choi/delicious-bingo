@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 
 export default function LeaderboardPage() {
-  const { data, isLoading, error } = useLeaderboard();
+  const { data, isLoading, error, refetch } = useLeaderboard();
   const [activeTab, setActiveTab] = useState('fastest');
 
   if (isLoading) {
@@ -21,7 +21,7 @@ export default function LeaderboardPage() {
       <div className="text-center py-12">
         <p className="text-red-500 mb-4">리더보드를 불러오는데 실패했습니다.</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => refetch()}
           className="text-brand-orange hover:underline"
         >
           다시 시도
@@ -93,7 +93,7 @@ export default function LeaderboardPage() {
                     {item.rank <= 3 ? ['🥇', '🥈', '🥉'][item.rank - 1] : item.rank}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm sm:text-base truncate">{item.username}</p>
+                    <p className="font-medium text-sm sm:text-base truncate">{item.display_name || item.username}</p>
                     <p className="text-xs sm:text-sm text-gray-500 truncate">{item.template_title}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
@@ -139,7 +139,7 @@ export default function LeaderboardPage() {
                     {item.rank <= 3 ? ['🥇', '🥈', '🥉'][item.rank - 1] : item.rank}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm sm:text-base truncate">{item.username}</p>
+                    <p className="font-medium text-sm sm:text-base truncate">{item.display_name || item.username}</p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="font-semibold text-brand-olive text-sm sm:text-base">

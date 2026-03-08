@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.utils import timezone
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count, F, ExpressionWrapper, DurationField
 from django.contrib.auth import get_user_model
 from .models import Category, BingoTemplate, BingoBoard, Review, ReviewLike, ReviewComment
@@ -18,6 +18,7 @@ from .serializers import (
     ReviewSerializer,
     ReviewCreateSerializer,
     ReviewVisibilitySerializer,
+    _get_display_name,
 )
 from .services import BingoService
 
@@ -86,28 +87,33 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        """리뷰 생성 후 빙고 완료 체크"""
+        """리뷰 생성 후 빙고 완료 체크 (트랜잭션으로 원자적 처리)"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        review = serializer.save(user=request.user)
 
-        # 빙고 완료 체크
-        board = review.bingo_board
         bingo_completed = False
         goal_achieved = False
 
-        if not board.is_completed:
-            activated = BingoService.get_activated_positions(board)
-            completed_lines = BingoService.count_completed_lines(activated)
-            if completed_lines >= board.target_line_count:
-                board.is_completed = True
-                board.completed_at = timezone.now()
-                board.save()
-                bingo_completed = True
-                goal_achieved = True
-            elif completed_lines > 0:
-                # 새 라인이 완성되었지만 목표 미달성
-                bingo_completed = True
+        with transaction.atomic():
+            # 보드를 먼저 잠금: 동시 리뷰 생성 시 빙고 완료 체크 직렬화
+            # serializer.save()는 같은 PK의 board FK를 저장하므로 정합성 유지
+            board = BingoBoard.objects.select_for_update().get(
+                pk=serializer.validated_data['bingo_board'].pk
+            )
+            review = serializer.save(user=request.user)
+
+            if not board.is_completed:
+                activated = BingoService.get_activated_positions(board)
+                completed_lines = BingoService.count_completed_lines(activated)
+                if completed_lines >= board.target_line_count:
+                    board.is_completed = True
+                    board.completed_at = timezone.now()
+                    board.save()
+                    bingo_completed = True
+                    goal_achieved = True
+                elif completed_lines > 0:
+                    # 새 라인이 완성되었지만 목표 미달성
+                    bingo_completed = True
 
         response_data = serializer.data
         response_data['bingo_completed'] = bingo_completed
@@ -138,7 +144,7 @@ def leaderboard(request):
                 output_field=DurationField()
             )
         )
-        .select_related('user', 'template')
+        .select_related('user', 'user__profile', 'template')
         .order_by('completion_time')[:10]
     )
 
@@ -160,6 +166,7 @@ def leaderboard(request):
         fastest_list.append({
             'rank': len(fastest_list) + 1,
             'username': board.user.username,
+            'display_name': _get_display_name(board.user),
             'template_title': board.template.title,
             'completion_time': time_str,
             'completed_at': board.completed_at.isoformat(),
@@ -168,6 +175,7 @@ def leaderboard(request):
     # 총 완료 횟수 순위
     completion_counts = (
         User.objects
+        .select_related('profile')
         .annotate(completed_count=Count('bingo_boards', filter=models.Q(bingo_boards__is_completed=True)))
         .filter(completed_count__gt=0)
         .order_by('-completed_count')[:10]
@@ -177,6 +185,7 @@ def leaderboard(request):
         {
             'rank': idx + 1,
             'username': user.username,
+            'display_name': _get_display_name(user),
             'completed_count': user.completed_count,
         }
         for idx, user in enumerate(completion_counts)

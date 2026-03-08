@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import { Link } from 'react-router-dom';
 
 /**
  * 에러 바운더리 컴포넌트
@@ -42,12 +41,12 @@ export default class ErrorBoundary extends Component {
               >
                 다시 시도
               </button>
-              <Link
-                to="/"
+              <a
+                href="/"
                 className="block w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
               >
                 홈으로 돌아가기
-              </Link>
+              </a>
             </div>
           </div>
         </div>

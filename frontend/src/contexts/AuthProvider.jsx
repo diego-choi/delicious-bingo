@@ -28,6 +28,15 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // 401 응답 시 user 상태 동기화
+  useEffect(() => {
+    const handleAuthLogout = () => {
+      setUser(null);
+    };
+    window.addEventListener('auth:logout', handleAuthLogout);
+    return () => window.removeEventListener('auth:logout', handleAuthLogout);
+  }, []);
+
   const register = useCallback(async (data) => {
     const response = await authApi.register(data);
     const { token, user: userData } = response.data;

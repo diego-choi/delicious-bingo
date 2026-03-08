@@ -16,6 +16,7 @@ export default function ReviewFeedPage() {
     data,
     isLoading,
     error,
+    refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -41,7 +42,7 @@ export default function ReviewFeedPage() {
       <div className="text-center py-12">
         <p className="text-red-500 mb-4">리뷰를 불러오는데 실패했습니다.</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => refetch()}
           className="text-brand-orange hover:underline"
         >
           다시 시도

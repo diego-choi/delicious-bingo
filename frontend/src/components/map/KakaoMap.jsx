@@ -40,17 +40,19 @@ export default function KakaoMap({
       map,
     });
 
-    // 인포윈도우 생성
+    // 인포윈도우 생성 (DOM API로 XSS 방지)
     if (name) {
-      const linkUrl = placeUrl || `https://map.kakao.com/link/map/${name},${latitude},${longitude}`;
-      const infowindow = new kakao.maps.InfoWindow({
-        content: `<div style="padding:8px;font-size:12px;white-space:nowrap;">
-          <a href="${linkUrl}" target="_blank" rel="noopener noreferrer"
-             style="color:#1a73e8;text-decoration:none;font-weight:500;">
-            ${name} →
-          </a>
-        </div>`,
-      });
+      const linkUrl = placeUrl || `https://map.kakao.com/link/map/${encodeURIComponent(name)},${latitude},${longitude}`;
+      const container = document.createElement('div');
+      container.style.cssText = 'padding:8px;font-size:12px;white-space:nowrap;';
+      const anchor = document.createElement('a');
+      anchor.href = linkUrl;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.style.cssText = 'color:#1a73e8;text-decoration:none;font-weight:500;';
+      anchor.textContent = `${name} →`;
+      container.appendChild(anchor);
+      const infowindow = new kakao.maps.InfoWindow({ content: container });
       infowindow.open(map, marker);
     }
 

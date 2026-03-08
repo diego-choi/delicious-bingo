@@ -150,9 +150,16 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        """레스토랑이 보드의 템플릿에 포함되어 있는지 검증"""
+        """보드 소유권 및 레스토랑 포함 여부 검증"""
         bingo_board = data.get('bingo_board')
         restaurant = data.get('restaurant')
+
+        # 보드 소유권 검증
+        request = self.context.get('request')
+        if not request or bingo_board.user != request.user:
+            raise serializers.ValidationError({
+                'bingo_board': '본인의 빙고 보드에만 리뷰를 작성할 수 있습니다.'
+            })
 
         if not bingo_board.template.items.filter(restaurant=restaurant).exists():
             raise serializers.ValidationError({
@@ -179,7 +186,7 @@ class BingoBoardSerializer(serializers.ModelSerializer):
 
     def get_cells(self, obj):
         """25개 셀 데이터를 반환 (활성화 상태 포함)"""
-        template_items = obj.template.items.select_related('restaurant').all()
+        template_items = obj.template.items.select_related('restaurant', 'restaurant__category').all()
         reviews_by_restaurant = {
             r.restaurant_id: r for r in obj.reviews.all()
         }

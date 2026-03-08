@@ -6,12 +6,14 @@ import { useAuth } from './useAuth';
  * 사용자 프로필 데이터 조회 훅
  */
 export function useProfile() {
+  const { isAuthenticated } = useAuth();
   return useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       const response = await authApi.getProfile();
       return response.data;
     },
+    enabled: isAuthenticated,
   });
 }
 

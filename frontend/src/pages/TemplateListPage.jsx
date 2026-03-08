@@ -3,7 +3,7 @@ import { useTemplates } from '../hooks/useTemplates';
 import { SkeletonCard } from '../components/common/Skeleton';
 
 export default function TemplateListPage() {
-  const { data, isLoading, error } = useTemplates();
+  const { data, isLoading, error, refetch } = useTemplates();
 
   if (isLoading) {
     return (
@@ -23,7 +23,7 @@ export default function TemplateListPage() {
       <div className="text-center py-12">
         <p className="text-red-500">템플릿을 불러오는데 실패했습니다.</p>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => refetch()}
           className="mt-4 text-brand-orange hover:underline"
         >
           다시 시도
@@ -45,7 +45,7 @@ export default function TemplateListPage() {
             아직 등록된 빙고 템플릿이 없습니다.
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => refetch()}
             className="text-brand-orange hover:underline text-sm"
           >
             새로고침

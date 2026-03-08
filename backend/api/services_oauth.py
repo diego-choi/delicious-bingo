@@ -35,8 +35,7 @@ class KakaoOAuthService:
         if client_secret:
             data['client_secret'] = client_secret
 
-        # 디버깅용 로깅
-        logger.info(f'Kakao token request - redirect_uri: {redirect_uri}, code: {code[:20]}...')
+        logger.info(f'Kakao token request - redirect_uri: {redirect_uri}')
 
         try:
             response = requests.post(KAKAO_TOKEN_URL, data=data, timeout=10)
