@@ -17,6 +17,7 @@ from .serializers import (
     BingoBoardCreateSerializer,
     ReviewSerializer,
     ReviewCreateSerializer,
+    ReviewVisibilitySerializer,
 )
 from .services import BingoService
 
@@ -74,7 +75,15 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return ReviewCreateSerializer
+        if self.action == 'partial_update':
+            return ReviewVisibilitySerializer
         return ReviewSerializer
+
+    def update(self, request, *args, **kwargs):
+        """PUT은 허용하지 않음 (PATCH만 사용)"""
+        if not kwargs.get('partial', False):
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return super().update(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         """리뷰 생성 후 빙고 완료 체크"""

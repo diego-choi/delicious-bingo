@@ -130,6 +130,12 @@ class ReviewCommentCreateSerializer(serializers.ModelSerializer):
         fields = ['content']
 
 
+class ReviewVisibilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['is_public']
+
+
 class ReviewCreateSerializer(serializers.ModelSerializer):
     # 테스트 환경에서 image 필드를 optional로 설정
     image = serializers.ImageField(required=False, allow_null=True)
