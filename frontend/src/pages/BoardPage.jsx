@@ -42,6 +42,10 @@ export default function BoardPage() {
         });
       }
 
+      if (!result.bingo_completed) {
+        toast.success('리뷰가 등록되었습니다!');
+      }
+
       // 모달 닫기
       setSelectedPosition(null);
     } catch (err) {
