@@ -1,10 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        VITE_KAKAO_JS_KEY: ${VITE_KAKAO_JS_KEY}
+    image: ${DOCKER_IMAGE:-chj1472/delicious-bingo:latest}
     container_name: delicious-bingo-app
     restart: unless-stopped
     env_file:

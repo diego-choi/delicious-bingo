@@ -3,7 +3,7 @@
 ## Context
 
 Fly.io의 무료 티어가 사라지면서, 완전 무료인 OCI Always Free Tier로 이전하여 운영 비용을 0으로 유지한다.
-현재 Fly.io (Tokyo, shared-cpu-1x, 256MB) → OCI ARM VM (Seoul, 2 OCPU, 12GB RAM)으로 대폭 성능 향상도 기대된다.
+현재 Fly.io (Tokyo, shared-cpu-1x, 256MB) → OCI x86 VM (Chuncheon, E2.1.Micro, 1GB RAM)으로 이전.
 
 ## 아키텍처 변경
 
@@ -26,13 +26,13 @@ Fly.io의 무료 티어가 사라지면서, 완전 무료인 OCI Always Free Tie
 
 ---
 
-## Phase 1: OCI 인프라 구성 (수동, OCI 콘솔)
+## Phase 1: OCI 인프라 구성 ✅ 완료
 
-1. **OCI 계정 생성**: https://www.oracle.com/cloud/free/
-   - Home Region: `South Korea Central (Seoul)` - ap-seoul-1 선택 (변경 불가)
-2. **VCN 생성**: VCN Wizard → "Create VCN with Internet Connectivity"
-3. **Security List**: Public Subnet에 Ingress Rule 추가 (TCP 22/80/443)
-4. **ARM VM 생성**: VM.Standard.A1.Flex (2 OCPU, 12GB RAM, Ubuntu 22.04 aarch64)
+1. ✅ **OCI 계정 생성**: Home Region: `South Korea (Chuncheon)` - ap-chuncheon-1
+2. ✅ **VCN 생성**: VCN Wizard → "Create VCN with Internet Connectivity"
+3. ✅ **Security List**: Public Subnet에 Ingress Rule 추가 (TCP 22/80/443)
+4. ✅ **x86 VM 생성**: VM.Standard.E2.1.Micro (1/8 OCPU, 1GB RAM, Ubuntu 22.04 amd64)
+   - ARM VM (A1.Flex)은 Seoul/Chuncheon 모두 용량 부족으로 생성 불가
 5. **Reserved Public IP 할당**: 고정 IP 확보
 
 ## Phase 2: DNS 설정 (DuckDNS)
@@ -53,208 +53,31 @@ curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh
 sudo usermod -aG docker $USER
 ```
 
-## Phase 4: 새 파일 생성 (코드 변경)
+## Phase 4: 배포 방식 (Docker Hub 경유)
 
-### 4.1 `docker-compose.yml` (프로젝트 루트)
+VM이 1GB RAM이라 Docker 빌드가 불가하므로, 로컬에서 빌드 후 Docker Hub에 push하는 방식으로 배포.
 
-app(Gunicorn) + nginx(리버스 프록시/SSL) + certbot(인증서) 3개 컨테이너 구성:
-
-```yaml
-services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        VITE_KAKAO_JS_KEY: ${VITE_KAKAO_JS_KEY}
-    container_name: delicious-bingo-app
-    restart: unless-stopped
-    env_file:
-      - .env
-    expose:
-      - "8000"
-    networks:
-      - internal
-
-  nginx:
-    image: nginx:alpine
-    container_name: delicious-bingo-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./certbot/www:/var/www/certbot:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-    depends_on:
-      - app
-    networks:
-      - internal
-
-  certbot:
-    image: certbot/certbot
-    container_name: delicious-bingo-certbot
-    volumes:
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/conf:/etc/letsencrypt
-    networks:
-      - internal
-
-networks:
-  internal:
-    driver: bridge
-```
-
-### 4.2 `nginx/conf.d/default.conf`
-
-```nginx
-# HTTP - redirect to HTTPS + ACME challenge
-server {
-    listen 80;
-    server_name delicious-bingo.duckdns.org;
-
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
-
-    location / {
-        return 301 https://$host$request_uri;
-    }
-}
-
-# HTTPS
-server {
-    listen 443 ssl;
-    server_name delicious-bingo.duckdns.org;
-
-    ssl_certificate /etc/letsencrypt/live/delicious-bingo.duckdns.org/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/delicious-bingo.duckdns.org/privkey.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
-    ssl_prefer_server_ciphers off;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 1d;
-
-    add_header Strict-Transport-Security "max-age=63072000" always;
-
-    location / {
-        proxy_pass http://app:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-
-    client_max_body_size 10M;
-}
-```
-
-### 4.3 `init-letsencrypt.sh`
-
-더미 인증서로 Nginx 시작 → Certbot으로 실제 인증서 발급 → Nginx 리로드
-(Nginx가 인증서 없이는 시작 불가하므로 chicken-and-egg 문제 해결)
-
+### 로컬에서 이미지 빌드 & push
 ```bash
-#!/bin/bash
-set -e
-
-DOMAIN="delicious-bingo.duckdns.org"
-EMAIL="your-email@example.com"
-STAGING=0  # 테스트 시 1로 설정 (rate limit 방지)
-
-mkdir -p certbot/www certbot/conf nginx/conf.d
-
-echo "### Creating dummy certificate ..."
-mkdir -p certbot/conf/live/$DOMAIN
-openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
-  -keyout certbot/conf/live/$DOMAIN/privkey.pem \
-  -out certbot/conf/live/$DOMAIN/fullchain.pem \
-  -subj "/CN=localhost"
-
-echo "### Starting nginx ..."
-docker compose up -d nginx
-
-echo "### Removing dummy certificate ..."
-rm -rf certbot/conf/live/$DOMAIN
-
-echo "### Requesting real certificate ..."
-STAGING_ARG=""
-[ $STAGING -eq 1 ] && STAGING_ARG="--staging"
-
-docker compose run --rm certbot certonly \
-  --webroot --webroot-path=/var/www/certbot \
-  --email $EMAIL --agree-tos --no-eff-email \
-  $STAGING_ARG -d $DOMAIN
-
-echo "### Reloading nginx ..."
-docker compose exec nginx nginx -s reload
-echo "### Done!"
+VITE_KAKAO_JS_KEY=<카카오-JS-키> ./deploy.sh
 ```
 
-### 4.4 `certbot-renew.sh` + cron
-
+### OCI VM에서 이미지 pull & 실행
 ```bash
-#!/bin/bash
-docker compose run --rm certbot renew
-docker compose exec nginx nginx -s reload
+docker compose pull && docker compose up -d
 ```
 
-매주 월요일 새벽 3시 자동 갱신:
-```
-0 3 * * 1 cd ~/delicious-bingo && ./certbot-renew.sh >> /var/log/certbot-renew.log 2>&1
-```
-
-### 4.5 `.env.example` (템플릿, 비밀값 미포함)
-
-```bash
-# Django
-SECRET_KEY=
-DEBUG=False
-ALLOWED_HOSTS=delicious-bingo.duckdns.org
-
-# Database (Supabase)
-DATABASE_URL=
-
-# Cloudinary
-CLOUDINARY_URL=
-
-# Kakao
-KAKAO_REST_API_KEY=
-KAKAO_CLIENT_SECRET=
-VITE_KAKAO_JS_KEY=
-
-# Sentry (optional)
-SENTRY_DSN=
-```
-
-실제 `.env`는 OCI VM에서만 생성 (git에 포함하지 않음)
-
----
-
-## Phase 5: 기존 파일 수정
+## Phase 5: 기존 파일 수정 ✅ 완료
 
 | 파일 | 변경 내용 |
 |------|----------|
-| `frontend/e2e-prod-test.cjs` | BASE_URL을 새 도메인으로 변경 |
+| `docker-compose.yml` | VM 빌드 → Docker Hub 이미지 pull 방식으로 변경 |
+| `deploy.sh` | 로컬 빌드 + Docker Hub push 스크립트 (신규) |
+| `frontend/e2e-prod-test.cjs` | BASE_URL을 환경변수 기반으로 변경 |
 | `.dockerignore` | `certbot/`, `nginx/`, `.env` 추가 |
-| `.gitignore` | `.env`, `certbot/conf/` 추가 |
-| `DEPLOY.md` | OCI 배포 섹션 추가 |
-
-## 코드 변경이 필요 없는 파일
-
-| 파일 | 이유 |
-|------|------|
-| `Dockerfile` | ARM64 호환 (node:22-slim, python:3.12-slim 모두 ARM64 지원) |
-| `backend/start.sh` | 그대로 동작 |
-| `backend/config/settings.py` | 모든 설정이 환경변수 기반 (ALLOWED_HOSTS, SECURE_PROXY_SSL_HEADER 등) |
-| 프론트엔드 소스 전체 | Kakao redirect URI가 `window.location.origin` 기반이라 자동 적용 |
-
----
+| `.gitignore` | `certbot/conf/` 추가 |
+| `DEPLOY.md` | OCI 배포 가이드로 전면 교체 |
+| `CLAUDE.md` | URL을 duckdns.org로 변경 |
 
 ## Phase 6: 외부 서비스 설정 업데이트
 
@@ -266,9 +89,9 @@ SENTRY_DSN=
 ```bash
 # OCI VM에서
 git clone <repo-url> ~/delicious-bingo && cd ~/delicious-bingo
-nano .env                              # 환경변수 설정
+cp .env.example .env && nano .env       # 환경변수 설정
 chmod +x init-letsencrypt.sh && ./init-letsencrypt.sh  # SSL 인증서
-docker compose up -d --build           # 앱 시작
+docker compose pull && docker compose up -d             # 앱 시작
 ```
 
 ### 검증 체크리스트
@@ -291,27 +114,31 @@ docker compose up -d --build           # 앱 시작
 ## 이후 배포 워크플로우 (업데이트 시)
 
 ```bash
+# 1. 로컬에서 이미지 빌드 & push
+VITE_KAKAO_JS_KEY=<카카오-JS-키> ./deploy.sh
+
+# 2. OCI VM에서 pull & 재시작
 ssh ubuntu@<oci-ip>
 cd ~/delicious-bingo
 git pull origin master
-docker compose up -d --build
+docker compose pull && docker compose up -d
 ```
 
 ## 주의사항
 
 - **OCI 인스턴스 회수**: CPU 사용률 7일 연속 20% 미만 시 회수 가능 → health check cron으로 완화
 - **Let's Encrypt 스테이징**: 초기 테스트 시 `STAGING=1`로 진행 (rate limit 방지)
-- **ARM64 빌드**: 기존 Docker 이미지 모두 ARM64 지원 확인됨
-- **서울↔도쿄 지연**: Supabase(Tokyo)까지 ~20-30ms, 실사용 영향 미미
+- **1GB RAM 제약**: VM에서 Docker 빌드 불가, 반드시 로컬에서 빌드 후 Docker Hub에 push
+- **춘천↔도쿄 지연**: Supabase(Tokyo)까지 ~30-40ms, 실사용 영향 미미
 
 ## 리소스 비교
 
-| 항목 | Fly.io (현재) | OCI (이전 후) |
-|------|--------------|--------------|
-| CPU | shared-cpu-1x | 2 dedicated ARM OCPUs |
-| RAM | 256 MB | 12 GB |
+| 항목 | Fly.io (이전) | OCI (이후) |
+|------|--------------|-----------|
+| CPU | shared-cpu-1x | 1/8 OCPU (E2.1.Micro) |
+| RAM | 256 MB | 1 GB |
 | Cold Start | 있음 (auto_stop) | 없음 (상시 운영) |
-| SSL | 자동 | Let's Encrypt (수동 초기 설정, 자동 갱신) |
+| SSL | 자동 | Let's Encrypt (자동 갱신) |
 | 도메인 | .fly.dev | .duckdns.org |
-| 배포 | `fly deploy` | `git pull && docker compose up -d` |
-| 비용 | 유료화 예정 | 완전 무료 (Always Free) |
+| 배포 | `fly deploy` | `deploy.sh` + `docker compose pull` |
+| 비용 | 유료화 | 완전 무료 (Always Free) |

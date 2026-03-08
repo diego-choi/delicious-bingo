@@ -4,7 +4,7 @@
 
 ```
 ┌─────────────────────────────────────────────┐
-│           OCI ARM VM (Seoul)                │
+│        OCI x86 VM (Chuncheon)               │
 │  ┌───────────┐     ┌────────────────────┐   │
 │  │   Nginx   │────▶│  Docker (Gunicorn) │   │
 │  │ (SSL/443) │     │  (Django + SPA)    │   │
@@ -25,7 +25,7 @@
 
 | 서비스 | 용도 | URL |
 |--------|------|-----|
-| OCI ARM VM | Docker (Nginx + Django + SPA) | https://delicious-bingo.duckdns.org |
+| OCI x86 VM | Docker (Nginx + Django + SPA) | https://delicious-bingo.duckdns.org |
 | DuckDNS | 무료 DNS | delicious-bingo.duckdns.org |
 | Let's Encrypt | SSL 인증서 (Certbot 자동 갱신) | - |
 | Supabase | PostgreSQL Database | - |
@@ -41,10 +41,10 @@ Django가 WhiteNoise를 통해 Vite SPA 빌드 결과물을 함께 서빙합니�
 ### 1.1 OCI 인프라 구성
 
 1. **OCI 계정 생성**: https://www.oracle.com/cloud/free/
-   - Home Region: `South Korea Central (Seoul)` — ap-seoul-1 (변경 불가)
+   - Home Region: `South Korea (Chuncheon)` — ap-chuncheon-1
 2. **VCN 생성**: VCN Wizard → "Create VCN with Internet Connectivity"
 3. **Security List**: Public Subnet에 Ingress Rule 추가 (TCP 22/80/443)
-4. **ARM VM 생성**: VM.Standard.A1.Flex (2 OCPU, 12GB RAM, Ubuntu 22.04 aarch64)
+4. **x86 VM 생성**: VM.Standard.E2.1.Micro (1/8 OCPU, 1GB RAM, Ubuntu 22.04 amd64)
 5. **Reserved Public IP**: 고정 IP 할당
 
 ### 1.2 DNS 설정 (DuckDNS)
@@ -84,8 +84,8 @@ export LETSENCRYPT_EMAIL=your-email@example.com
 export LETSENCRYPT_STAGING=1  # 테스트 시 1, 실제 발급 시 0
 chmod +x init-letsencrypt.sh && ./init-letsencrypt.sh
 
-# 앱 빌드 및 시작
-docker compose up -d --build
+# 앱 이미지 pull 및 시작 (로컬에서 빌드 후 Docker Hub에 push된 이미지 사용)
+docker compose pull && docker compose up -d
 
 # 초기 데이터 (최초 1회)
 docker compose exec app python manage.py createsuperuser
@@ -219,10 +219,14 @@ cd frontend && npm run e2e:prod
 ## 6. 업데이트 배포
 
 ```bash
+# 1. 로컬에서 이미지 빌드 & push (VM은 1GB RAM이라 빌드 불가)
+VITE_KAKAO_JS_KEY=<카카오-JS-키> ./deploy.sh
+
+# 2. OCI VM에서 이미지 pull & 재시작
 ssh ubuntu@<OCI-PUBLIC-IP>
 cd ~/delicious-bingo
 git pull origin master
-docker compose up -d --build
+docker compose pull && docker compose up -d
 ```
 
 ---
@@ -256,7 +260,7 @@ docker compose up -d
 - [ ] OCI 계정 생성 (Seoul 리전)
 - [ ] VCN + Public Subnet 생성
 - [ ] Security List: 22/80/443 포트 개방
-- [ ] ARM VM 생성 (2 OCPU, 12GB RAM)
+- [ ] x86 VM 생성 (E2.1.Micro, 1GB RAM)
 - [ ] Reserved Public IP 할당
 - [ ] OS 방화벽 (iptables) 개방
 - [ ] Docker 설치
@@ -274,7 +278,7 @@ docker compose up -d
 - [ ] 카카오 Redirect URI 변경
 
 ### 배포
-- [ ] `docker compose up -d --build` 성공
+- [ ] `docker compose pull && docker compose up -d` 성공
 - [ ] Health Check 통과
 - [ ] SPA 로드 확인
 - [ ] 카카오 로그인 동작
@@ -287,7 +291,7 @@ docker compose up -d
 
 | 서비스 | 무료 티어 |
 |--------|----------|
-| OCI ARM VM | 4 OCPU, 24GB RAM, 200GB 스토리지 (Always Free) |
+| OCI x86 VM | E2.1.Micro (1/8 OCPU, 1GB RAM, 47GB) Always Free |
 | DuckDNS | 무료 DNS |
 | Let's Encrypt | 무료 SSL 인증서 |
 | Supabase | 500MB DB, 1GB 대역폭/월 |
@@ -311,4 +315,4 @@ docker compose up -d
 ### OCI 주의사항
 - **인스턴스 회수**: CPU 사용률 7일 연속 20% 미만 시 Oracle이 인스턴스를 회수할 수 있음
 - **OS 방화벽**: OCI Security List와 별도로 OS 레벨 iptables도 설정 필요
-- **ARM64**: 모든 Docker 이미지가 ARM64 (aarch64) 호환인지 확인
+- **1GB RAM 제약**: VM에서 Docker 빌드 불가, 반드시 로컬에서 빌드 후 Docker Hub에 push
