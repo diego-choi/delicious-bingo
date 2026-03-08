@@ -1,11 +1,37 @@
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTemplates } from '../hooks/useTemplates';
+import OnboardingModal from '../components/common/OnboardingModal';
+
+const ONBOARDING_KEY = 'delicious-bingo-onboarding-seen';
 
 export default function HomePage() {
   const { data, isLoading, error } = useTemplates();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem(ONBOARDING_KEY)) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleCloseOnboarding = () => {
+    setShowOnboarding(false);
+    localStorage.setItem(ONBOARDING_KEY, 'true');
+  };
+
+  const handleStartOnboarding = () => {
+    navigate('/templates');
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={handleCloseOnboarding}
+        onStart={handleStartOnboarding}
+      />
       {/* 히어로 섹션 */}
       <section className="text-center py-8 sm:py-12 px-4 bg-brand-cream rounded-xl sm:rounded-2xl border-2 border-dashed border-brand-charcoal/15">
         <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4 text-brand-charcoal font-display">맛집 빙고</h1>
