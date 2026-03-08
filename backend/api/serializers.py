@@ -133,6 +133,8 @@ class ReviewCommentCreateSerializer(serializers.ModelSerializer):
 class ReviewCreateSerializer(serializers.ModelSerializer):
     # 테스트 환경에서 image 필드를 optional로 설정
     image = serializers.ImageField(required=False, allow_null=True)
+    # multipart 요청에서 is_public 누락 시 모델 기본값(True)과 동일하게 동작
+    is_public = serializers.BooleanField(default=True)
 
     class Meta:
         model = Review

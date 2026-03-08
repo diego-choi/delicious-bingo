@@ -623,6 +623,22 @@ class ReviewAPITest(APITestCase):
         self.assertTrue(self.board.is_completed)
         self.assertIsNotNone(self.board.completed_at)
 
+    def test_create_review_without_is_public_defaults_to_true(self):
+        """multipart 요청에서 is_public을 보내지 않으면 기본값 True로 생성되어야 한다 (피드 노출)"""
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/api/reviews/', {
+            'bingo_board': self.board.id,
+            'restaurant': self.restaurants[0].id,
+            'content': '맛있었습니다 강력 추천합니다',
+            'rating': 5,
+            'visited_date': '2025-01-01'
+        }, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        review = Review.objects.get(
+            bingo_board=self.board, restaurant=self.restaurants[0]
+        )
+        self.assertTrue(review.is_public)
+
 
 # =============================================================================
 # Phase 7: Leaderboard API 테스트
