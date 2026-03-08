@@ -17,7 +17,7 @@
 | **플랫폼** | 모바일 웹 (반응형) |
 
 ### 배포 URL
-- https://delicious-bingo.fly.dev
+- https://delicious-bingo.duckdns.org
 
 ---
 
@@ -50,7 +50,7 @@
 ### 인프라
 | 서비스 | 용도 |
 |--------|------|
-| Fly.io | Django + SPA 단일 배포 |
+| OCI Always Free Tier | x86 VM (Docker Compose: Nginx + Gunicorn) |
 | Supabase | PostgreSQL 데이터베이스 |
 | Cloudinary | 이미지 CDN |
 | Kakao Maps API | 지도 서비스 |
@@ -494,7 +494,7 @@ cd frontend && npm run e2e:prod   # 프로덕션
 
 ## 9. 환경 변수
 
-### Fly.io Secrets
+### .env 파일 (OCI VM)
 ```bash
 SECRET_KEY=<Django secret key>
 DEBUG=False
@@ -503,12 +503,8 @@ DATABASE_URL=<PostgreSQL URL>
 CLOUDINARY_URL=<Cloudinary URL>
 KAKAO_REST_API_KEY=<카카오 REST API 키>
 KAKAO_CLIENT_SECRET=<카카오 Client Secret>
+VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>  # docker-compose build arg
 SENTRY_DSN=<Sentry DSN (선택)>
-```
-
-### fly.toml Build Args
-```bash
-VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>  # 빌드 시점에 번들 포함
 ```
 
 ---
@@ -523,7 +519,7 @@ VITE_KAKAO_JS_KEY=<카카오 JavaScript 키>  # 빌드 시점에 번들 포함
 - [x] 에러 모니터링 (Sentry 연동)
 - [x] 이미지 업로드 검증 (파일 타입, 용량 제한)
 - [x] DB 인덱스 추가 (Review, BingoBoard 등 주요 FK)
-- [ ] OCI Always Free Tier 이전 (Fly.io → OCI ARM VM Seoul, 상세: `OCI_MIGRATION_PLAN.md`)
+- [x] OCI Always Free Tier 이전 (Fly.io → OCI x86 VM Chuncheon)
 
 ### P1: 안정성 및 프로덕션 퀄리티
 - [x] 글로벌 에러 바운더리 + 토스트 알림 (react-hot-toast)

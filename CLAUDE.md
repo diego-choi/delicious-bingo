@@ -109,6 +109,15 @@ cd backend && python manage.py seed_data
 
 ---
 
+## 프로덕션 서버
+
+- IP: 168.107.48.160
+- SSH: `ssh -i ~/.ssh/oci_key.key ubuntu@168.107.48.160`
+- 앱 디렉토리: `~/delicious-bingo`
+- Docker Compose: app (Gunicorn) + nginx (SSL) + certbot
+
+---
+
 ## 디렉토리 구조
 
 ```
@@ -154,7 +163,12 @@ delicious_bingo/
 │
 ├── Dockerfile                     # Multi-stage build (Node + Python)
 ├── .dockerignore                  # Docker 빌드 제외 파일
-├── fly.toml                       # Fly.io 배포 설정
+├── docker-compose.yml             # Docker Compose (app + nginx + certbot)
+├── deploy.sh                      # 로컬 빌드 & Docker Hub push 스크립트
+├── nginx/                         # Nginx 설정 (SSL, reverse proxy)
+├── init-letsencrypt.sh            # Let's Encrypt 초기 인증서 발급
+├── certbot-renew.sh               # 인증서 자동 갱신 스크립트
+├── .env.example                   # 환경 변수 템플릿
 ├── PRD.md                         # 제품 요구사항
 ├── DEPLOY.md                      # 배포 가이드 + 환경변수
 ├── HISTORY.md                     # 개발 히스토리
@@ -227,7 +241,8 @@ cd frontend && npm run e2e:prod
    └── cd frontend && npm run e2e
 
 3. 커밋 & 배포
-   └── fly deploy → Fly.io 배포 (Frontend + Backend)
+   ├── 로컬: VITE_KAKAO_JS_KEY=<키> ./deploy.sh (빌드 & Docker Hub push)
+   └── 서버: docker compose pull && docker compose up -d
 
 4. E2E 프로덕션 테스트 (배포 후 1-2분 대기)
    └── cd frontend && npm run e2e:prod

@@ -16,11 +16,15 @@ openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
 
 echo "### Starting nginx with dummy certificate ..."
 docker compose up -d nginx
+sleep 3
 
-echo "### Removing dummy certificate ..."
-rm -rf certbot/conf/live/$DOMAIN
-rm -rf certbot/conf/archive/$DOMAIN
-rm -rf certbot/conf/renewal/$DOMAIN.conf
+echo "### Verifying nginx is serving port 80 ..."
+curl -sf http://localhost/.well-known/acme-challenge/ > /dev/null 2>&1 || true
+
+echo "### Deleting dummy certificate ..."
+sudo rm -rf certbot/conf/live/$DOMAIN
+sudo rm -rf certbot/conf/archive/$DOMAIN
+sudo rm -rf certbot/conf/renewal/$DOMAIN.conf
 
 echo "### Requesting real certificate from Let's Encrypt ..."
 STAGING_ARG=""
@@ -38,6 +42,6 @@ docker compose run --rm certbot certonly \
   -d "$DOMAIN"
 
 echo "### Reloading nginx with real certificate ..."
-docker compose exec nginx nginx -s reload
+docker compose exec nginx nginx -s reload || docker compose restart nginx
 
 echo "### Done! SSL certificate installed for $DOMAIN"

@@ -113,7 +113,7 @@ crontab -e
 
 ### 2.1 프로젝트 생성
 1. [Supabase](https://supabase.com) → 프로젝트 생성
-2. 리전: **Northeast Asia - Tokyo** (Fly.io nrt 리전과 동일)
+2. 리전: **Northeast Asia - Tokyo**
 3. Settings → Database → Connection string (URI) 복사
 
 ### 2.2 기존 데이터 마이그레이션
@@ -132,15 +132,15 @@ psql <SUPABASE_DATABASE_URL> < backup.sql
 ### 3.1 Cloudinary
 1. [Cloudinary](https://cloudinary.com) 가입
 2. Dashboard에서 Cloud Name, API Key, API Secret 확인
-3. Fly.io secrets에 `CLOUDINARY_URL` 설정
+3. `.env` 파일에 `CLOUDINARY_URL` 설정
 
 ### 3.2 카카오 개발자
 
 #### 애플리케이션 설정
 1. [카카오 개발자](https://developers.kakao.com) → 애플리케이션 생성
 2. 앱 키 확인:
-   - **REST API 키** → Fly.io `KAKAO_REST_API_KEY`
-   - **JavaScript 키** → `fly.toml` `VITE_KAKAO_JS_KEY` (build arg)
+   - **REST API 키** → `.env` `KAKAO_REST_API_KEY`
+   - **JavaScript 키** → `.env` `VITE_KAKAO_JS_KEY` (docker-compose build arg)
 
 #### 플랫폼 설정
 3. 플랫폼 → Web → 사이트 도메인 등록:
@@ -161,7 +161,7 @@ psql <SUPABASE_DATABASE_URL> < backup.sql
 
 6. 보안 설정:
    - **Client Secret**: 활성화
-   - 생성된 값을 Fly.io `KAKAO_CLIENT_SECRET`에 설정
+   - 생성된 값을 `.env` 파일에 `KAKAO_CLIENT_SECRET`으로 설정
 
 ---
 
@@ -257,7 +257,7 @@ docker compose up -d
 ## 8. 체크리스트
 
 ### OCI 인프라
-- [ ] OCI 계정 생성 (Seoul 리전)
+- [ ] OCI 계정 생성 (Chuncheon 리전)
 - [ ] VCN + Public Subnet 생성
 - [ ] Security List: 22/80/443 포트 개방
 - [ ] x86 VM 생성 (E2.1.Micro, 1GB RAM)
@@ -307,7 +307,7 @@ docker compose up -d
 - Docker 빌드 실패 → `docker compose logs app` 확인
 - Nginx 502 Bad Gateway → app 컨테이너 상태 확인 (`docker compose ps`)
 - SSL 인증서 오류 → `certbot/conf/` 디렉토리 확인, `init-letsencrypt.sh` 재실행
-- DB 연결 오류 → Supabase URI 확인 (pooler vs direct)
+- DB 연결 오류 → Supabase URI 확인 (pooler vs direct). OCI VM은 IPv6 미지원이므로 반드시 pooler URL (IPv4) 사용
 - 카카오 소셜 로그인 문제 → 도메인/Redirect URI 설정 확인
 - Cloudinary 이미지 업로드 실패
 - OCI 인스턴스 회수 → CPU 사용률 20% 이상 유지 필요
