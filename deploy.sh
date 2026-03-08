@@ -17,5 +17,7 @@ docker buildx build --platform linux/amd64 \
 
 echo "### Done! Image pushed to $DOCKER_IMAGE"
 echo ""
-echo "On OCI VM, run:"
-echo "  cd ~/delicious-bingo && docker compose pull && docker compose up -d"
+echo "### Deploying to OCI VM ..."
+ssh -i ~/.ssh/oci_key.key ubuntu@168.107.48.160 \
+  "cd ~/delicious-bingo && docker compose pull && docker compose up -d && docker restart delicious-bingo-nginx"
+echo "### Deployment complete!"
