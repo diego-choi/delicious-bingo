@@ -68,6 +68,7 @@ export function useCreateReview() {
         queryClient.invalidateQueries({ queryKey: ['board', String(data.bingo_board)] });
       }
       queryClient.invalidateQueries({ queryKey: ['boards'] });
+      queryClient.invalidateQueries({ queryKey: ['reviewFeed'] });
     },
   });
 }

@@ -184,11 +184,22 @@ describe('useBoards hooks', () => {
         await result.current.mutateAsync(new FormData());
       });
 
-      // Should only invalidate boards list, not specific board
-      expect(invalidateSpy).toHaveBeenCalledTimes(1);
+      // Should only invalidate boards list and reviewFeed, not specific board
+      expect(invalidateSpy).toHaveBeenCalledTimes(2);
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['boards'],
       });
+    });
+
+    it('invalidates reviewFeed query on success', async () => {
+      const mockResponse = { id: 1, bingo_board: 1, bingo_completed: false, goal_achieved: false };
+      reviewsApi.create.mockResolvedValue({ data: mockResponse });
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      const { result } = renderHook(() => useCreateReview(), { wrapper: createWrapper() });
+      await act(async () => { await result.current.mutateAsync(new FormData()); });
+
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['reviewFeed'] });
     });
   });
 });
